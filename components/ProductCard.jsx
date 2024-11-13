@@ -11,7 +11,9 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
-  
+
+
+
   const {
     id,
     name,
