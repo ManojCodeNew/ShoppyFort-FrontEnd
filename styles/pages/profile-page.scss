@@ -1,0 +1,57 @@
+@import '../variables';
+
+.profile-page {
+  padding: 48px 0;
+  min-height: calc(100vh - 64px);
+  background-color: $gray-light;
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .profile-card {
+    background: $white;
+    border-radius: 8px;
+    padding: 32px;
+    box-shadow: 0 2px 4px rgba($black, 0.1);
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: $black;
+    }
+  }
+
+  .profile-info {
+    .info-group {
+      margin-bottom: 20px;
+
+      label {
+        display: block;
+        font-size: 14px;
+        color: $gray-dark;
+        margin-bottom: 4px;
+      }
+
+      p {
+        font-size: 16px;
+        color: $black;
+        padding: 8px 0;
+        border-bottom: 1px solid $gray-light;
+      }
+    }
+  }
+
+  .profile-actions {
+    margin-top: 32px;
+    display: flex;
+    gap: 16px;
+
+    button {
+      flex: 1;
+    }
+  }
+}

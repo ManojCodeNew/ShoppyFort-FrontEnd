@@ -1,0 +1,117 @@
+@import '../../variables';
+
+.admin-dashboard {
+  padding: 32px;
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: $secondary-color;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid rgba($primary-color, 0.1);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: $primary-color;
+      border-radius: 2px;
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .stat-card {
+    background: $white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba($black, 0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 12px rgba($black, 0.1);
+
+      .stat-icon {
+        transform: scale(1.1);
+        background: $primary-color;
+        
+        svg {
+          color: $white;
+        }
+      }
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba($primary-color, 0.1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+
+      svg {
+        color: $primary-color;
+        transition: color 0.3s ease;
+      }
+    }
+
+    .stat-info {
+      flex: 1;
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: $secondary-color;
+        margin-bottom: 8px;
+      }
+
+      .stat-count {
+        font-size: 24px;
+        font-weight: 700;
+        color: $primary-color;
+      }
+    }
+  }
+
+  .loading-state {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: $gray-dark;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba($primary-color, 0.1);
+      border-top-color: $primary-color;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+}

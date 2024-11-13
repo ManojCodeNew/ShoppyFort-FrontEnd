@@ -1,0 +1,151 @@
+@import '../variables';
+
+.footer {
+  background: $secondary-color;
+  color: $white;
+  padding-top: 48px;
+  margin-top: auto;
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: grid;
+    gap: 32px;
+    
+    @include mobile-only {
+      grid-template-columns: 1fr;
+    }
+
+    @include tablet-only {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include desktop-only {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .footer-section {
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background: $primary-color;
+      }
+    }
+
+    p {
+      color: rgba($white, 0.8);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin-bottom: 12px;
+
+        a {
+          color: rgba($white, 0.8);
+          text-decoration: none;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+
+    .social-links {
+      display: flex;
+      gap: 16px;
+
+      a {
+        color: $white;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: $primary-color;
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+
+    .contact-info {
+      p {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+        color: rgba($white, 0.8);
+
+        .icon {
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    margin-top: 48px;
+    padding: 24px 0;
+    border-top: 1px solid rgba($white, 0.1);
+
+    .footer-bottom-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      @include mobile-only {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      p {
+        color: rgba($white, 0.8);
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 24px;
+
+        a {
+          color: rgba($white, 0.8);
+          text-decoration: none;
+          font-size: 14px;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}
