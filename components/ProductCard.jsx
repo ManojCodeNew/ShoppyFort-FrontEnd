@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
-// import { useCart } from '../contexts/CartContext';
-// import { useWishlist } from '../contexts/WishlistContext';
+import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import '../styles/components/product-card.scss';
 
 const ProductCard = ({ product }) => {
-  // const [showAddToBag, setShowAddToBag] = useState(false);
-  // const [imageError, setImageError] = useState(false);
-  // const navigate = useNavigate();
-  // const { addItem: addToCart } = useCart();
-  // const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
-
-
-
-  // Hai Sahana Mathew
-
+  const [showAddToBag, setShowAddToBag] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const navigate = useNavigate();
+  const { addItem: addToCart } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
 
 
