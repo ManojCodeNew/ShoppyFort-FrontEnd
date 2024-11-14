@@ -22,9 +22,6 @@
     overflow-x: scroll;
     white-space: nowrap;
     padding-bottom: 8px;
-    // scroll-snap-type: x mandatory;
-    // // padding: 8px;
-    // flex-wrap: nowrap;
 
     &::-webkit-scrollbar {
       display: none;  // Hide scrollbar for WebKit browsers

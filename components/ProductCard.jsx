@@ -34,6 +34,15 @@ const ProductCard = ({ product }) => {
     navigate(`/product/${id}`);
   };
 
+// Push code
+  // cd path/to/your/project
+  // git init
+  // git add .
+  // git commit -m "Initial commit"
+  // git remote add origin https://github.com/username/repo-name.git
+  // git push -u origin main
+  
+
   const handleAddToCart = (e) => {
     e.stopPropagation();
     addToCart({
@@ -47,6 +56,8 @@ const ProductCard = ({ product }) => {
   };
 
   const handleWishlistToggle = (e) => {
+    console.log("Namsthe",e);
+    
     e.stopPropagation();
     if (isInWishlist(id)) {
       removeFromWishlist(id);
