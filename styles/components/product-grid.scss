@@ -4,6 +4,7 @@
   scroll-snap-type: x mandatory;
   white-space: nowrap;
   padding: 0 20px;
+  width: 100%;
   &::-webkit-scrollbar {
     display: none;  // Hide scrollbar for WebKit browsers
   }
@@ -36,3 +37,15 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+.special-offers-container{
+  background: #cdfdf7;
+  padding: 2%;
+  // margin: 5%;
+  border-radius: 20px;
+  // box-shadow: 0px 0px 50px #cdfdf7 ;
+  }
+  .special-offers-heading{
+text-align: center;
+font-weight: bolder;
+font-size:xx-large;
+  }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
@@ -9,10 +9,19 @@ const LoginPage = () => {
   const { login, error, isLoading } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(()=>{
+    const user=localStorage.getItem('user');
+    if (user) {
+      navigate('/profile');
+    }
+  },[])
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
+    const userLoginResponse = await login(email, password);
+    console.log(userLoginResponse);
+    
+    if (userLoginResponse.success) {
+      localStorage.setItem('user',userLoginResponse.token);
       navigate('/profile');
     }
   };

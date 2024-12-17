@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
-import { products } from '../data/products';
+import { useProducts } from '@/contexts/ProductsContext.jsx';
+// import products from './Request/Get.jsx';
 import '../styles/components/search-bar.scss';
 
 const SearchBar = ({ onSearch }) => {
@@ -11,6 +12,7 @@ const SearchBar = ({ onSearch }) => {
   const searchRef = useRef(null);
   const navigate = useNavigate();
 
+  const { products } = useProducts();
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -29,18 +31,20 @@ const SearchBar = ({ onSearch }) => {
       return;
     }
 
-    const searchResults = products.filter(product => 
+    const searchResults = products.filter(product =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      product.category.toLowerCase().includes(searchQuery.toLowerCase())||
+      product.gender.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    console.log("SEARH RESULT", searchResults);
 
     setResults(searchResults);
     setIsOpen(true);
   };
 
-  const handleResultClick = (productId) => {
-    navigate(`/product/${productId}`);
+  const handleResultClick = (product) => {
+    navigate(`/product/${product._id}`);
     setQuery('');
     setIsOpen(false);
     if (onSearch) onSearch();
@@ -76,9 +80,9 @@ const SearchBar = ({ onSearch }) => {
         <div className="search-results">
           {results.map(product => (
             <div
-              key={product.id}
+              key={product._id}
               className="search-result-item"
-              onClick={() => handleResultClick(product.id)}
+              onClick={() => handleResultClick(product)}
             >
               <img src={product.image} alt={product.name} />
               <div className="result-info">

@@ -2,7 +2,7 @@
 
 .modal-overlay {
   position: fixed;
-  inset: 0;
+  inset: 1;
   background: rgba($black, 0.5);
   display: flex;
   justify-content: flex-end;
@@ -11,8 +11,9 @@
 
 .cart-modal {
   width: 100%;
-  max-width: 400px;
-  height: 100vh;
+  max-width: 650px;
+  height: 80vh;
+  border-radius: 10px;
   background: $white;
   display: flex;
   flex-direction: column;

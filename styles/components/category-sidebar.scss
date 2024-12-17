@@ -1,83 +1,19 @@
-@import '../variables';
+.category-sidebar{
+    // padding: 10px;
+}
+.filters-container{
+    margin-top: 20px;
 
-.category-sidebar {
-  padding: 20px;
-  background-color: $white;
-  border-right: 1px solid $gray-light;
-  height: 100%;
-
-  h2 {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: $primary-color;
-  }
-
-  h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: $gray-dark;
-  }
-
-  h4 {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 10px;
-    color: $gray-dark;
-  }
-
-  .category-list {
-    margin-bottom: 30px;
-
-    ul {
-      list-style: none;
-      padding: 0;
-
-      li {
-        margin-bottom: 10px;
-
-        a {
-          color: $gray-dark;
-          text-decoration: none;
-          transition: color 0.2s ease;
-
-          &:hover {
-            color: $primary-color;
-          }
-        }
-      }
+    h5{
+        margin-top: 18px;
     }
-  }
-
-  .filters {
-    .filter-section {
-      margin-bottom: 25px;
-
-      ul {
-        list-style: none;
-        padding: 0;
-
-        li {
-          margin-bottom: 10px;
-
-          label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            color: $gray-dark;
-
-            input[type="checkbox"] {
-              margin-right: 10px;
-              cursor: pointer;
-            }
-
-            &:hover {
-              color: $primary-color;
-            }
-          }
-        }
-      }
-    }
-  }
+}
+.color-show{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    border-radius: 50%; // Makes it circular
+    margin-right: 8px;
+    margin-left: 8px;
 }

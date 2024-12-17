@@ -1,6 +1,6 @@
+import sendPostRequestToBackend from '@/components/Request/Post';
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { login as apiLogin, register as apiRegister } from '../utils/api';
-
+import { jwtDecode } from 'jwt-decode';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -8,21 +8,30 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+
+  // It will check If user is present or not
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      setUser(jwtDecode(storedUser));
     }
     setLoading(false);
   }, []);
 
+  // Login actions
   const login = useCallback(async (email, password) => {
     try {
       setError(null);
-      const data = await apiLogin({ email, password });
-      setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
-      return true;
+      const response = await sendPostRequestToBackend('auth/login', { email, password });
+      if (response.msg) {
+        throw new Error(response.msg);
+      }
+      
+      // const user = await response.json();
+      setUser(jwtDecode(response.token));
+
+      return response;
     } catch (err) {
       setError(err.message);
       return false;
@@ -32,10 +41,16 @@ export function AuthProvider({ children }) {
   const register = useCallback(async (userData) => {
     try {
       setError(null);
-      const data = await apiRegister(userData);
-      setUser(data);
-      localStorage.setItem('user', JSON.stringify(data));
-      return true;
+      const response = await sendPostRequestToBackend("auth/register", userData);
+    if (response.msg) {
+      throw new Error(response.msg);
+    }
+    if (response.er) {
+      throw new Error("Failed to register");
+    }
+      setUser(userData);
+      
+      return response;
     } catch (err) {
       setError(err.message);
       return false;

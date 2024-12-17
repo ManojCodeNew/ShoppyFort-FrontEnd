@@ -43,37 +43,7 @@ const FeaturedCategories = () => {
           id: 'accessories',
           title: 'Accessories',
           image: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80',
-          link: '/accessories'
-        },
-        {
-          id: 'accessories1',
-          title: 'Accessories1',
-          image: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80',
-          link: '/accessories'
-        },
-        {
-          id: 'accessories2',
-          title: 'Accessories2',
-          image: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80',
-          link: '/accessories'
-        },
-        {
-          id: 'accessories3',
-          title: 'Accessories3',
-          image: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80',
-          link: '/accessories'
-        },
-        {
-          id: 'accessories3',
-          title: 'Accessories3',
-          image: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80',
-          link: '/accessories'
-        },
-        {
-          id: 'accessories3',
-          title: 'Accessories3',
-          image: 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80',
-          link: '/accessories'
+          link: 'unisex/Accessories'
         }
       ]);
     } finally {

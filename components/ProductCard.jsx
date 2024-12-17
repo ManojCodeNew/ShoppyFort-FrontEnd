@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Heart, Images, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import '../styles/components/product-card.scss';
+import heart from "../assets/Images/heart.png";
+import ActiveHeartBtn from "../assets/Images/active.png";
 
 const ProductCard = ({ product }) => {
   const [showAddToBag, setShowAddToBag] = useState(false);
@@ -15,7 +17,7 @@ const ProductCard = ({ product }) => {
 
 
   const {
-    id,
+    _id,
     name,
     brand,
     price,
@@ -31,17 +33,9 @@ const ProductCard = ({ product }) => {
     if (e.target.closest('.wishlist-button') || e.target.closest('.add-to-bag')) {
       return;
     }
-    navigate(`/product/${id}`);
+    navigate(`/product/${_id}`);
   };
 
-// Push code
-  // cd path/to/your/project
-  // git init
-  // git add .
-  // git commit -m "Initial commit"
-  // git remote add origin https://github.com/username/repo-name.git
-  // git push -u origin main
-  
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
@@ -56,14 +50,14 @@ const ProductCard = ({ product }) => {
   };
 
   const handleWishlistToggle = (e) => {
-    console.log("Namsthe",e);
-    
+
+
     e.stopPropagation();
-    if (isInWishlist(id)) {
-      removeFromWishlist(id);
+    if (isInWishlist(_id)) {
+      removeFromWishlist(_id);
     } else {
       addToWishlist({
-        id,
+        _id,
         name,
         brand,
         price,
@@ -79,32 +73,36 @@ const ProductCard = ({ product }) => {
   };
 
   const fallbackImage = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800';
-
   return (
-    <div 
+    <div
       className="product-card"
       onMouseEnter={() => setShowAddToBag(true)}
       onMouseLeave={() => setShowAddToBag(false)}
       onClick={handleProductClick}
     >
       <div className="product-image">
-        <img 
-          src={imageError ? fallbackImage : image} 
+        <img
+          src={imageError ? fallbackImage : image}
           alt={name}
           onError={handleImageError}
         />
         {discount > 0 && (
           <span className="discount-tag">{discount}% OFF</span>
         )}
-        <button 
-          className={`wishlist-button ${isInWishlist(id) ? 'active' : ''}`}
+        <button
+          className={`wishlist-button ${isInWishlist(_id) ? 'active' : ''}`}
           onClick={handleWishlistToggle}
         >
-          <Heart className="heart-icon" />
+          {/* <Heart className="heart-icon" /> */}
+
+          {isInWishlist(_id) ?
+            <img src={ActiveHeartBtn} alt="" className='heart-icon' /> :
+            <img src={heart} alt="" className='heart-icon' />
+          }
         </button>
-        
+
         {showAddToBag && (
-          <button 
+          <button
             className="add-to-bag"
             onClick={handleAddToCart}
           >

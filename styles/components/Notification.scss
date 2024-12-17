@@ -1,0 +1,63 @@
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    width: auto;
+    max-width: 300px;
+    font-size: 14px;
+    animation: slideIn 0.5s ease;
+  }
+  
+  .notification.success {
+    background-color: #4caf50; /* Green for success */
+  }
+  
+  .notification.error {
+    background-color: #f44336; /* Red for error */
+  }
+  
+  .notification-info {
+    background-color: #2196f3; /* Blue for info */
+  }
+  
+  .notification-content {
+    display: flex;
+    align-items: center;
+  }
+  
+  .notification-icon {
+    margin-right: 10px;
+    font-size: 20px;
+  }
+  
+  .notification-message {
+    flex: 1;
+  }
+  
+  .notification .close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  

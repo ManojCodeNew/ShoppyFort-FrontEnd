@@ -4,7 +4,15 @@
   position: relative;
   flex: 1;
   max-width: 500px;
-
+  justify-content: center;
+  align-items: center;
+  margin:10px auto;
+@include mobile-only{
+  display: none;
+}
+@include tablet-and-up{
+  max-width:400px;
+}
   .search-input-wrapper {
     position: relative;
     width: 100%;
@@ -124,8 +132,3 @@
   }
 }
 
-@include mobile-only {
-  .search-container {
-    display: none;
-  }
-}

@@ -1,0 +1,61 @@
+@import '../variables';
+
+.Price-details {
+  background: #ffffff;
+  width: 400px;
+  height: fit-content;
+  padding: 2%;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+  @include mobile-only {
+    margin-top: 10px;
+    padding: 5%;
+    width: 100%;
+  }
+  @include tablet-only {
+    width: 100%;
+  }
+  @include desktop-only {
+    margin-top: 0;
+  }
+}
+.platform-fee .td{
+color: #28a745;
+}
+.shipping-fee-free{
+    color: #28a745;
+
+}
+.Total-amt {
+  font-weight: bold;
+  font-size: 16px;
+  border-top: 1px solid #908e8e;
+}
+.free-shipping-for-you {
+  font-size: 12px;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.strikeout-amt {
+  font-size: smaller;
+  text-decoration: line-through;
+  color: black;
+}
+.price-details-body {
+  gap: 20px;
+
+  @include desktop-only {
+    flex-direction: column;
+    gap: 10%;
+  }
+}
+td {
+  padding-left: 10px;
+  padding: 10px;
+}
+.price-details-container {
+  width: 100%;
+  border-collapse: collapse;
+}

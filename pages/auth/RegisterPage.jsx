@@ -1,30 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
 
 const RegisterPage = () => {
+ 
   const [formData, setFormData] = useState({
-    fullName: '',
+    fullname: '',
     email: '',
-    phone: '',
+    phoneno: '',
     address: '',
     password: '',
-    confirmPassword: ''
+    confirmpassword: ''
   });
   const [errors, setErrors] = useState({});
   const { register, error, isLoading } = useAuth();
   const navigate = useNavigate();
-
+  // Checking if user is exist or not 
+  useEffect(()=>{
+    const user=localStorage.getItem('user');
+    if (user) {
+      navigate('/profile');
+    }
+  },[])
   const validateForm = () => {
     const newErrors = {};
     
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+    if (formData.password !== formData.confirmpassword) {
+      newErrors.confirmpassword = 'Passwords do not match';
     }
     
-    if (formData.phone.length !== 10) {
-      newErrors.phone = 'Phone number must be 10 digits';
+    if (formData.phoneno.length !== 10) {
+      newErrors.phoneno= 'Phone number must be 10 digits';
     }
 
     setErrors(newErrors);
@@ -32,10 +39,15 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("RegisterPage data",formData);
+    
     e.preventDefault();
     if (validateForm()) {
-      const success = await register(formData);
-      if (success) {
+      const userRegisterResponse = await register(formData);
+      console.log(userRegisterResponse);
+      
+      if (userRegisterResponse.success) {
+        localStorage.setItem('user',userRegisterResponse.token);
         navigate('/profile');
       }
     }
@@ -65,8 +77,8 @@ const RegisterPage = () => {
             <label>Full Name</label>
             <input
               type="text"
-              name="fullName"
-              value={formData.fullName}
+              name="fullname"
+              value={formData.fullname}
               onChange={handleChange}
               required
             />
@@ -87,13 +99,13 @@ const RegisterPage = () => {
             <label>Phone Number</label>
             <input
               type="tel"
-              name="phone"
-              value={formData.phone}
+              name="phoneno"
+              value={formData.phoneno}
               onChange={handleChange}
               required
               maxLength="10"
             />
-            {errors.phone && <span className="error">{errors.phone}</span>}
+            {errors.phoneno && <span className="error">{errors.phoneno}</span>}
           </div>
 
           <div className="form-group">
@@ -123,13 +135,13 @@ const RegisterPage = () => {
             <label>Confirm Password</label>
             <input
               type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
+              name="confirmpassword"
+              value={formData.confirmpassword}
               onChange={handleChange}
               required
             />
-            {errors.confirmPassword && (
-              <span className="error">{errors.confirmPassword}</span>
+            {errors.confirmpassword && (
+              <span className="error">{errors.confirmpassword}</span>
             )}
           </div>
 

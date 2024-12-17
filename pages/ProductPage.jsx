@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
-import { products } from '../data/products';
+import sendGetRequestToBackend from '../components/Request/Get.jsx';
 import '../styles/pages/product-page.scss';
 
 const ProductPage = () => {
@@ -16,19 +16,27 @@ const ProductPage = () => {
   const [productImage, setProductImage] = useState();
 
 
+
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
-    const productId = parseInt(id);
-    const foundProduct = products.find(p => p.id === productId);
+    const productId = id;
 
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setProductImage(foundProduct.image);
-    } else {
-      navigate('/'); // Redirect to home if product not found
+    const fetchProduct = async () => {
+
+      const foundProduct = await sendGetRequestToBackend('');
+
+      const filteredProduct = foundProduct.find(p => p._id === productId);
+
+      if (filteredProduct) {
+        setProduct(filteredProduct);
+        setProductImage(filteredProduct.image);
+      } else {
+        navigate('/');
+      }
     }
+    fetchProduct()
   }, [id, navigate]);
 
   if (!product) {
@@ -45,12 +53,20 @@ const ProductPage = () => {
       alert('Please select a size');
       return;
     }
+    if (!selectedColor) {
+      alert('Please select a color');
+      return;
+    }
+
+    const selections = {};
+
+    if (selectedColor) selections.color = selectedColor;
+    if (selectedSize) selections.size = selectedSize;
+
     addToCart({
       ...product,
-      size: selectedSize,
-      color: selectedColor,
       quantity: 1
-    });
+    }, selections);
   };
 
 
@@ -75,14 +91,14 @@ const ProductPage = () => {
 
             <div className="product-gallery">
               {product.images.map((image, index) => (
-                <img key={index} src={image} alt={`${product.name} - View ${index + 1}`} onClick={()=>setProductImage(image)}/>
+                <img key={index} src={image} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
               ))}
             </div>
           </div>
 
           <div className="product-info">
-            <h1 className="product-brand">{product.brand}</h1>
-            <h2 className="product-name">{product.name}</h2>
+            <h1 className="product-brand">{product.brand} </h1>
+            <h2 className="product-name">{product.name} </h2>
 
             <div className="product-price">
               <span className="current-price">₹{product.price}</span>

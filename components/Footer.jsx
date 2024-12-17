@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Mail } from 'lucide-react';
 import '../styles/components/footer.scss';
+import Sign from "../../dist/assets/sign.jpg";
 
 const Footer = () => {
   return (
@@ -71,7 +72,9 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
+<div className="signature-of-ragavendraswami">
+  <img src={Sign} alt="" className='sign'/>
+</div>
       <div className="footer-bottom">
         <div className="footer-bottom-content">
           <p>&copy; {new Date().getFullYear()} Fashion Store. All rights reserved.</p>

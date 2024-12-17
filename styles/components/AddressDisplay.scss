@@ -1,0 +1,200 @@
+@import '../variables.scss';
+
+// Base styles
+.addressDisplay-page {
+  font-family: Arial, sans-serif;
+  padding-top: 0;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  // place-items: center;
+  // justify-content: center;
+  // align-items: center;
+  gap: 20px;
+  padding: 10px;
+  width: 100%;
+
+  @include desktop-only {
+    width: 100%;
+    align-items: center;
+
+  }
+
+  @include tablet-only {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    // margin-left: 8%;
+  }
+
+  @include mobile-only {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    // margin-left: 8%;
+  }
+}
+
+.addressDisplayPage-container {
+  flex: 1;
+  font-size: 14px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: $border-radius;
+  background-color: $gray-light;
+  box-shadow: $box-shadow;
+  margin: 1px auto;
+
+  @include mobile-only {
+    padding: 10px;
+  }
+}
+
+h2 {
+  text-align: center;
+  margin: 0 0 20px 0;
+  font-size: 24px;
+}
+
+// Card styles
+.addressDisplay-card {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: $white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+  width: 80vw;
+  margin-bottom: 10px;
+  font-size: 14px;
+
+  @include mobile-only {
+    font-size: 15px;
+    max-width: 100%;
+  }
+
+  @include desktop-only {
+    font-size: 16px;
+    max-width: 400px;
+  }
+}
+
+.addressDisplay-card-left,
+.addressDisplay-card-right {
+  display: flex;
+  align-items: flex-start;
+  // flex-basis: 80%;
+}
+
+.addressDisplay-card-left input {
+  margin-right: 15px;
+  width: 25px;
+  height: 35px;
+}
+
+.addressDisplay-details {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+
+  p {
+    margin: 5px 0;
+  }
+}
+
+.home-tag {
+  background-color: $primary-color;
+  color: $white;
+  padding: 3px 8px;
+  border-radius: 5px;
+  margin-left: 5px;
+  font-size: 12px;
+}
+
+// Buttons
+button {
+  background-color: $primary-color;
+  color: $white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  margin: 5px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: $hover-color;
+  }
+}
+
+.removeAddress-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(2, 2, 2, 0.18);
+  }
+}
+
+.add-new-address {
+  display: block;
+  margin: 20px auto;
+  background-color: $primary-color;
+  padding: 12px 24px;
+  color: $white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+
+  &:hover {
+    background-color: $hover-color;
+  }
+
+  @include mobile-only {
+    font-size: 14px;
+  }
+}
+
+// Responsive styles
+@include mobile-only {
+  .addressDisplay-page {
+    width: 100%;
+  }
+
+  .addressDisplay-container {
+    padding: 10px;
+  }
+}
+
+@include tablet-only {
+  .addressDisplay-page {
+    width: 100%;
+  }
+
+  .addressDisplay-container {
+    padding: 15px;
+  }
+}
+
+@include desktop-only {
+  .addressDisplay-container {
+    padding: 20px;
+  }
+}

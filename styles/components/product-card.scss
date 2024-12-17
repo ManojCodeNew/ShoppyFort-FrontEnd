@@ -6,15 +6,22 @@
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  height: 100%;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   width: 250px;
   position: relative;
-  box-shadow: 0 4px 6px -1px rgba($black, 0.1), 0 2px 4px -1px rgba($black, 0.06);
+  margin: 10px;
+  padding: 10px;
+  display: inline-block;
+  // animation: autoProductScroll 5s linear infinite;
+
+  box-shadow: 0 4px 6px -1px rgba($black, 0.1),
+    0 2px 4px -1px rgba($black, 0.06);
   &:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 25px -5px rgba($black, 0.1), 0 10px 10px -5px rgba($black, 0.04);
+    box-shadow: 0 20px 25px -5px rgba($black, 0.1),
+      0 10px 10px -5px rgba($black, 0.04);
 
     .product-image::after {
       opacity: 1;
@@ -29,6 +36,7 @@
       opacity: 1;
       transform: translateY(0);
     }
+   
   }
 
   .product-image {
@@ -36,7 +44,11 @@
     width: 100%;
     padding-top: 125%;
     overflow: hidden;
-    background: linear-gradient(45deg, rgba($primary-color, 0.05), rgba($primary-color, 0.1));
+    background: linear-gradient(
+      45deg,
+      rgba($primary-color, 0.05),
+      rgba($primary-color, 0.1)
+    );
 
     &::after {
       content: '';
@@ -62,68 +74,67 @@
     position: absolute;
     top: 10px;
     left: 5px;
-    background: linear-gradient(135deg, $primary-color, darken($primary-color, 15%));
+    background: linear-gradient(
+      135deg,
+      $primary-color,
+      darken($primary-color, 15%)
+    );
     color: $white;
     padding: 8px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     z-index: 2;
     box-shadow: 0 4px 6px rgba($primary-color, 0.2);
   }
-
   .wishlist-button {
     position: absolute;
     top: 16px;
-    right: 16px;
-    background: $white;
+    right: 46px;
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
     z-index: 2;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px rgba($black, 0.1);
-
+    background: none; // Ensures no background
+    padding: 0; // Removes padding
+    transition: all 0.3s ease;
+  
     .heart-icon {
-      width: 20px;
-      height: 20px;
-      color: $gray-dark;
+      width: 25px;
+      height: 25px;
+      stroke: $gray-dark; 
+      fill: transparent;
       transition: all 0.3s ease;
     }
-
+  
+    // Active State: Heart icon with slight scaling
     &.active {
-      background: rgba($primary-color, 0.1);
-      
       .heart-icon {
-        color: $primary-color;
-        fill: $primary-color;
-        transform: scale(1.1);
+        display: block;
+        fill: #22c55e; // Green fill
+        stroke: #22c55e; // Matches the fill
+        transform: scale(1.1); // Slight scaling effect
       }
     }
-
+  
     &:hover {
-      transform: translateY(0) scale(1.1);
-      box-shadow: 0 6px 8px rgba($black, 0.15);
-
       .heart-icon {
-        color: $primary-color;
+        stroke: $primary-color; // Heart outline changes on hover
       }
     }
   }
+  
+  
 
   .add-to-bag {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, $primary-color, darken($primary-color, 15%));
+    background: linear-gradient(
+      135deg,
+      $primary-color,
+      darken($primary-color, 15%)
+    );
     color: $white;
     border: none;
     padding: 16px;
@@ -140,7 +151,11 @@
     z-index: 2;
 
     &:hover {
-      background: linear-gradient(135deg, darken($primary-color, 5%), darken($primary-color, 20%));
+      background: linear-gradient(
+        135deg,
+        darken($primary-color, 5%),
+        darken($primary-color, 20%)
+      );
     }
 
     svg {
@@ -185,7 +200,7 @@
   .current-price {
     font-size: 18px;
     font-weight: 700;
-    color: $primary-color;
+    color: black;
     letter-spacing: 0.5px;
   }
 
@@ -200,5 +215,93 @@
     font-size: 14px;
     color: #22c55e;
     font-weight: 600;
+  }
+  // Responsive Design
+
+  // Mobile (small screens)
+  @include mobile-only {
+    // width: 100px;
+    .product-info {
+      padding: 10px;
+    }
+    .product-card {
+      width: 100px;
+    }
+    .brand {
+      font-size: 12px;
+    }
+    .name {
+      font-size: 10px;
+    }
+    .price-info {
+      gap: 8px;
+    }
+    .current-price {
+      font-size: 16px;
+    }
+    .original-price {
+      font-size: 12px;
+    }
+    .discount {
+      font-size: 12px;
+    }
+  }
+
+  // Tablet (medium screens)
+  @include tablet-only {
+    width: 220px;
+    .product-info {
+      padding: 14px;
+    }
+    .brand {
+      font-size: 15px;
+    }
+    .name {
+      font-size: 13px;
+    }
+    .price-info {
+      gap: 10px;
+    }
+    .current-price {
+      font-size: 17px;
+    }
+    .original-price {
+      font-size: 13px;
+    }
+    .discount {
+      font-size: 12px;
+    }
+  }
+
+  // Desktop (large screens)
+  @include desktop-only {
+    width: 220px;
+    .product-info {
+      padding: 16px;
+    }
+    .brand {
+      font-size: 16px;
+    }
+    .name {
+      font-size: 14px;
+    }
+    .price-info {
+      gap: 12px;
+    }
+    .current-price {
+      font-size: 18px;
+    }
+    .original-price {
+      font-size: 14px;
+    }
+    .discount {
+      font-size: 14px;
+    }
+  }
+}
+@include mobile-only {
+  .product-card {
+    width: 200px;
+    // height: 350px;
   }
 }

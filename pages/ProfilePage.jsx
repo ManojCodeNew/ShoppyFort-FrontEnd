@@ -5,6 +5,9 @@ import '../styles/pages/profile-page.scss';
 
 const ProfilePage = () => {
   const { user } = useAuth();
+// console.log(user);
+
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,16 +28,16 @@ const ProfilePage = () => {
           <div className="profile-info">
             <div className="info-group">
               <label>Full Name</label>
-              <p>{user.name}</p>
+              <p>{user.fullname}</p>
             </div>
             <div className="info-group">
               <label>Email</label>
               <p>{user.email}</p>
             </div>
-            {user.phone && (
+            {user.phoneno && (
               <div className="info-group">
                 <label>Phone</label>
-                <p>{user.phone}</p>
+                <p>{user.phoneno}</p>
               </div>
             )}
             {user.address && (

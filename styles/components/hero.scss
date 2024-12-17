@@ -65,15 +65,14 @@
       display: inline-block;
       background: $primary-color;
       color: $white;
-      padding: 12px 24px;
       border-radius: 4px;
       font-weight: 600;
       text-decoration: none;
       transition: background-color 0.3s ease;
-      font-size: 14px;
+      font-size: 12px;
 
       @include tablet-and-up {
-        padding: 16px 32px;
+        padding: 13px;
         font-size: 16px;
       }
 

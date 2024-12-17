@@ -23,6 +23,10 @@
     white-space: nowrap;
     padding-bottom: 8px;
 
+   @include mobile-only{
+    justify-content: center;
+   }
+  
     &::-webkit-scrollbar {
       display: none;  // Hide scrollbar for WebKit browsers
     }
@@ -33,6 +37,7 @@
       color: inherit;
       // scroll-snap-align: center;
       padding: 8px;
+      animation: autoScroll 5s linear infinite;
 
       &:hover {
         .category-image img {
@@ -76,7 +81,22 @@
     }
   }
 }
-
+.categories-grid:hover{
+  animation-play-state: paused;
+}
+@keyframes autoScroll {
+  0%{
+    transform: translateX(0);
+  }
+  100%{
+    transform: translateX(calc(-250px * 0.5));
+  }
+}
+.categories-grid::before{
+  left: 0;
+  top: 0;
+  box-shadow: 0px 0px 10px rgb(0, 0, 0);
+}
 .categories-loading {
   padding: 48px 0;
   display: flex;
