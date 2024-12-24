@@ -37,16 +37,19 @@ const ProductCard = ({ product }) => {
   };
 
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation();
-    addToCart({
-      id,
-      name,
-      brand,
-      price,
-      image,
-      quantity: 1
-    });
+  const handleAddToCart = () => {
+    navigate(`/product/${_id}`);
+
+    // // alert("I clicked");
+    // e.stopPropagation();
+    // addToCart({
+    //   id,
+    //   name,
+    //   brand,
+    //   price,
+    //   image,
+    //   quantity: 1
+    // });
   };
 
   const handleWishlistToggle = (e) => {

@@ -1,26 +1,44 @@
 
+import sendGetRequestToBackend from '@/components/Request/Get';
 import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 // Create CartContext
 const OrderDetailsContext = createContext();
 
 // CartProvider component to provide context
 export const OrderDetailsProvider = ({ children }) => {
-    const [orderDetails,setOrderDetails]=useState({
-        orderid:'',
-        userid:'',
-        shippingaddress:'',
-        items:[],
-        totalprice:0,
-        CashOnDelivery:false
-
+    const [orderDetails, setOrderDetails] = useState({
+        orderid: '',
+        userid: '',
+        shippingaddress: '',
+        items: [],
+        totalprice: 0,
+        CashOnDelivery: false,
     })
-console.log("ORDE DATA",orderDetails);
+    const [allOrder,setAllOrder]=useState([]);
 
-    const value={
+    const token = localStorage.getItem('user');
+    const user = token ? jwtDecode(token) : null;
+
+    const fetchOrders = async () => {
+        const response = await sendGetRequestToBackend(`order/${user.id}`);
+        if (response.success) {
+            setAllOrder(response.orders);
+        }
+    };
+    useEffect(() => {
+        if (user) {
+            fetchOrders();
+        }
+    }, [user])
+
+    const value = {
         orderDetails,
-        setOrderDetails
+        setOrderDetails,
+        allOrder,
+        user
     }
-  
+
     return (
         <OrderDetailsContext.Provider value={value}>
             {children}
@@ -29,6 +47,6 @@ console.log("ORDE DATA",orderDetails);
 };
 
 // Custom hook to use cart context
-export const useOrderDetails= () => {
+export const useOrderDetails = () => {
     return useContext(OrderDetailsContext);
 };

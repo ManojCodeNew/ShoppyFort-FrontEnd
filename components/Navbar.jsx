@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Heart, User, Menu } from 'lucide-react';
+import {  Menu } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
@@ -9,13 +9,18 @@ import MobileSidebar from './MobileSidebar';
 import SearchBar from './SearchBar';
 import '../styles/components/navbar.scss';
 import logo from '../../dist/assets/logo.png';
+import heart from '../assets/Images/heart.png';
+import ShoppingBag from '../assets/Images/bag.png';
+import User from '../assets/Images/user.png';
+
+
 // Hello
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { totalItems: cartItems } = useCart();
   // console.log(totalItems);
-  
+
   const { totalItems: wishlistItems } = useWishlist();
   const [isHovered, setisHovered] = useState(false);
   const { logout, user } = useAuth();
@@ -41,7 +46,9 @@ const Navbar = () => {
             <div className="nav-action-profile"
               onMouseEnter={() => setisHovered(true)}
               onMouseLeave={() => setisHovered(false)} >
-              <User />
+
+              <img src={User} alt="User"  className='user-icon'/>
+              
               <span className='profile-title'>Profile</span>
               {isHovered && (
                 <div className="popup-profile"
@@ -62,21 +69,22 @@ const Navbar = () => {
                   }
                   <hr className='underline' />
                   {
-                    user?
-                  <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
-                    :
-                  <Link to='/login' className='user-order-link'><p className='user-order'>Orders</p></Link>
+                    user ?
+                      <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
+                      :
+                      <Link to='/login' className='user-order-link'><p className='user-order'>Orders</p></Link>
 
                   }
-                  {user&&(
-                  <p className='user-logout' onClick={() => logout()}>logout</p>
+                  {user && (
+                    <p className='user-logout' onClick={() => logout()}>logout</p>
                   )}
                 </div>
               )}
 
             </div>
             <Link to="/wishlist" className="nav-action">
-              <Heart />
+              <img src={heart} alt="" className='heart-icon' />
+
               <span>Wishlist</span>
               {wishlistItems > 0 && (
                 <span className="badge">{wishlistItems}</span>
@@ -87,13 +95,13 @@ const Navbar = () => {
               onClick={() => setIsCartOpen(false)}
             >
               <Link to="/cart" className="nav-action">
-              
-              <ShoppingBag />
-              <span>Cart</span>
-              {cartItems > 0 && (
-                <span className="badge">{cartItems}</span>
-              )}
-            </Link>
+
+                <img src={ShoppingBag} alt="ShoppingBag" className='ShoppingBag-icon'/>
+                <span>Cart</span>
+                {cartItems > 0 && (
+                  <span className="badge">{cartItems}</span>
+                )}
+              </Link>
 
             </button>
           </div>

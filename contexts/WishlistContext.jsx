@@ -35,9 +35,7 @@ export function WishlistProvider({ children }) {
   useEffect(() => {
     if (user) {
       fetchUserWishlist();
-    } else {
-      navigate("/login");
-    }
+    } 
   }, [user, fetchUserWishlist])
 
   const addItem = useCallback(async (item) => {

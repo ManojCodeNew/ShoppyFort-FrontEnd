@@ -19,7 +19,7 @@ import Address from './components/checkout/Address';
 import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 import CartPage from './pages/CartPage';
 import OrderPlaced from './pages/OrdePlaced';
-
+import OrderDetails from './pages/OrderDetails';
 const App = () => {
   return (
     <div className="app">
@@ -48,7 +48,7 @@ const App = () => {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/orders" element={<WishlistPage />} />
+                <Route path="/orders" element={<OrderDetails />} />
 
                 <Route path="/wishlist" element={<WishlistPage />} />
                 <Route path="/cart" element={<CartPage />} />

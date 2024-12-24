@@ -36,8 +36,11 @@
       opacity: 1;
       transform: translateY(0);
     }
-   
   }
+  // @include mobile-only {
+  //   grid-template-columns: repeat(1, 1fr);
+  //   gap: 8px;
+  // }
 
   .product-image {
     position: relative;
@@ -97,15 +100,15 @@
     background: none; // Ensures no background
     padding: 0; // Removes padding
     transition: all 0.3s ease;
-  
+
     .heart-icon {
       width: 25px;
       height: 25px;
-      stroke: $gray-dark; 
+      stroke: $gray-dark;
       fill: transparent;
       transition: all 0.3s ease;
     }
-  
+
     // Active State: Heart icon with slight scaling
     &.active {
       .heart-icon {
@@ -115,15 +118,13 @@
         transform: scale(1.1); // Slight scaling effect
       }
     }
-  
+
     &:hover {
       .heart-icon {
         stroke: $primary-color; // Heart outline changes on hover
       }
     }
   }
-  
-  
 
   .add-to-bag {
     position: absolute;

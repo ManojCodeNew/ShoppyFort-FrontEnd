@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingBag } from 'lucide-react';
+// import {  ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import sendGetRequestToBackend from '../components/Request/Get.jsx';
 import '../styles/pages/product-page.scss';
-
+import heart from '../assets/Images/heartgreen.png';
+import ActiveHeartBtn from '../assets/Images/active.png';
+import ShoppingBag  from '../assets/Images/bagwhite.png';
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -72,8 +74,8 @@ const ProductPage = () => {
 
 
   const handleWishlistToggle = () => {
-    if (isInWishlist(product.id)) {
-      removeFromWishlist(product.id);
+    if (isInWishlist(product._id)) {
+      removeFromWishlist(product._id);
     } else {
       addToWishlist(product);
     }
@@ -143,15 +145,21 @@ const ProductPage = () => {
                 className="add-to-bag btn-primary"
                 onClick={handleAddToCart}
               >
-                <ShoppingBag />
+                <img src={ShoppingBag} alt="shopping bag"  className='shoppingbag-icon'/>
+                {/* <ShoppingBag /> */}
                 Add to Bag
               </button>
               <button
-                className={`btn-secondary wishlist ${isInWishlist(product.id) ? 'active' : ''}`}
+                className={`btn-secondary wishlist${isInWishlist(product._id) ? 'active' : ''}`}
                 onClick={handleWishlistToggle}
               >
-                <Heart />
-                {isInWishlist(product.id) ? 'Wishlisted' : 'Wishlist'}
+                {
+                  isInWishlist(product._id) ?
+                    <img src={ActiveHeartBtn} alt="" className='heart-icon' />
+                    :
+                    <img src={heart} alt="" className='heart-icon' />
+                }
+                {isInWishlist(product._id) ? 'Wishlisted' : 'Wishlist'}
               </button>
             </div>
 

@@ -13,21 +13,21 @@ const root = createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-                <BrowserRouter>
+    <BrowserRouter>
 
-    <AuthProvider>
-      <ProductProvider>
-        <AddressProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <OrderDetailsProvider>
+      <AuthProvider>
+        <ProductProvider>
+          <AddressProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <OrderDetailsProvider>
                   <App />
-              </OrderDetailsProvider>
-            </WishlistProvider>
-          </CartProvider>
-        </AddressProvider>
-      </ProductProvider>
-    </AuthProvider>
+                </OrderDetailsProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AddressProvider>
+        </ProductProvider>
+      </AuthProvider>
     </BrowserRouter>
 
   </React.StrictMode>

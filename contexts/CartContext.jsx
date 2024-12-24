@@ -18,11 +18,8 @@ export const CartProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             fetchCartItems();
-        }else{
-            navigate("/login")
-            
         }
-    }, [user,navigate]);
+    }, [user]);
     // Fetch cart items from the server
     const fetchCartItems = useCallback(async () => {
         if (!user) return;
@@ -52,8 +49,6 @@ export const CartProvider = ({ children }) => {
             console.error("Error fetching cart items:", error);
         }
     }, [user, products]);
-
-   
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {

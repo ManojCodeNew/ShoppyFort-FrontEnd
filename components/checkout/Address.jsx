@@ -24,7 +24,7 @@ export default function Address() {
     defaultaddress: false
   });
   const { orderDetails, setOrderDetails } = useOrderDetails();
-const navigate=useNavigate();
+  const navigate = useNavigate();
   const [showAddressForm, setShowAddressForm] = useState(true);
   const { selectedAddressPresence } = useAddress();
 
@@ -127,14 +127,14 @@ const navigate=useNavigate();
       setOrderDetails((prevData) => ({
         ...prevData,
         CashOnDelivery: CODSelections,
-        status:"pending"
       })
 
       );
       const response = await sendPostRequestToBackend('order/addOrder', orderDetails);
       if (response.success) {
+        
         navigate('/successToOrder');
-      }else{
+      } else {
         alert("Error in placing order ");
       }
     } else {

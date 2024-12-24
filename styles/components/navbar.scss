@@ -178,6 +178,14 @@
     &:hover {
       color: #06987b;
     }
+    .user-icon{
+      width: 25px;
+    }
+    @include mobile-and-tablet{
+      .user-icon{
+        width: 20px;
+      }
+    }
   }
   @include mobile-only {
     .profile-title {
@@ -257,6 +265,24 @@
         //   display: none;
         // }
       }
+      .heart-icon{
+        width: 25px;
+      }
+      .ShoppingBag-icon{
+        width: 25px;
+      }
+      @include mobile-and-tablet{
+        .ShoppingBag-icon{
+          width: 20px;
+        }
+        .heart-icon{
+          width: 20px;
+        }
+        .user-icon{
+          width: 2px;
+        }
+      }
+
     }
   }
 }

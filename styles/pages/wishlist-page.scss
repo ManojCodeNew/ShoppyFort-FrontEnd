@@ -20,7 +20,7 @@
   .wishlist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
-    gap: 24px;
+    gap: 34px;
     @include mobile-only{
       margin-left: -25px;
       grid-template-columns: 200px 200px;
@@ -28,7 +28,7 @@
       padding: 0 5px;
     }
     @include tablet-only{
-      gap: 0;
+      gap: 24px;
     }
   }
 }
