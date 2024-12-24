@@ -1,0 +1,26 @@
+.category-wise-product-shows-container{
+    background: #1ef45083;
+    height: fit-content;
+    // width: 95%;
+    margin: 1px auto;
+
+}
+.product-show-body{
+    // background: #1ef45047;
+    width: 95%;
+    margin: 1px auto;
+}
+.sub-category-container{
+    background: #dcdbdb3f;
+    height: fit-content;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    // justify-content: space-between;
+    overflow-y: auto;
+}
+.sub-category{
+    height: 50px;
+    padding: 10px;
+    border: 1px solid white;
+}

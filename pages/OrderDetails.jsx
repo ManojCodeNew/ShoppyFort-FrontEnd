@@ -97,11 +97,6 @@ function OrderDetails() {
                                     <p>No orders found.</p>
                                 )}
                             </div>
-                            <div className="card-footer">
-                                <h5>
-                                    Total Paid: <span className="total-price">₹1040</span>
-                                </h5>
-                            </div>
                         </div>
                     </div>
                 </div>
