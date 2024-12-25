@@ -33,22 +33,9 @@ const Hero = () => {
       setBanners([{
         id: 'default',
         title: 'Start of Season Sale',
-        subtitle: '70% OFF on all premium brands',
+        subtitle: '50% OFF on all premium brands',
         image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80',
-        link: '/products'
-      },{
-        id: 'default',
-        title: 'Middle of Season Sale',
-        subtitle: '70% OFF on all premium brands',
-        image: 'https://media.istockphoto.com/id/1474764768/photo/smart-warehouse-inventory-management-system-concept.jpg?s=612x612&w=0&k=20&c=S3FqWmAMhvGQkeQH7J5RRDkxBeY-gIHjnEmCp181ubo=',
-        link: '/products'
-      },
-      {
-        id: 'default',
-        title: 'End of Season Sale',
-        subtitle: '70% OFF on all premium brands',
-        image: 'https://media.istockphoto.com/id/1362549295/photo/food-market-in-smartphone-grocery-food-buying-online-and-delivery-app-concept.jpg?s=612x612&w=0&k=20&c=jBv0gxE4g_HTCfFgIMdMDEfSuiwqF_UWnQZlB2J8xeI=',
-        link: '/products'
+        link: '/offers'
       }]);
     } finally {
       setIsLoading(false);

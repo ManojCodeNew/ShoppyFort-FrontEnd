@@ -2,15 +2,15 @@
 .product-card {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
+  background-color: #edeeee;
+  border: 7px solid #caf2e3c1;
   border-radius: 8px;
   overflow: hidden;
   transition: box-shadow 0.3s ease-in-out;
   cursor: pointer;
   max-width: 200px;
   max-height: fit-content;
-
+// padding: 10px;
   &:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   }

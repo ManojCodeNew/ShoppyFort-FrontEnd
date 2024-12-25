@@ -1,5 +1,5 @@
 @import '../main.scss';
-
+@import '../variables';
 .home {
   .trending-section {
     padding: 48px 0;
@@ -8,6 +8,12 @@
       font-size: 24px;
       font-weight: 600;
       margin-bottom: 24px;
+    }
+  }
+  .home-search-bar-container {
+    margin: 10px;
+    @include mobile-only {
+      display: none;
     }
   }
 }

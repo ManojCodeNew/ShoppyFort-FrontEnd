@@ -16,7 +16,7 @@ function OrderDetails() {
 
     return (
         <section className="gradient-custom">
-            <div className="container">
+            <div className="orderDisplay-container">
                 <div className="center-content row">
                     <div className="col-10">
                         <div className="card">
@@ -34,11 +34,8 @@ function OrderDetails() {
                                     allOrder.map((order, orderIndex) => {
                                         const progressBarWidth = getProgressBarWidth(order.status || orderStatus);
                                         return (
-                                            <div className="product-card" key={orderIndex}>
+                                            <div className="orderDisplay-product-card" key={orderIndex}>
                                                 {order.items.map((product, productIndex) => {
-                                                    console.log("data",product);
-                                                    
-                                                    // overAllPrice += product.price * product.quantity;
                                                     return (
 
                                                         <div className="product-row" key={productIndex}>
@@ -90,6 +87,9 @@ function OrderDetails() {
                                                         </li>
                                                     </ul>
                                                 </div>
+                                                {/* <div className="btn-container">
+                                                <button class="btn ripple">Cancel</button>
+                                                </div> */}
                                             </div>
                                         );
                                     })

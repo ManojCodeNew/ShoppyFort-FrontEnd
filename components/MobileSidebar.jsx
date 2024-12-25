@@ -48,8 +48,9 @@ const {products}=useProducts();
         <div className="sidebar-content">
           {Object.values(groupedCategories).map((category) => (
             <div key={category.path} className="category-section">
+              
               <Link 
-                to={category.path} 
+                to={`category${category.path}`}  
                 className="category-title"
                 onClick={onClose}
               >
@@ -58,9 +59,10 @@ const {products}=useProducts();
               </Link>
               <div className="subcategories">
                 {category.subcategories.map((sub) => (
+                  
                   <Link 
-                    key={sub.path} 
-                    to={sub.path}
+                    key={sub.path}
+                    to={`category${sub.path}`}
                     className="subcategory"
                     onClick={onClose}
                   >

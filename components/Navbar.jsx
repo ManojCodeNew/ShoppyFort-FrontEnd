@@ -35,11 +35,14 @@ const Navbar = () => {
             <Menu />
           </button>
 
-          <div className="nav-left">
+          <div className="nav-left" >
             <Link to="/" className="logo">
               <img src={logo} alt="" />
             </Link>
+            <div className="search-bar-container">
+
             <SearchBar />
+            </div>
           </div>
 
           <div className="nav-actions">

@@ -89,7 +89,7 @@ const ProductPage = () => {
         <div className="product-layout">
 
           <div className="product-image">
-            <img src={productImage} alt="Product Image" />
+            <img src={productImage} alt="Product Image" className='product-image-img' />
 
             <div className="product-gallery">
               {product.images.map((image, index) => (

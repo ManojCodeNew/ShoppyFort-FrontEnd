@@ -26,6 +26,11 @@ const Layout = () => {
       title: 'Attributes',
       icon: <Tags />,
       path: '/admin/attributes'
+    },
+    {
+      title: 'Orders',
+      icon: <Tags />,
+      path: '/admin/orders'
     }
   ];
 

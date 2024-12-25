@@ -7,8 +7,7 @@ const OrderPlaced = () => {
   const navigate = useNavigate();
   const { orderDetails } = useOrderDetails();
 
-  const order = orderDetails; // Replace `sampleOrder` with actual data.
-  // console.log(order);
+  const order = orderDetails; 
 
   return (
     <div className="order-success-container">

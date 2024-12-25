@@ -6,7 +6,7 @@ body {
   background: linear-gradient(to bottom, #ffffff, #f7f7f7);
 }
 
-.container {
+.orderDisplay-container {
   max-width: 960px;
   margin: auto;
   padding: 20px;
@@ -15,7 +15,6 @@ body {
     padding: 10px;
   }
 }
-
 .row.center-content {
   display: flex;
   justify-content: center;
@@ -43,7 +42,7 @@ body {
 }
 
 .card-header {
-  background: #f5f5f5;
+  background: $hover-color;
   padding: 20px;
   border-bottom: 1px solid #ddd;
 
@@ -62,10 +61,11 @@ body {
 }
 
 .highlight {
-  color: #28a745;
+  color: #04495a;
 }
 
 .card-body {
+  width: 100%;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -87,13 +87,12 @@ body {
   }
 }
 
-.product-card {
+.orderDisplay-product-card {
   margin-bottom: 20px;
   padding: 10px;
-  border-radius: 5px;
-  width: 100%;
-  background: #ababab2c;
-  // background: #000;
+  border-radius: 10px;
+  // border: 1px solid gray;
+  background:#e1f8e6 ;
 
   @include mobile-only {
     display: row;
@@ -109,7 +108,7 @@ body {
   align-items: flex-start;
 
   @include mobile-only {
-    flex-direction: column;
+    // flex-direction: row;
     gap: 10px;
   }
 }
@@ -118,6 +117,7 @@ body {
   flex-shrink: 0;
   max-width: 15%;
   @include mobile-only {
+
     max-width: 45%;
   }
 }
@@ -126,6 +126,7 @@ body {
   width: 100%;
   height: 120px;
   border-radius: 5px;
+  object-fit: cover;
 
   @include mobile-only {
     width: 80%;
@@ -208,3 +209,62 @@ body {
     font-size: 1.2rem;
   }
 }
+
+// /* Button base styling */
+// .btn {
+//   position: relative;
+//   padding: 0.8rem 1.5rem;
+//   font-size: 1rem;
+//   color: #000;
+//   background-color: #f8f9fa;
+//   border: none;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   overflow: hidden;
+//   transition: background-color 0.3s ease;
+// }
+
+// /* Hover effect */
+// .btn:hover {
+//   background-color: $hover-color;
+// }
+
+// /* Ripple effect */
+// .ripple {
+//   position: relative;
+//   overflow: hidden;
+// }
+
+// .ripple::after {
+//   content: "";
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   width: 0;
+//   height: 0;
+//   background: rgba(0, 0, 0, 0.3);
+//   border-radius: 50%;
+//   transform: translate(-50%, -50%);
+//   transition: width 0.6s, height 0.6s, opacity 0.6s;
+// }
+
+// .ripple:active::after {
+//   width: 200px;
+//   height: 200px;
+//   opacity: 0;
+// }
+
+// /* Responsive adjustments */
+// @media (max-width: 768px) {
+//   .btn {
+//     padding: 0.6rem 1rem;
+//     font-size: 0.9rem;
+//   }
+// }
+
+// @media (max-width: 480px) {
+//   .btn {
+//     padding: 0.5rem 0.8rem;
+//     font-size: 0.8rem;
+//   }
+// }

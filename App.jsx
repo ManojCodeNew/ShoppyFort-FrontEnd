@@ -20,6 +20,7 @@ import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
 import CartPage from './pages/CartPage';
 import OrderPlaced from './pages/OrdePlaced';
 import OrderDetails from './pages/OrderDetails';
+import Offers from './components/Offers.jsx';
 const App = () => {
   return (
     <div className="app">
@@ -53,13 +54,15 @@ const App = () => {
                 <Route path="/wishlist" element={<WishlistPage />} />
                 <Route path="/cart" element={<CartPage />} />
 
-                <Route path="/:gender" element={<CategoryPage />} />
-                <Route path="/:gender/:category" element={<CategoryPage />} />
+                <Route path="category/:gender" element={<CategoryPage />} />
+                <Route path="category/:gender/:category" element={<CategoryPage />} />
 
-                <Route path="/:gender/:category/:subcategory" element={<CategoryPage />} />
+                <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
                 <Route path="/product/:id" element={<ProductPage />} />
                 <Route path='/checkout/Address' element={<Address />} />
                 <Route path='/successToOrder' element={<OrderPlaced />} />
+                <Route path='/offers' element={<Offers />} />
+
               </Routes>
             </main>
             <Footer />
