@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Images, ShoppingBag } from 'lucide-react';
+// import { Heart, Images, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import '../styles/components/product-card.scss';
@@ -37,20 +37,20 @@ const ProductCard = ({ product }) => {
   };
 
 
-  const handleAddToCart = () => {
-    navigate(`/product/${_id}`);
+  // const handleAddToCart = () => {
+  //   navigate(`/product/${_id}`);
 
-    // // alert("I clicked");
-    // e.stopPropagation();
-    // addToCart({
-    //   id,
-    //   name,
-    //   brand,
-    //   price,
-    //   image,
-    //   quantity: 1
-    // });
-  };
+  //   // // alert("I clicked");
+  //   // e.stopPropagation();
+  //   // addToCart({
+  //   //   id,
+  //   //   name,
+  //   //   brand,
+  //   //   price,
+  //   //   image,
+  //   //   quantity: 1
+  //   // });
+  // };
 
   const handleWishlistToggle = (e) => {
 
@@ -88,6 +88,7 @@ const ProductCard = ({ product }) => {
           src={imageError ? fallbackImage : image}
           alt={name}
           onError={handleImageError}
+          className='img'
         />
         {discount > 0 && (
           <span className="discount-tag">{discount}% OFF</span>
@@ -104,7 +105,7 @@ const ProductCard = ({ product }) => {
           }
         </button>
 
-        {showAddToBag && (
+        {/* {showAddToBag && (
           <button
             className="add-to-bag"
             onClick={handleAddToCart}
@@ -112,7 +113,7 @@ const ProductCard = ({ product }) => {
             <ShoppingBag />
             <span>ADD TO BAG</span>
           </button>
-        )}
+        )} */}
       </div>
 
       <div className="product-info">

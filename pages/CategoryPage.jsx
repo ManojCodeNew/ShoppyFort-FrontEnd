@@ -6,6 +6,7 @@ import ProductGrid from '../components/ProductGrid';
 import { useProducts } from '@/contexts/ProductsContext';
 import '../styles/pages/category-page.scss';
 import ProductCard from '@/components/ProductCard';
+import close from '../assets/Images/close.png';
 
 function CategoryPage() {
   const { gender, category, subcategory } = useParams();
@@ -164,7 +165,7 @@ function CategoryPage() {
         {showFilterModal && (
           <div className="filter-modal">
             <CategorySidebar filters={filters} onFilterChange={handleFilterChange} />
-            <button className="close-filter" onClick={toggleFilterModal}>Close</button>
+            <img src={close} alt='X' className="close-filter" onClick={toggleFilterModal}/>
           </div>
         )}
       </div>

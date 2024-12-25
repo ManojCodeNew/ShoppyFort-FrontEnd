@@ -1,5 +1,5 @@
 .order-success-container {
-    max-width: 600px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 20px;
     text-align: center;
@@ -64,7 +64,7 @@
     color: #fff;
     background: #28a745;
     text-decoration: none;
-    transition: background 0.3s ease;
+    // transition: background 0.3s ease;
   }
   
   .actions .button.secondary {
