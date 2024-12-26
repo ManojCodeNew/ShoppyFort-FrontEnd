@@ -8,13 +8,17 @@ function Offers() {
     // console.log(offerProduct);
 
     return (
+        <>
+        <h2 className='offers-title' >Offers</h2>
         <div className='offerProduct-container'>
+            
             {offerProduct.map((product) =>
-                product.discount >= 40 && product.gender=='men' || 'women' &&  (
+                product.discount >= 50 &&  (
                     <ProductCard key={product.id} product={product} />
                 )
             )}
         </div>
+        </>
     )
 }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {  Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
@@ -39,10 +39,10 @@ const Navbar = () => {
             <Link to="/" className="logo">
               <img src={logo} alt="" />
             </Link>
-            <div className="search-bar-container">
+            {/* <div className="search-bar-container"> */}
 
             <SearchBar />
-            </div>
+            {/* </div> */}
           </div>
 
           <div className="nav-actions">
@@ -50,8 +50,8 @@ const Navbar = () => {
               onMouseEnter={() => setisHovered(true)}
               onMouseLeave={() => setisHovered(false)} >
 
-              <img src={User} alt="User"  className='user-icon'/>
-              
+              <img src={User} alt="User" className='user-icon' />
+
               <span className='profile-title'>Profile</span>
               {isHovered && (
                 <div className="popup-profile"
@@ -99,7 +99,7 @@ const Navbar = () => {
             >
               <Link to="/cart" className="nav-action">
 
-                <img src={ShoppingBag} alt="ShoppingBag" className='ShoppingBag-icon'/>
+                <img src={ShoppingBag} alt="ShoppingBag" className='ShoppingBag-icon' />
                 <span>Cart</span>
                 {cartItems > 0 && (
                   <span className="badge">{cartItems}</span>

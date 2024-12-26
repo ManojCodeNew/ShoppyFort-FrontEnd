@@ -166,11 +166,11 @@
 
     }
   }
-.search-bar-container{
-  @include mobile-only{
-    display: none;
-  }
-}
+// .search-bar-container{
+//   @include mobile-only{
+//     display: none;
+//   }
+// }
   .nav-action-profile {
     display: flex;
     flex-direction: column;

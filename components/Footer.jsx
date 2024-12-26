@@ -77,7 +77,7 @@ const Footer = () => {
 </div>
       <div className="footer-bottom">
         <div className="footer-bottom-content">
-          <p>&copy; {new Date().getFullYear()} Fashion Store. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Fashion Store. All rights reserved. <span>Developed by <a href="https://vinyasatech.com/" className='company-link'>VINYASA</a></span></p>
           <div className="footer-links">
             <Link to="/privacy">Privacy Policy</Link>
             <Link to="/terms">Terms of Service</Link>

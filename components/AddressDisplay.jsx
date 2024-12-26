@@ -31,6 +31,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
         
         const orderid = uuidv4();
         const shippingAddress = addressData.find(address => address._id === selectedAddress);
+        
         if (shippingAddress) {
             const orderDetails = {
                 orderid: orderid,

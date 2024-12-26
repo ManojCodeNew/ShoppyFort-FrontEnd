@@ -60,6 +60,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('user');
+    window.location.reload();
   }, []);
 
   const value = {

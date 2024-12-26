@@ -9,6 +9,7 @@
 
     // Sidebar: Filters
     .filter-product-container {
+      margin-top: 20px;
       flex: 0 0 auto;
       width: 250px;
       max-width: 100%;
@@ -24,6 +25,7 @@
 
     // Product Grid: Right side
     .category-wise-product-grid {
+      margin-top: 20px;
       flex: 1;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); // Adjusts dynamically

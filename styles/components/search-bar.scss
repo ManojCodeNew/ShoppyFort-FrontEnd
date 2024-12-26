@@ -7,9 +7,9 @@
   justify-content: center;
   align-items: center;
   margin: 10px auto;
-  // @include mobile-only {
-  //   display: none;
-  // }
+  @include mobile-only {
+    display: none;
+  }
   @include tablet-and-up {
     max-width: 400px;
   }
