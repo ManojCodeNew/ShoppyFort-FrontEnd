@@ -1,6 +1,6 @@
 .order-success-container {
     max-width: 100%;
-    margin: 0 auto;
+    margin: 1px auto;
     padding: 20px;
     text-align: center;
     background: #f9f9f9;
@@ -20,7 +20,8 @@
   }
   
   .order-summary {
-    text-align: left;
+    margin: 1px auto;
+    // text-align: left;
     margin-top: 20px;
   }
   

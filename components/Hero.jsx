@@ -36,7 +36,15 @@ const Hero = () => {
         subtitle: '50% OFF on all premium brands',
         image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80',
         link: '/offers'
-      }]);
+      },
+      {
+        id: 'default',
+        title: 'End of Season Sale',
+        subtitle: '75% OFF on all premium brands',
+        image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&q=80',
+        link: '/offers'
+      }
+    ]);
     } finally {
       setIsLoading(false);
     }

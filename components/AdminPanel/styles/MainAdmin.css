@@ -1,0 +1,51 @@
+.app-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.main-content {
+  padding-left: 16rem;
+  padding: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.header-subtitle {
+  color: #4b5563;
+  margin-top: 0.25rem;
+}
+
+.stats-grid {
+  display: flex;
+  overflow-y: auto;
+ 
+  margin-bottom: 2rem;
+  /* overflow-y: scroll; */
+
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}

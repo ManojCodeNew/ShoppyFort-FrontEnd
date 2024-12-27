@@ -21,6 +21,7 @@ import CartPage from './pages/CartPage';
 import OrderPlaced from './pages/OrdePlaced';
 import OrderDetails from './pages/OrderDetails';
 import Offers from './components/Offers.jsx';
+import MainAdmin from './components/AdminPanel/MainAdmin';
 const App = () => {
   return (
     <div className="app">
@@ -30,7 +31,7 @@ const App = () => {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={
           <ProtectedAdminRoute>
-            <AdminLayout />
+            <MainAdmin/>
           </ProtectedAdminRoute>
         }>
           <Route index element={<AdminDashboard />} />

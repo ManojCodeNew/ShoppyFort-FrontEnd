@@ -1,0 +1,82 @@
+/* StatCard container */
+.stat-card {
+    background-color: #ffffff; 
+    border-radius: 0.75rem; 
+    padding: 1.5rem; 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+ 
+  .stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+ 
+  .stat-card-title {
+    font-size: 0.875rem; 
+    color: #718096; 
+  }
+  
+  .stat-card-value {
+    font-size: 1.5rem;
+    font-weight: 700; 
+    margin-top: 0.25rem;
+  }
+  
+  /* Icon container */
+  .stat-card-icon-container {
+    padding: 0.75rem;
+    border-radius: 9999px; 
+  }
+  
+  .stat-card-icon-container.positive {
+    background-color: #c6f6d5; 
+  }
+  
+  .stat-card-icon-container.negative {
+    background-color: #fed7d7; 
+  }
+  
+  .stat-card-icon {
+    height: 1.5rem; 
+    width: 1.5rem; 
+  }
+  
+  .stat-card-icon.positive {
+    color: #48bb78; 
+  }
+  
+  .stat-card-icon.negative {
+    color: #f56565; 
+  }
+  
+  /* Footer section */
+  .stat-card-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem; 
+  }
+  
+  .stat-card-change {
+    font-size: 0.875rem; 
+  }
+  
+  .stat-card-change.positive {
+    color: #48bb78; 
+  }
+  
+  .stat-card-change.negative {
+    color: #f56565; 
+  }
+  
+  .stat-card-footer-text {
+    font-size: 0.875rem; 
+    color: #a0aec0; 
+    margin-left: 0.5rem; 
+  }
+  
