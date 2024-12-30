@@ -29,28 +29,14 @@ const ProductCard = ({ product }) => {
   } = product;
 
   const handleProductClick = (e) => {
+    e.preventDefault();
     // Prevent navigation if clicking on wishlist or add to bag buttons
     if (e.target.closest('.wishlist-button') || e.target.closest('.add-to-bag')) {
       return;
     }
-    navigate(`/product/${_id}`);
+    
+    navigate(`/product/view/${_id}`);
   };
-
-
-  // const handleAddToCart = () => {
-  //   navigate(`/product/${_id}`);
-
-  //   // // alert("I clicked");
-  //   // e.stopPropagation();
-  //   // addToCart({
-  //   //   id,
-  //   //   name,
-  //   //   brand,
-  //   //   price,
-  //   //   image,
-  //   //   quantity: 1
-  //   // });
-  // };
 
   const handleWishlistToggle = (e) => {
 
@@ -116,7 +102,7 @@ const ProductCard = ({ product }) => {
         )} */}
       </div>
 
-      <div className="product-info">
+      <div className="product-card-info">
         <h3 className="brand">{brand}</h3>
         <p className="name">{name}</p>
         <div className="price-info">

@@ -31,8 +31,8 @@ const ProductManager = () => {
 
   return (
     <div className="product-manager">
-      <div className="container">
-        <div className="header">
+      <div className="products-container">
+        <div className="products-header">
           <h1>Product Management</h1>
           <button 
             className="btn-primary"

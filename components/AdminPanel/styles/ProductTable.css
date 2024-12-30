@@ -1,0 +1,86 @@
+.table-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th, .product-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-table th {
+  background-color: #f4f4f4;
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-info img {
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+}
+
+.product-info div {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-info p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.product-info span {
+  font-size: 0.9em;
+  color: gray;
+}
+
+.stock {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.9em;
+}
+
+.stock.out {
+  background-color: #ff7675;
+}
+
+.stock.in {
+  background-color: #55efc4;
+}
+
+.stock.low {
+  background-color: #fdcb6e;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.9em;
+}
+
+.status.draft {
+  background-color: #dfe6e9;
+  color: #636e72;
+}
+
+.status.published {
+  background-color: #74b9ff;
+}

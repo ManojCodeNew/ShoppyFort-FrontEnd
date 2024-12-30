@@ -9,6 +9,7 @@ import ProductProvider from './contexts/ProductsContext';
 import { AddressProvider } from './contexts/AddressContext';
 import { OrderDetailsProvider } from './contexts/OrderDetailsContext';
 import { BrowserRouter } from 'react-router-dom';
+import AdminProductsProvider from './components/AdminPanel/Context/AdminProductsContext';
 const root = createRoot(document.getElementById('root'));
 
 root.render(
@@ -21,7 +22,9 @@ root.render(
             <CartProvider>
               <WishlistProvider>
                 <OrderDetailsProvider>
-                  <App />
+                  <AdminProductsProvider>
+                    <App />
+                  </AdminProductsProvider>
                 </OrderDetailsProvider>
               </WishlistProvider>
             </CartProvider>

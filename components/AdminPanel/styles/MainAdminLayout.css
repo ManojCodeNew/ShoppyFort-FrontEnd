@@ -1,11 +1,18 @@
-.app-container {
+.admin-container {
   min-height: 100vh;
   background-color: #f9fafb;
+  display: flex;
 }
 
-.main-content {
-  padding-left: 16rem;
-  padding: 2rem;
+.sidebar {
+  width: 16rem;
+  background-color: #ffffff;
+}
+.admin-main-content {
+  flex: 1;
+  width: 20rem;
+  margin: 1rem; 
+  padding: 1rem; 
 }
 
 .header {
@@ -15,21 +22,19 @@
 .header-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #1f2937;
+  color: #000000;
 }
 
 .header-subtitle {
-  color: #4b5563;
+  color: #000000;
   margin-top: 0.25rem;
 }
 
 .stats-grid {
-  display: flex;
-  overflow-y: auto;
- 
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
   margin-bottom: 2rem;
-  /* overflow-y: scroll; */
-
 }
 
 @media (min-width: 768px) {
@@ -48,4 +53,10 @@
   display: grid;
   grid-template-columns: repeat(1, 1fr);
   gap: 1.5rem;
+}
+.adminPanel-container{
+  display: flex;
+}
+.content{
+  width: 90%;
 }

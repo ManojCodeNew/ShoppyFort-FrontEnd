@@ -1,0 +1,52 @@
+.admin-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+}
+.admin-main-content {
+  flex: 1;
+  width: 20rem;
+  margin: 1rem;
+  padding: 1rem;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  background-color: #00000000;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000000;
+}
+
+.header-subtitle {
+  color: #000000;
+  margin-top: 0.25rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}

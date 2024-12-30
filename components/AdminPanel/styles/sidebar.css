@@ -93,4 +93,24 @@
     height: 1.25rem; 
     width: 1.25rem;
   }
-  
+    /* Submenu styles */
+.sidebar-submenu {
+  padding-left: 1.5rem; /* Indent submenus */
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 10px;
+}
+
+.sidebar-submenu-item {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: #d1d5db;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-submenu-item:hover {
+  background-color: #2d3748;
+  color: #ffffff;
+}

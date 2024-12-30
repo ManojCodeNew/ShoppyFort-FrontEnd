@@ -4,12 +4,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import sendGetRequestToBackend from '../components/Request/Get.jsx';
-import '../styles/pages/product-page.scss';
+import '../styles/pages/product-view-page.scss';
 import heart from '../assets/Images/heartgreen.png';
 import ActiveHeartBtn from '../assets/Images/active.png';
-import ShoppingBag  from '../assets/Images/bagwhite.png';
-const ProductPage = () => {
+import ShoppingBag from '../assets/Images/bagwhite.png';
+const ProductViewPage = () => {
   const { id } = useParams();
+
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
@@ -26,18 +27,19 @@ const ProductPage = () => {
     const productId = id;
 
     const fetchProduct = async () => {
-
-      const foundProduct = await sendGetRequestToBackend('');
-
-      const filteredProduct = foundProduct.find(p => p._id === productId);
-
-      if (filteredProduct) {
-        setProduct(filteredProduct);
-        setProductImage(filteredProduct.image);
-      } else {
-        navigate('/');
+      try {
+        const foundProduct = await sendGetRequestToBackend('');
+        const filteredProduct = foundProduct.find(p => p._id === productId);
+        if (filteredProduct) {
+          setProduct(filteredProduct);
+          setProductImage(filteredProduct.image);
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.log('Error fetching product:', error);
       }
-    }
+    };
     fetchProduct()
   }, [id, navigate]);
 
@@ -98,7 +100,7 @@ const ProductPage = () => {
             </div>
           </div>
 
-          <div className="product-info">
+          <div className="product-view-page-info">
             <h1 className="product-brand">{product.brand} </h1>
             <h2 className="product-name">{product.name} </h2>
 
@@ -145,7 +147,7 @@ const ProductPage = () => {
                 className="add-to-bag btn-primary"
                 onClick={handleAddToCart}
               >
-                <img src={ShoppingBag} alt="shopping bag"  className='shoppingbag-icon'/>
+                <img src={ShoppingBag} alt="shopping bag" className='shoppingbag-icon' />
                 {/* <ShoppingBag /> */}
                 Add to Bag
               </button>
@@ -174,4 +176,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default ProductViewPage;

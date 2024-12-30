@@ -14,12 +14,10 @@ import ShoppingBag from '../assets/Images/bag.png';
 import User from '../assets/Images/user.png';
 
 
-// Hello
 const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { totalItems: cartItems } = useCart();
-  // console.log(totalItems);
 
   const { totalItems: wishlistItems } = useWishlist();
   const [isHovered, setisHovered] = useState(false);

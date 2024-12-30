@@ -1,23 +1,20 @@
 @import '../../variables';
 
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba($black, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  margin: 0 auto;
   padding: 24px;
-  z-index: 1000;
+  background: none;
+  align-items: unset;
+  justify-content: unset;
 }
 
 .product-form {
+  margin: 0 auto;
   background: $white;
   border-radius: 16px;
   width: 100%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
+  height: fit-content;
   box-shadow: 0 8px 16px rgba($black, 0.1);
 
   .form-header {
@@ -101,6 +98,119 @@
     }
   }
 
+  .attribute-types-container {
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: $secondary-color;
+      font-size: 16px;
+    }
+    .attributes {
+      display: flex;
+      flex-direction: column;
+    }
+    input {
+      width: 30%;
+      padding: 14px;
+      border: 2px solid $gray-light;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: $white;
+
+      &:hover {
+        border-color: rgba($primary-color, 0.5);
+      }
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 4px rgba($primary-color, 0.1);
+      }
+
+      &::placeholder {
+        color: rgba($gray-dark, 0.5);
+      }
+    }
+    button {
+      padding: 14px;
+      font-size: 15px;
+      margin-left: 10px;
+    }
+
+    .display-colors {
+      display: flex;
+      gap: 10px;
+
+      p {
+        background: #00000022;
+        padding: 10px;
+        border-radius: 10px;
+
+        span {
+          margin-left: 10px;
+          font-size: 10px;
+          padding: 8px;
+          border-radius: 65%;
+          background: #29292942;
+          cursor: pointer;
+          align-items: center;
+        }
+      }
+    }
+    .display-size {
+      display: flex;
+      gap: 10px;
+
+      p {
+        background: #00000022;
+        padding: 10px;
+        border-radius: 10px;
+
+        span {
+          margin-left: 10px;
+          font-size: 10px;
+          padding: 8px;
+          border-radius: 65%;
+          background: #29292942;
+          cursor: pointer;
+          align-items: center;
+        }
+      }
+    }
+  }
+.Quantity-of-product{
+  margin-top: 15px;
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: $secondary-color;
+    font-size: 16px;
+  }
+  input {
+    width: 30%;
+    padding: 14px;
+    border: 2px solid $gray-light;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: $white;
+
+    &:hover {
+      border-color: rgba($primary-color, 0.5);
+    }
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 4px rgba($primary-color, 0.1);
+    }
+
+    &::placeholder {
+      color: rgba($gray-dark, 0.5);
+    }
+  }
+}
   .image-upload {
     margin-bottom: 16px;
 
@@ -179,7 +289,36 @@
       }
     }
   }
+  .color-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 
+  .color-selector .color-option {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    cursor: pointer;
+  }
+
+  .color-selector .color-option input {
+    display: none;
+  }
+
+  .color-selector .color-option span {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #333;
+  }
+  .color-btn {
+    background: #000;
+  }
   .form-actions {
     display: flex;
     justify-content: flex-end;

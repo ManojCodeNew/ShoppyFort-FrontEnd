@@ -4,13 +4,14 @@
     border-radius: 0.75rem; 
     padding: 1.5rem; 
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* max-width: 12px; */
   }
   
  
   .stat-card-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    /* justify-content: center; */
     margin-bottom: 1.5rem;
     justify-content: space-between;
     align-items: center;
@@ -43,8 +44,8 @@
   }
   
   .stat-card-icon {
-    height: 1.5rem; 
-    width: 1.5rem; 
+    height: 1rem; 
+    width: 1rem; 
   }
   
   .stat-card-icon.positive {
@@ -79,4 +80,3 @@
     color: #a0aec0; 
     margin-left: 0.5rem; 
   }
-  

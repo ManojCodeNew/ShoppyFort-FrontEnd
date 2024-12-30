@@ -1,17 +1,16 @@
 import React from 'react';
-import './styles/MainAdmin.css';
-import Sidebar from './Sidebar';
+import './styles/Dashboard.css';
 import StatCard from './StatCard';
 import RecentOrders from './RecentOrders';
 import { ShoppingBag, Users, TrendingUp, IndianRupeeIcon } from 'lucide-react';
+import { Outlet } from 'react-router-dom';
 
-function MainAdmin() {
+function Dashboard() {
     return (
-        <div className="app-container">
-            <Sidebar />
+        <div className="admin-container">
 
-            <main className="main-content">
-                <div className="header">
+            <main className="admin-main-content">
+                <div className="dashboard-header">
                     <h1 className="header-title">Dashboard Overview</h1>
                     <p className="header-subtitle">Welcome back, Admin</p>
                 </div>
@@ -51,9 +50,10 @@ function MainAdmin() {
                     <RecentOrders />
                 </div>
             </main>
+            <Outlet />
         </div>
 
     )
 }
 
-export default MainAdmin
+export default Dashboard;
