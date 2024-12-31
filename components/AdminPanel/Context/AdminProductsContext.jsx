@@ -11,19 +11,23 @@ function AdminProductsProvider({ children }) {
 
     const postProduct = useCallback(async (productData) => {
         try {
+            for (let [key, value] of productData.entries()) {
+                console.log(key, value);  // Logs key and value of each form entry
+            }
+
             const response = await sendPostRequestToBackend("admin/addProduct", productData);
             if (response.msg) {
                 throw new Error(response.msg);
             }
             if (response.success) {
-                console.log(response.success);
-                
+                console.error(response.success);
+
             }
         } catch (error) {
 
         }
     }, []);
-    const value={
+    const value = {
         postProduct,
         products
     }

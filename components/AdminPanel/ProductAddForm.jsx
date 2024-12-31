@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Upload } from 'lucide-react';
 import '../../styles/components/admin/product-add-form.scss';
 import { useAdminProducts } from './Context/AdminProductsContext';
+import sendPostRequestToBackend from '../Request/Post';
 const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
     const [formData, setFormData] = useState({
         name: '',
@@ -15,12 +16,15 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
         images: [],
         sizes: ['One Size'],
         colors: [],
-        quantity:''
+        quantity: '',
+        imgfile: []
     });
     const [color, setColor] = useState();
     const [size, setSize] = useState();
     const [previewImgs, setPreviewImgs] = useState([]);
     const { postProduct } = useAdminProducts();
+
+    const [imgFiles, setImgFiles] = useState([]);
 
 
     useEffect(() => {
@@ -29,20 +33,69 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
         }
     }, [initialData]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        postProduct(formData);
+
+        // Create FormData of file object
+        const ImgFileData = new FormData();
+        imgFiles.forEach((file) => {
+            ImgFileData.append('images', file);
+        });
+
+        // Display Img Data on console
+        for (let [key, value] of ImgFileData.entries()) {
+            console.log(`${key}:`, value);
+        }
+        try {
+            const response = await fetch("http://127.0.0.1:3000/admin/uploads", {
+                method: 'POST',
+                body: ImgFileData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Upload successful:', result);
+            } else {
+                console.error('Upload failed:', await response.text());
+            }
+            postProduct(formData);
+            console.log("Form data", formData);
+            console.log("Img data", ImgFileData);
+
+
+        } catch (error) {
+            console.error(error)
+        }
 
     };
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files);
-        const savingImageUrlToDB = files.map(file => file.name);
+
+        const imgName = files.map(file => file.name);
         const previewImageUrls = files.map(file => URL.createObjectURL(file));
-        setFormData({ ...formData, images: [...formData.images, ...savingImageUrlToDB] });
-        setPreviewImgs([...previewImgs, ...previewImageUrls])
+        // save image files to imgFiles state
+        setImgFiles([...imgFiles, ...files]);
+
+        // Add the files to the formData images array
+        setFormData({
+            ...formData,
+            images: [...formData.images, ...imgName],
+        });
+
+        setPreviewImgs([...previewImgs, ...previewImageUrls]);
 
     };
+
+    const handleRemoveImage = (index) => {
+        setFormData(
+            {
+                ...formData,
+                images: formData.images.filter((_, i) => i !== index)
+            }
+        )
+        setPreviewImgs(previewImgs.filter((_, i) => i !== index));
+    }
 
     return (
         <div className="modal-overlay">
@@ -202,13 +255,13 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
 
                     <div className="Quantity-of-product">
                         <label >Quantity</label>
-                        <input 
-                        type="number" 
-                        className="quantityofproduct" 
-                        min="0" 
-                        placeholder='Enter quantity' 
-                        value={formData.quantity}
-                        onChange={(e)=>setFormData({...formData,quantity:e.target.value})} />
+                        <input
+                            type="number"
+                            className="quantityofproduct"
+                            min="0"
+                            placeholder='Enter quantity'
+                            value={formData.quantity}
+                            onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} />
                     </div>
 
                     <div className="form-group">
@@ -233,12 +286,7 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                                     <img src={image} alt={`Preview ${index + 1}`} />
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            const updatedPreviewImgs = previewImgs.filter((_, i) => i !== index);
-                                            const updatedImgs = formData.images.filter((_, i) => i !== index);
-                                            setPreviewImgs(updatedPreviewImgs);
-                                            setFormData({ ...formData, images: updatedImgs });
-                                        }}
+                                        onClick={() => handleRemoveImage(index)}
                                     >
                                         X
                                     </button>

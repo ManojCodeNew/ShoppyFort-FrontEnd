@@ -7,6 +7,7 @@ const ProductContext = createContext();
 // Create the provider
 export default function ProductProvider({ children }) {
     const [products, setProducts] = useState([]);
+    
     // const [categories, setCategories] = useState({});
 
     // // Dynamically generate categories
