@@ -8,6 +8,9 @@ async function sendPostRequestToBackend(path, data) {
         body: JSON.stringify(data)
     });
     const result = await response.json();
+    if (result) {
+        console.log(result);
+    }
     return result;
 }
 export default sendPostRequestToBackend;

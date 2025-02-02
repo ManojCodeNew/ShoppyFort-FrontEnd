@@ -85,7 +85,6 @@ const Navbar = () => {
             </div>
             <Link to="/wishlist" className="nav-action">
               <img src={heart} alt="" className='heart-icon' />
-
               <span>Wishlist</span>
               {wishlistItems > 0 && (
                 <span className="badge">{wishlistItems}</span>

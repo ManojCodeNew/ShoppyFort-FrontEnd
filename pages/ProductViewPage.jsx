@@ -8,13 +8,17 @@ import '../styles/pages/product-view-page.scss';
 import heart from '../assets/Images/heartgreen.png';
 import ActiveHeartBtn from '../assets/Images/active.png';
 import ShoppingBag from '../assets/Images/bagwhite.png';
+import { useProducts } from '@/contexts/ProductsContext';
 const ProductViewPage = () => {
   const { id } = useParams();
+  const {products}=useProducts();
+
 
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedColor, setSelectedColor] = useState();
+
   // Product Image displaying state
   const [productImage, setProductImage] = useState();
 
@@ -24,15 +28,20 @@ const ProductViewPage = () => {
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
-    const productId = id;
+    // const productId = id;
 
     const fetchProduct = async () => {
       try {
-        const foundProduct = await sendGetRequestToBackend('');
-        const filteredProduct = foundProduct.find(p => p._id === productId);
+        // const foundProduct = await sendGetRequestToBackend('');
+        // const filteredProduct = foundProduct.find(p => p._id === productId);
+
+        const filteredProduct=products.find(p => p._id === id);
         if (filteredProduct) {
           setProduct(filteredProduct);
-          setProductImage(filteredProduct.image);
+          const defaultColor=filteredProduct.colors[0];
+          setProductImage(filteredProduct.colorImages[defaultColor][0]);
+          setSelectedColor(defaultColor);
+          
         } else {
           navigate('/');
         }
@@ -94,7 +103,7 @@ const ProductViewPage = () => {
             <img src={productImage} alt="Product Image" className='product-image-img' />
 
             <div className="product-gallery">
-              {product.images.map((image, index) => (
+              {product.colorImages[selectedColor].map((image, index) => (
                 <img key={index} src={image} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
               ))}
             </div>

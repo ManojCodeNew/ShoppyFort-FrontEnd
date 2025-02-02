@@ -6,6 +6,7 @@ import { useWishlist } from '../contexts/WishlistContext';
 import '../styles/components/product-card.scss';
 import heart from "../assets/Images/heart.png";
 import ActiveHeartBtn from "../assets/Images/active.png";
+import { Images } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
   const [showAddToBag, setShowAddToBag] = useState(false);
@@ -15,7 +16,6 @@ const ProductCard = ({ product }) => {
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
 
-
   const {
     _id,
     name,
@@ -23,10 +23,15 @@ const ProductCard = ({ product }) => {
     price,
     originalPrice,
     discount,
-    image,
+    colorImages,
     category,
-    gender
+    gender,
+    colors,
+    defaultImg
   } = product;
+const [defaultImage,setDefaultImage]=useState(colors[0])
+
+console.log("Product",product);
 
   const handleProductClick = (e) => {
     e.preventDefault();
@@ -39,8 +44,6 @@ const ProductCard = ({ product }) => {
   };
 
   const handleWishlistToggle = (e) => {
-
-
     e.stopPropagation();
     if (isInWishlist(_id)) {
       removeFromWishlist(_id);
@@ -71,7 +74,7 @@ const ProductCard = ({ product }) => {
     >
       <div className="product-image">
         <img
-          src={imageError ? fallbackImage : image}
+          src={imageError ? fallbackImage : defaultImg}
           alt={name}
           onError={handleImageError}
           className='img'
@@ -91,15 +94,6 @@ const ProductCard = ({ product }) => {
           }
         </button>
 
-        {/* {showAddToBag && (
-          <button
-            className="add-to-bag"
-            onClick={handleAddToCart}
-          >
-            <ShoppingBag />
-            <span>ADD TO BAG</span>
-          </button>
-        )} */}
       </div>
 
       <div className="product-card-info">

@@ -31,11 +31,11 @@ export function WishlistProvider({ children }) {
       }
     }
   }, [user, products]);
-  
+
   useEffect(() => {
     if (user) {
       fetchUserWishlist();
-    } 
+    }
   }, [user, fetchUserWishlist])
 
   const addItem = useCallback(async (item) => {

@@ -31,7 +31,7 @@ function OrderDetails() {
                                 </div>
 
                                 {allOrder && allOrder.length > 0 ? (
-                                    allOrder.map((order, orderIndex) => {
+                                    allOrder.slice().reverse().map((order, orderIndex) => {
                                         const progressBarWidth = getProgressBarWidth(order.status || orderStatus);
                                         return (
                                             <div className="orderDisplay-product-card" key={orderIndex}>
@@ -42,17 +42,23 @@ function OrderDetails() {
 
                                                             <div className="product-img-container">
                                                                 <img
-                                                                    src={product.image || "default-image-url.webp"}
+                                                                // product.colorImages[product.selections.color] 
+                                                                src={product.defaultImg}
                                                                     alt={product.name || "Product Image"}
                                                                     className="product-img"
                                                                 />
                                                             </div>
                                                             <div className="product-info">
                                                                 <p className="product-name">{product.name || "Unknown Product"}</p>
-                                                                <p className="product-details"><b>Brand: </b>{product.brand || "N/A"}</p>
-                                                                <p className="product-details"><b>Qty: </b>{product.quantity || 0}</p>
-                                                                <p className="product-price"><b>Price :</b> ₹{product.price || 0}</p>
+                                                                <div className="product-price-details">
+                                                                    <span className="product-price">₹{product.price || 0}</span>
+                                                                </div>
+                                                                <p className="product-meta">
+                                                                    Color: <span className="meta-value">{product.selections.color || "N/A"}</span>
+                                                                    &nbsp; Size: <span className="meta-value">{product.quantity || "N/A"}</span>
+                                                                </p>
                                                             </div>
+
                                                         </div>
                                                     )
                                                 })}

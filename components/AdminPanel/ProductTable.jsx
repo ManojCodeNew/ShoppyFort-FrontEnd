@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./styles/ProductTable.css";
-
+import { useAdminProducts } from "./Context/AdminProductsContext";
 const products = [
     {
         id: 1,
@@ -45,6 +45,10 @@ const products = [
 ];
 
 const ProductTable = () => {
+    const {  getProducts } = useAdminProducts();
+    useEffect(() => {
+        getProducts();
+    },[]);
     return (
         <div className="table-container">
             <table className="product-table">
@@ -83,8 +87,8 @@ const ProductTable = () => {
                             <td>
                                 <span
                                     className={`status ${product.publishStatus === "Published"
-                                            ? "published"
-                                            : "draft"
+                                        ? "published"
+                                        : "draft"
                                         }`}
                                 >
                                     {product.publishStatus}

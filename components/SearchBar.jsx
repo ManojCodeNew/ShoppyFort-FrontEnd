@@ -13,6 +13,8 @@ const SearchBar = ({ onSearch }) => {
   const navigate = useNavigate();
 
   const { products } = useProducts();
+  console.log("search data",products);
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -44,7 +46,7 @@ const SearchBar = ({ onSearch }) => {
   };
 
   const handleResultClick = (product) => {
-    navigate(`/product/${product._id}`);
+    navigate(`/product/search/${product._id}`);
     setQuery('');
     setIsOpen(false);
     if (onSearch) onSearch();
@@ -84,7 +86,7 @@ const SearchBar = ({ onSearch }) => {
               className="search-result-item"
               onClick={() => handleResultClick(product)}
             >
-              <img src={product.image} alt={product.name} />
+              <img src={product.defaultImg} alt={product.name} />
               <div className="result-info">
                 <h4>{product.brand}</h4>
                 <p>{product.name}</p>

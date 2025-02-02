@@ -60,6 +60,7 @@ const App = () => {
                 <Route path="category/:gender/:category" element={<CategoryPage />} />
                 <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
                 <Route path="product/view/:id" element={<ProductViewPage />} />
+                <Route path="product/search/:id" element={<ProductViewPage />} />
                 <Route path="checkout/address" element={<Address />} />
                 <Route path="successToOrder" element={<OrderPlaced />} />
                 <Route path="offers" element={<Offers />} />

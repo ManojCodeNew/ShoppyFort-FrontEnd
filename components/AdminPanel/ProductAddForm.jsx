@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { X, Upload } from 'lucide-react';
+import upload from '../../assets/Images/upload.png';
 import '../../styles/components/admin/product-add-form.scss';
 import { useAdminProducts } from './Context/AdminProductsContext';
 import sendPostRequestToBackend from '../Request/Post';
+import ImageUpload from './ImageUpload';
 const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
-    const [formData, setFormData] = useState({
+
+    const [productData, setProductData] = useState({
         name: '',
         brand: '',
         price: '',
@@ -13,88 +15,102 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
         description: '',
         category: '',
         gender: 'Others',
-        images: [],
         sizes: ['One Size'],
         colors: [],
-        quantity: '',
-        imgfile: []
+        quantity: ''
     });
     const [color, setColor] = useState();
     const [size, setSize] = useState();
-    const [previewImgs, setPreviewImgs] = useState([]);
+    const [previewImgs, setPreviewImgs] = useState({});
     const { postProduct } = useAdminProducts();
-
     const [imgFiles, setImgFiles] = useState([]);
 
 
-    useEffect(() => {
-        if (initialData) {
-            setFormData(initialData);
-        }
-    }, [initialData]);
+    // useEffect(() => {
+    //     if (initialData) {
+    //         setFormData(initialData);
+    //     }
+    // }, [initialData]);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log("Product data",productData);
+        postProduct(productData);
         // Create FormData of file object
-        const ImgFileData = new FormData();
-        imgFiles.forEach((file) => {
-            ImgFileData.append('images', file);
-        });
+        // const ImgFileData = new FormData();
+        // imgFiles.forEach((file) => {
+        //     ImgFileData.append('images', file);
+        // });
 
-        // Display Img Data on console
-        for (let [key, value] of ImgFileData.entries()) {
-            console.log(`${key}:`, value);
-        }
-        try {
-            const response = await fetch("http://127.0.0.1:3000/admin/uploads", {
-                method: 'POST',
-                body: ImgFileData,
-            });
+        // // Display Img Data on console
+        // for (let [key, value] of ImgFileData.entries()) {
+        //     console.log(`${key}:`, value);
+        // }
+        // try {
+        //     const response = await fetch("http://127.0.0.1:3000/admin/uploads", {
+        //         method: 'POST',
+        //         body: ImgFileData,
+        //     });
 
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Upload successful:', result);
-            } else {
-                console.error('Upload failed:', await response.text());
-            }
-            postProduct(formData);
-            console.log("Form data", formData);
-            console.log("Img data", ImgFileData);
+        //     if (response.ok) {
+        //         const result = await response.json();
+        //         console.log('Upload successful:', result);
+        //     } else {
+        //         console.error('Upload failed:', await response.text());
+        //     }
+        //     console.log("Form data", productData);
+        //     console.log("Img data", ImgFileData);
 
 
-        } catch (error) {
-            console.error(error)
-        }
+        // } catch (error) {
+        //     console.error(error)
+        // }
 
     };
 
-    const handleImageUpload = async (e) => {
-        const files = Array.from(e.target.files);
 
+    const handleImageUpload = async (e, color) => {
+        const files = Array.from(e.target.files);
         const imgName = files.map(file => file.name);
         const previewImageUrls = files.map(file => URL.createObjectURL(file));
         // save image files to imgFiles state
         setImgFiles([...imgFiles, ...files]);
+        console.log("previewImgs", imgName, color);
+
 
         // Add the files to the formData images array
-        setFormData({
-            ...formData,
-            images: [...formData.images, ...imgName],
-        });
+        setProductData((prevProductData) => ({
+            ...prevProductData,
+            images: {
+                ...prevProductData.images,
+                [color]: [...(prevProductData.images[color] || []), ...imgName], // Append new images under the specific color
+            },
+        }));
 
-        setPreviewImgs([...previewImgs, ...previewImageUrls]);
+        // Add Preview image url
+        setPreviewImgs((prev) => ({
+            ...prev,
+            [color]: [...(prev[color] || []), ...previewImageUrls],
+        }));
 
+        // postProduct(productData);
     };
 
+
     const handleRemoveImage = (index) => {
-        setFormData(
+        setProductData(
             {
-                ...formData,
-                images: formData.images.filter((_, i) => i !== index)
+                ...productData,
+                images: productData.images.filter((_, i) => i !== index)
             }
         )
-        setPreviewImgs(previewImgs.filter((_, i) => i !== index));
+        setPreviewImgs((prev) => {
+            return {
+                ...prev,
+                [color]: prev[color].filter((_, i) => i !== index), // Filter out the image at the given index
+            };
+        });
     }
 
     return (
@@ -110,8 +126,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             <label>Product Name</label>
                             <input
                                 type="text"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                value={productData.name}
+                                onChange={(e) => setProductData({ ...productData, name: e.target.value })}
                                 placeholder="Enter product name"
                                 required
                             />
@@ -121,8 +137,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             <label>Brand</label>
                             <input
                                 type="text"
-                                value={formData.brand}
-                                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                                value={productData.brand}
+                                onChange={(e) => setProductData({ ...productData, brand: e.target.value })}
                                 placeholder="Enter brand name"
                                 required
                             />
@@ -132,8 +148,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             <label>Price</label>
                             <input
                                 type="number"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                value={productData.price}
+                                onChange={(e) => setProductData({ ...productData, price: e.target.value })}
                                 placeholder="Enter price"
                                 required
                             />
@@ -143,8 +159,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             <label>Original Price</label>
                             <input
                                 type="number"
-                                value={formData.originalPrice}
-                                onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                                value={productData.originalPrice}
+                                onChange={(e) => setProductData({ ...productData, originalPrice: e.target.value })}
                                 placeholder="Enter original price"
                             />
                         </div>
@@ -153,8 +169,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             <label>Discount (%)</label>
                             <input
                                 type="number"
-                                value={formData.discount}
-                                onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
+                                value={productData.discount}
+                                onChange={(e) => setProductData({ ...productData, discount: e.target.value })}
                                 placeholder="Enter discount percentage"
                                 min="0"
                                 max="100"
@@ -164,8 +180,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                         <div className="form-group">
                             <label>Gender</label>
                             <select
-                                value={formData.gender}
-                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                value={productData.gender}
+                                onChange={(e) => setProductData({ ...productData, gender: e.target.value })}
                                 required
                             >
                                 <option value="">Select Gender</option>
@@ -179,8 +195,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                         <div className="form-group">
                             <label>Category</label>
                             <select
-                                value={formData.category}
-                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                value={productData.category}
+                                onChange={(e) => setProductData({ ...productData, category: e.target.value })}
                                 required
                             >
                                 <option value="">Select Category</option>
@@ -196,8 +212,8 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                     <div className="form-group">
                         <label>Description</label>
                         <textarea
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            value={productData.description}
+                            onChange={(e) => setProductData({ ...productData, description: e.target.value })}
                             placeholder="Enter product description"
                             rows="4"
                             required
@@ -210,17 +226,17 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             <div className="color-container">
                                 <label className='color-title'>Color</label>
                                 <input type="text" className='color-adding-input' value={color} onChange={(e) => setColor(e.target.value)} placeholder='Input a color (e.g., red, blue)' />
-                                <button onClick={() => setFormData({ ...formData, colors: [...formData.colors, color] })}>Add</button>
+                                <button type='button' onClick={() => setProductData({ ...productData, colors: [...productData.colors, color] })}>Add</button>
                             </div>
                             <div className="display-colors">
-                                {formData.colors.map((item, index) => (
+                                {productData.colors.map((item, index) => (
                                     <>
 
                                         <p key={index}>{item}
                                             <span
                                                 onClick={() => {
-                                                    const updatedColors = formData.colors.filter((_, i) => i !== index);
-                                                    setFormData({ ...formData, colors: updatedColors });
+                                                    const updatedColors = productData.colors.filter((_, i) => i !== index);
+                                                    setProductData({ ...productData, colors: updatedColors });
                                                 }}
                                             >X</span>
                                         </p>
@@ -232,16 +248,16 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
 
                                 <label className='color-title'>Size</label>
                                 <input type="text" className='size-adding-input' value={size} onChange={(e) => setSize(e.target.value)} placeholder='Enter size (e.g., X, M, XL)' />
-                                <button onClick={() => setFormData({ ...formData, sizes: [...formData.sizes, size] })}>Add</button>
+                                <button type="button" onClick={() => setProductData({ ...productData, sizes: [...productData.sizes, size] })}>Add</button>
                             </div>
                             <div className="display-size">
-                                {formData.sizes.map((item, index) => (
+                                {productData.sizes.map((item, index) => (
                                     <>
                                         <p key={index}>{item}
                                             <span
                                                 onClick={() => {
-                                                    const updatedSizes = formData.sizes.filter((_, i) => i !== index);
-                                                    setFormData({ ...formData, sizes: updatedSizes });
+                                                    const updatedSizes = productData.sizes.filter((_, i) => i !== index);
+                                                    setProductData({ ...productData, sizes: updatedSizes });
                                                 }}
                                             >X</span>
                                         </p>
@@ -260,52 +276,66 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             className="quantityofproduct"
                             min="0"
                             placeholder='Enter quantity'
-                            value={formData.quantity}
-                            onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} />
+                            value={productData.quantity}
+                            onChange={(e) => setProductData({ ...productData, quantity: e.target.value })} />
                     </div>
 
-                    <div className="form-group">
+                    {/* <div className="form-group">
                         <label>Images</label>
-                        <div className="image-upload">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleImageUpload}
-                                id="image-upload"
-                                className="hidden"
-                            />
-                            <label htmlFor="image-upload" className="upload-button">
-                                <Upload />
-                                <span>Upload Images</span>
-                            </label>
-                        </div>
-                        <div className="image-preview">
-                            {previewImgs.map((image, index) => (
-                                <div key={index} className="preview-item">
-                                    <img src={image} alt={`Preview ${index + 1}`} />
-                                    <button
-                                        type="button"
-                                        onClick={() => handleRemoveImage(index)}
-                                    >
-                                        X
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                        {productData.colors.map((color) => (
+
+
+                            <div className="image-upload">
+                                <h4>{color}</h4>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => handleImageUpload(e, color)}
+                                    id="image-upload"
+                                    className="hidden"
+                                />
+                                <label htmlFor="image-upload" className="upload-button">
+                                    <img src={upload} alt="upload" className='upload-icon' />
+                                    <span>Upload Images</span>
+                                </label>
+ */}
+
+                                {/* Image preview */}
+                                {/* < div className="image-preview" >
+                                    {
+                                        (previewImgs[color] || []).map((image, index) => (
+                                            <div key={index} className="preview-item">
+                                                <img src={image} alt={`Preview ${index + 1}`} />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveImage(index)}
+                                                >
+                                                    X
+                                                </button>
+                                            </div>
+                                        ))
+                                    }
+                                </div> */}
+
+                            {/* </div> */}
+                        {/* ))} */}
+
+
+                    {/* </div> */}
+                    <ImageUpload productName={`${productData.name}`}/>
 
                     <div className="form-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>
                             Cancel
                         </button>
-                        <button type="submit" className="btn-primary">
+                        <button type="submit" className="btn-primary" >
                             {initialData ? 'Update' : 'Add'} Product
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

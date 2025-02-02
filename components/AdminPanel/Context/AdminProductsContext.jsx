@@ -1,5 +1,6 @@
+import sendGetRequestToBackend from '@/components/Request/Get';
 import sendPostRequestToBackend from '@/components/Request/Post';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { createContext, useContext, useState } from 'react';
 
 // Create Context
@@ -8,14 +9,19 @@ const AdminProductsContext = createContext();
 function AdminProductsProvider({ children }) {
 
     const [products, setProducts] = useState([]);
+    const [images, setImages] = useState({});
+
 
     const postProduct = useCallback(async (productData) => {
         try {
-            for (let [key, value] of productData.entries()) {
-                console.log(key, value);  // Logs key and value of each form entry
-            }
 
-            const response = await sendPostRequestToBackend("admin/addProduct", productData);
+                const finalDataToSend={
+                    ...productData,
+                    colorImages:images,
+                }
+console.log("DATA",finalDataToSend);
+
+            const response = await sendPostRequestToBackend("admin/addProduct", finalDataToSend);
             if (response.msg) {
                 throw new Error(response.msg);
             }
@@ -26,10 +32,26 @@ function AdminProductsProvider({ children }) {
         } catch (error) {
 
         }
+    }, [images]);
+
+    const getProducts = useCallback(async () => {
+        try {
+            const response = await sendGetRequestToBackend("manage");
+            if (response.success) {
+                setProducts(response.products);
+            }
+
+        } catch (error) {
+            console.error(error);
+
+        }
     }, []);
+
     const value = {
         postProduct,
-        products
+        products,
+        getProducts,
+        setImages
     }
 
     return (

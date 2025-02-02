@@ -5,6 +5,7 @@ import '../styles/components/AllProductShow.scss';
 
 function AllProductShow() {
     const { products } = useProducts();
+console.log("All products show",products);
 
     return (
         <div className='AllProductShow-container'>

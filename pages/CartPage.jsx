@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import "../styles/pages/CartPage.scss";
 import PriceDetails from '../components/PriceDetails.jsx';
 import { useNavigate } from 'react-router-dom';
 const CartPage = () => {
     const { cartItems, handleRemove, handleQuantityChange, totalCost } = useCart(); // Use the context values
-    // console.log("ITEM DARTA  originalPrice  price quantity", cartItems);
-const navigate=useNavigate();
+    console.log("ITEM DARTA  originalPrice  price quantity", cartItems);
+    // const [defaultImage,setDefaultImage]=useState(cartItems.)
+
+    const navigate=useNavigate();
 
     const totalMRP = cartItems.reduce((total, item) => total + item.originalPrice * item.quantity, 0);
     const discountMRP = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -22,7 +24,7 @@ const navigate=useNavigate();
                     <div className="cart-items">
                         {cartItems.map((item) => (
                             <div key={item._id} className="cart-item">
-                                <img src={item.image} alt={item.name} className="cart-item-image" />
+                                <img src={item.defaultImg} alt={item.name} className="cart-item-image" />
                                 <div className="cart-item-details">
                                     <h3 className='cart-item-title'>{item.name}</h3>
                                     <p className='cart-item-description'>{item.description}</p>
