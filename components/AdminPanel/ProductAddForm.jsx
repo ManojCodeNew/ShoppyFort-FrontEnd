@@ -4,7 +4,7 @@ import '../../styles/components/admin/product-add-form.scss';
 import { useAdminProducts } from './Context/AdminProductsContext';
 import sendPostRequestToBackend from '../Request/Post';
 import ImageUpload from './ImageUpload';
-const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
+const ProductAddForm = ({ onSubmit, onClose }) => {
 
     const [productData, setProductData] = useState({
         name: '',
@@ -22,96 +22,28 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
     const [color, setColor] = useState();
     const [size, setSize] = useState();
     const [previewImgs, setPreviewImgs] = useState({});
-    const { postProduct } = useAdminProducts();
+    const { postProduct, initialData, updateProduct } = useAdminProducts();
     const [imgFiles, setImgFiles] = useState([]);
 
 
-    // useEffect(() => {
-    //     if (initialData) {
-    //         setFormData(initialData);
-    //     }
-    // }, [initialData]);
+    useEffect(() => {
+        if (initialData) {
+            setProductData(initialData);
+        }
+    }, [initialData]);
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Product data",productData);
-        postProduct(productData);
-        // Create FormData of file object
-        // const ImgFileData = new FormData();
-        // imgFiles.forEach((file) => {
-        //     ImgFileData.append('images', file);
-        // });
-
-        // // Display Img Data on console
-        // for (let [key, value] of ImgFileData.entries()) {
-        //     console.log(`${key}:`, value);
-        // }
-        // try {
-        //     const response = await fetch("http://127.0.0.1:3000/admin/uploads", {
-        //         method: 'POST',
-        //         body: ImgFileData,
-        //     });
-
-        //     if (response.ok) {
-        //         const result = await response.json();
-        //         console.log('Upload successful:', result);
-        //     } else {
-        //         console.error('Upload failed:', await response.text());
-        //     }
-        //     console.log("Form data", productData);
-        //     console.log("Img data", ImgFileData);
-
-
-        // } catch (error) {
-        //     console.error(error)
-        // }
+        if (initialData) {
+            await updateProduct(productData);
+        } else {
+            await postProduct(productData);
+        }
+        console.log("Product data", productData);
 
     };
 
-
-    const handleImageUpload = async (e, color) => {
-        const files = Array.from(e.target.files);
-        const imgName = files.map(file => file.name);
-        const previewImageUrls = files.map(file => URL.createObjectURL(file));
-        // save image files to imgFiles state
-        setImgFiles([...imgFiles, ...files]);
-        console.log("previewImgs", imgName, color);
-
-
-        // Add the files to the formData images array
-        setProductData((prevProductData) => ({
-            ...prevProductData,
-            images: {
-                ...prevProductData.images,
-                [color]: [...(prevProductData.images[color] || []), ...imgName], // Append new images under the specific color
-            },
-        }));
-
-        // Add Preview image url
-        setPreviewImgs((prev) => ({
-            ...prev,
-            [color]: [...(prev[color] || []), ...previewImageUrls],
-        }));
-
-        // postProduct(productData);
-    };
-
-
-    const handleRemoveImage = (index) => {
-        setProductData(
-            {
-                ...productData,
-                images: productData.images.filter((_, i) => i !== index)
-            }
-        )
-        setPreviewImgs((prev) => {
-            return {
-                ...prev,
-                [color]: prev[color].filter((_, i) => i !== index), // Filter out the image at the given index
-            };
-        });
-    }
 
     return (
         <div className="modal-overlay">
@@ -120,7 +52,7 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                     <h2>{initialData ? 'Edit Product' : 'Add Product'}</h2>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                <form >
                     <div className="form-grid">
                         <div className="form-group">
                             <label>Product Name</label>
@@ -279,57 +211,13 @@ const ProductAddForm = ({ onSubmit, onClose, initialData }) => {
                             value={productData.quantity}
                             onChange={(e) => setProductData({ ...productData, quantity: e.target.value })} />
                     </div>
-
-                    {/* <div className="form-group">
-                        <label>Images</label>
-                        {productData.colors.map((color) => (
-
-
-                            <div className="image-upload">
-                                <h4>{color}</h4>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={(e) => handleImageUpload(e, color)}
-                                    id="image-upload"
-                                    className="hidden"
-                                />
-                                <label htmlFor="image-upload" className="upload-button">
-                                    <img src={upload} alt="upload" className='upload-icon' />
-                                    <span>Upload Images</span>
-                                </label>
- */}
-
-                                {/* Image preview */}
-                                {/* < div className="image-preview" >
-                                    {
-                                        (previewImgs[color] || []).map((image, index) => (
-                                            <div key={index} className="preview-item">
-                                                <img src={image} alt={`Preview ${index + 1}`} />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveImage(index)}
-                                                >
-                                                    X
-                                                </button>
-                                            </div>
-                                        ))
-                                    }
-                                </div> */}
-
-                            {/* </div> */}
-                        {/* ))} */}
-
-
-                    {/* </div> */}
-                    <ImageUpload productName={`${productData.name}`}/>
+                    <ImageUpload productName={`${productData.name}`} colors={productData.colors} />
 
                     <div className="form-actions">
                         <button type="button" className="btn-secondary" onClick={onClose}>
                             Cancel
                         </button>
-                        <button type="submit" className="btn-primary" >
+                        <button type="submit" className="btn-primary" onClick={handleSubmit} >
                             {initialData ? 'Update' : 'Add'} Product
                         </button>
                     </div>

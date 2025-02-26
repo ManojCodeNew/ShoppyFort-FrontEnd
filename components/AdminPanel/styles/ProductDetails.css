@@ -1,0 +1,95 @@
+.product-details {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 25px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.product-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 12px;
+}
+
+.product-brand,
+.product-category,
+.product-gender,
+.product-price,
+.product-quantity,
+.product-sizes,
+.product-colors {
+  font-size: 16px;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.product-price {
+  font-size: 18px;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #777;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+.discount {
+  color: green;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+.product-description {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.product-images {
+  margin-top: 25px;
+}
+
+.color-section {
+  margin-bottom: 20px;
+}
+
+.color-section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.product-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+.heading{
+    text-align: center;
+    color: black;
+    margin-bottom: 15px;
+}

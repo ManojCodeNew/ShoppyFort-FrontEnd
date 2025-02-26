@@ -43,11 +43,15 @@
   }
   .product-image {
     max-height: 500px;
+
   }
   .product-image-img {
     display: flex;
     margin: 1px auto;
     max-width: 250px;
+    border-radius: 10px;
+    margin-top: 1px;
+
     object-fit: cover;
     @include mobile-only {
       width: 100%;
@@ -136,20 +140,30 @@
 
     .size-options,
     .color-options {
-      display: flex;
+      display: grid;
+      grid-template-columns:repeat(auto-fit, minmax(60px, 100px)) ;
       gap: 8px;
       margin-bottom: 16px;
+      @include mobile-only {
+        width: 100%;
+        height: auto;
+      }
+      @include tablet-only {
+        width: 90%;
+        height: auto;
+      }
     }
 
     .size-option,
     .color-option {
       color: black;
       padding: 8px 16px;
-      border: 1px solid $gray-light;
+      border: 1px solid rgb(222, 222, 222);
       border-radius: 4px;
       background: none;
       cursor: pointer;
       transition: all 0.2s ease;
+
 
       &:hover {
         border-color: $primary-color;

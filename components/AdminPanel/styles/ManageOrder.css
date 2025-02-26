@@ -1,88 +1,193 @@
 /* Container styles */
 .table-container {
-    width: 90%;
-    margin: auto;
-    overflow-x: auto;
-  }
-  
-  /* Table styles */
+  width: 90%;
+  margin: auto;
+  overflow-x: auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styles */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+  text-align: left;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+}
+
+.custom-table th {
+  background: #f8f9fa;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.custom-table tr:hover {
+  background-color: #f3f3f3;
+  transition: 0.3s ease;
+}
+
+/* Status badge styles */
+.status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.status.refunded {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.status.completed {
+  background-color: #28a745;
+  color: white;
+}
+
+.status.pending {
+  background-color: #ff9800;
+  color: white;
+}
+
+/* Email and time styling */
+.email,
+.time {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* Toggle button */
+.toggle-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Expanded row styles */
+.expanded-row td {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-top: 2px solid #ddd;
+}
+
+/* Product details section */
+.products-container {
+  padding: 10px;
+}
+
+.products-container h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.expanded-row ul {
+  list-style: none;
+  padding: 0;
+}
+
+.expanded-row ul li {
+  padding: 8px 12px;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.expanded-row ul li strong {
+  color: #333;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
   .custom-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 16px;
-    text-align: left;
+    font-size: 14px;
   }
-  
   .custom-table th,
   .custom-table td {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
+    padding: 10px;
   }
-  
-  .custom-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-  }
-  
-  .custom-table tr:hover {
-    background-color: #f9f9f9;
-  }
-  
-  /* Status badge styles */
-  .status {
-    padding: 5px 10px;
-    border-radius: 5px;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  .status.refunded {
-    background-color: red;
-  }
-  
-  .status.completed {
-    background-color: green;
-  }
-  
-  .status.pending {
-    background-color: orange;
-  }
-  
-  /* Email and time styling */
-  .email,
-  .time {
-    color: #777;
-    font-size: 14px;
-  }
-  
-  /* Toggle button */
   .toggle-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
+    font-size: 12px;
+    padding: 4px 8px;
   }
-  
-  .toggle-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Expanded row styles */
-  .expanded-row td {
-    background-color: #f4f4f4;
-    padding: 15px;
-  }
-  
-  .expanded-row ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .expanded-row ul li {
-    margin: 5px 0;
-  }
-  
+}
+
+/* Product Table Styles */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.product-table th,
+.product-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.product-table th {
+  background: #f8f9fa;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.product-table tr:hover {
+  background-color: #f3f3f3;
+  transition: 0.3s ease;
+}
+.action-btn {
+  padding: 5px 10px;
+  margin: 3px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.placed {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.shipped {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.delivered {
+  background-color: #28a745;
+  color: white;
+}

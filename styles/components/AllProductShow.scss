@@ -1,29 +1,29 @@
 @import '../variables';
+
 .AllProducts {
   flex: 1;
-  width: 80%;
+  width: 100%; // Ensures full width usage
   align-items: center;
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(180px, 1fr)
-  ); // Adjusts dynamically
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); // Better spacing
   gap: 15px;
   height: fit-content;
   margin: 10px auto;
+  padding: 10px;
 
   @include mobile-only {
-    margin-left: 0;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); // Adjust for smaller screens
     gap: 10px;
-    margin: 1px auto;
+    margin: 5px auto;
   }
 }
-.AllProductShow-container{
-    margin: 10px;
+
+.AllProductShow-container {
+  margin: 10px;
 }
-.Products-title{
-    padding: 10px;
-    font-size: medium;
-    font-weight: 500;
+
+.Products-title {
+  padding: 10px;
+  font-size: medium;
+  font-weight: 500;
 }

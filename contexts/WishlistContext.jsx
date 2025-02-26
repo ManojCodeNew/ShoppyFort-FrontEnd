@@ -22,7 +22,7 @@ export function WishlistProvider({ children }) {
     if (!user) {
       return
     } else {
-      const response = await sendGetRequestToBackend(`wishlist/${user.id}`);
+      const response = await sendGetRequestToBackend(`wishlist`,token);
       if (response && response.wishlist) {
         const userWishlistedProducts = products.filter(product =>
           response.wishlist.some(wishlistItem => wishlistItem.productid === product._id)
@@ -40,7 +40,7 @@ export function WishlistProvider({ children }) {
 
   const addItem = useCallback(async (item) => {
     if (user) {
-      const response = await sendPostRequestToBackend('wishlist/addWishlist', { userid: user.id, productid: item._id });
+      const response = await sendPostRequestToBackend('wishlist/addWishlist', { productid: item._id },token);
       setItems(currentItems => {
         if (currentItems.some(i => i._id === item._id)) return currentItems;
         return [...currentItems, item];
@@ -53,7 +53,7 @@ export function WishlistProvider({ children }) {
   }, []);
 
   const removeItem = useCallback(async (id) => {
-    const response = await sendPostRequestToBackend('wishlist/removeWishlist', { userid: user.id, productid: id });
+    const response = await sendPostRequestToBackend('wishlist/removeWishlist', { productid: id },token);
     setItems(currentItems => currentItems.filter(item => item.id !== id));
   }, []);
 

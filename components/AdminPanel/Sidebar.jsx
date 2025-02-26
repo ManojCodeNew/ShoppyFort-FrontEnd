@@ -13,7 +13,7 @@ import { NavLink } from 'react-router-dom';
 
 const menuItems = [
   { icon: LayoutDashboard, text: 'Dashboard', path: '/' },
-  { icon: ShoppingBag, text: 'Orders', path: 'orders' },
+  { icon: ShoppingBag, text: 'Orders', path: 'manage-order' },
   { icon: Users, text: 'Customers', path: 'customers' },
   {
     icon: Package,

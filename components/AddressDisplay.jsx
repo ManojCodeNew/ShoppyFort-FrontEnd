@@ -14,8 +14,9 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     const [selectedAddress, setSelectedAddress] = useState(null);
     const { selectedAddressPresence, setSelectedAddressPresence } = useAddress();
     const { cartItems, totalCost } = useCart();
-    // console.log("CART ITEMS",cartItems);
-    
+
+    // Access Token
+    const token = localStorage.getItem('user');
 
     const navigate = useNavigate();
     const addNewAddress = () => {
@@ -25,25 +26,25 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     const { setOrderDetails } = useOrderDetails();
 
     const setOrderDetailsDataToContext = () => {
-        const token = localStorage.getItem('user');
         if (token) {
             const user = jwtDecode(token);
-        
-        const orderid = uuidv4();
-        const shippingAddress = addressData.find(address => address._id === selectedAddress);
-        
-        if (shippingAddress) {
-            const orderDetails = {
-                orderid: orderid,
-                userid: user.id,
-                shippingaddress: shippingAddress,
-                items: cartItems,
-                totalprice: totalCost
+
+            const generateOrderId = () => {
+                return Math.floor(100000 + Math.random() * 900000).toString(); // Generates a 6-digit number
+            };
+
+            const shippingAddress = addressData.find(address => address._id === selectedAddress);
+
+            if (shippingAddress) {
+                const orderDetails = {
+                    orderid: generateOrderId(),
+                    userid: user.id,
+                    shippingaddress: shippingAddress,
+                    items: cartItems,
+                    totalprice: totalCost
+                }
+                setOrderDetails(orderDetails);
             }
-            console.log("ORDERED DETAILS",orderDetails);
-            
-            setOrderDetails(orderDetails);
-        }
         }
     }
 
@@ -70,14 +71,8 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
         }
     }, [selectedAddress]);
 
-    const editAddress = (addressId) => {
-        alert(`Edit Address with ID: ${addressId}`);
-    };
-
     const removeAddress = async (addressid) => {
-        console.log("REMOVE ADDRESS");
-
-        const response = await sendPostRequestToBackend('checkout/address/remove', { addressid });
+        const response = await sendPostRequestToBackend('checkout/address/remove', {addressid} );
         if (response.success) {
             setAddressData(currentItems => currentItems.filter(item => item._id !== addressid));
 
@@ -117,7 +112,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
                         </div>
                     </div>
                 ))}
-                {addressList.length < 3 && (
+                {addressData.length < 3 && (
                     <button className="add-new-address" onClick={addNewAddress}>Add New Address</button>
                 )}
             </div>

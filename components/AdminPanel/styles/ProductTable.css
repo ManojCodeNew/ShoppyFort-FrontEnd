@@ -13,7 +13,8 @@
   border-collapse: collapse;
 }
 
-.product-table th, .product-table td {
+.product-table th,
+.product-table td {
   padding: 15px;
   text-align: left;
   border-bottom: 1px solid #ddd;
@@ -53,8 +54,12 @@
 .stock {
   padding: 5px 10px;
   border-radius: 5px;
-  color: white;
+  color: rgb(3, 3, 3);
   font-size: 0.9em;
+}
+.stock-column {
+  width: 200px;
+  align-items: right;
 }
 
 .stock.out {

@@ -8,6 +8,7 @@ import './styles/main.scss';
 import ProductProvider from './contexts/ProductsContext';
 import { AddressProvider } from './contexts/AddressContext';
 import { OrderDetailsProvider } from './contexts/OrderDetailsContext';
+import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext';
 import { BrowserRouter } from 'react-router-dom';
 import AdminProductsProvider from './components/AdminPanel/Context/AdminProductsContext';
 const root = createRoot(document.getElementById('root'));
@@ -15,22 +16,26 @@ const root = createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+      <OrderProvider>
 
-      <AuthProvider>
-        <ProductProvider>
-          <AddressProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <OrderDetailsProvider>
-                  <AdminProductsProvider>
-                    <App />
-                  </AdminProductsProvider>
-                </OrderDetailsProvider>
-              </WishlistProvider>
-            </CartProvider>
-          </AddressProvider>
-        </ProductProvider>
-      </AuthProvider>
+
+        <AuthProvider>
+          <ProductProvider>
+            <AddressProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <OrderDetailsProvider>
+                    <AdminProductsProvider>
+                      <App />
+                    </AdminProductsProvider>
+                  </OrderDetailsProvider>
+                </WishlistProvider>
+              </CartProvider>
+            </AddressProvider>
+          </ProductProvider>
+        </AuthProvider>
+      </OrderProvider>
+
     </BrowserRouter>
 
   </React.StrictMode>

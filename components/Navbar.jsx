@@ -92,7 +92,7 @@ const Navbar = () => {
             </Link>
             <button
               className="nav-action"
-              onClick={() => setIsCartOpen(false)}
+              // onClick={() => setIsCartOpen(true)}
             >
               <Link to="/cart" className="nav-action">
 
@@ -113,10 +113,6 @@ const Navbar = () => {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <CartModal
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-      />
     </header>
   );
 };

@@ -11,7 +11,7 @@ import ShoppingBag from '../assets/Images/bagwhite.png';
 import { useProducts } from '@/contexts/ProductsContext';
 const ProductViewPage = () => {
   const { id } = useParams();
-  const {products}=useProducts();
+  const { products } = useProducts();
 
 
   const navigate = useNavigate();
@@ -22,8 +22,7 @@ const ProductViewPage = () => {
   // Product Image displaying state
   const [productImage, setProductImage] = useState();
 
-
-
+  console.log("View Page", product);
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
@@ -35,13 +34,13 @@ const ProductViewPage = () => {
         // const foundProduct = await sendGetRequestToBackend('');
         // const filteredProduct = foundProduct.find(p => p._id === productId);
 
-        const filteredProduct=products.find(p => p._id === id);
+        const filteredProduct = products.find(p => p._id === id);
         if (filteredProduct) {
           setProduct(filteredProduct);
-          const defaultColor=filteredProduct.colors[0];
+          const defaultColor = filteredProduct.colors[0];
           setProductImage(filteredProduct.colorImages[defaultColor][0]);
           setSelectedColor(defaultColor);
-          
+
         } else {
           navigate('/');
         }
@@ -92,7 +91,7 @@ const ProductViewPage = () => {
     }
 
   };
-
+  const fallbackImage = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800';
 
   return (
     <div className="product-page">
@@ -103,8 +102,9 @@ const ProductViewPage = () => {
             <img src={productImage} alt="Product Image" className='product-image-img' />
 
             <div className="product-gallery">
+
               {product.colorImages[selectedColor].map((image, index) => (
-                <img key={index} src={image} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
+                <img key={index} src={image ? image : fallbackImage} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
               ))}
             </div>
           </div>
@@ -142,7 +142,10 @@ const ProductViewPage = () => {
                     <button
                       key={color}
                       className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                      onClick={() => setSelectedColor(color)}
+                      onClick={() => {
+                        setSelectedColor(color)
+                        setProductImage(product.colorImages[color][0]);
+                      }}
                     >
                       {color}
                     </button>

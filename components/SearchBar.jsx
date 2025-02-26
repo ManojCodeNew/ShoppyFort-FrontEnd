@@ -13,7 +13,6 @@ const SearchBar = ({ onSearch }) => {
   const navigate = useNavigate();
 
   const { products } = useProducts();
-  console.log("search data",products);
   
   useEffect(() => {
     const handleClickOutside = (event) => {

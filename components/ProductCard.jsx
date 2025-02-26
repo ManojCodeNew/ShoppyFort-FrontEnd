@@ -55,7 +55,6 @@ console.log("Product",product);
         price,
         originalPrice,
         discount,
-        image
       });
     }
   };

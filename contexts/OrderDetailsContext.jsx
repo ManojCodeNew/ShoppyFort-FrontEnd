@@ -21,7 +21,7 @@ export const OrderDetailsProvider = ({ children }) => {
     const user = token ? jwtDecode(token) : null;
 
     const fetchOrders = async () => {
-        const response = await sendGetRequestToBackend(`order/${user.id}`);
+        const response = await sendGetRequestToBackend("order",token);
         if (response.success) {
             setAllOrder(response.orders);
         }

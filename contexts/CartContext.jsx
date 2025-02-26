@@ -24,7 +24,7 @@ export const CartProvider = ({ children }) => {
     const fetchCartItems = useCallback(async () => {
         if (!user) return;
         try {
-            const response = await sendGetRequestToBackend(`cart/${user.id}`);
+            const response = await sendGetRequestToBackend(`cart/`,token);
 
             if (response.success) {
                 const cartedProducts = products.filter(product =>
@@ -52,6 +52,7 @@ export const CartProvider = ({ children }) => {
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {
+
         try {
             if (!user) return;
             const body = {
@@ -61,7 +62,7 @@ export const CartProvider = ({ children }) => {
                 selections: selections
             }
 
-            const data = await sendPostRequestToBackend('cart/addCartProduct', body);
+            const data = await sendPostRequestToBackend('cart/addCartProduct', body, token);
             if (data.success) {
                 setCartItems((prevCartItems) => {
                     // Check if the product already exists in the cart
@@ -91,7 +92,7 @@ export const CartProvider = ({ children }) => {
     // Handle item removal from cart
     const handleRemove = useCallback(async (itemId) => {
         try {
-            const response = await sendPostRequestToBackend("cart/removeCart", { userid: user.id, productid: itemId });
+            const response = await sendPostRequestToBackend("cart/removeCart", { productid: itemId },token);
             if (response.success) {
                 console.log("handleRemove", response.success);
 
@@ -105,7 +106,7 @@ export const CartProvider = ({ children }) => {
     // Handle item quantity update
     const handleQuantityChange = useCallback(async (itemId, newQuantity) => {
         try {
-            const response = await sendPostRequestToBackend("cart/updateQuantity", { userid: user.id, productid: itemId, quantity: newQuantity });
+            const response = await sendPostRequestToBackend("cart/updateQuantity", { productid: itemId, quantity: newQuantity },token);
             if (response.success) {
                 setCartItems((prevItems) =>
                     prevItems.map((item) =>

@@ -45,16 +45,17 @@ export default function Address() {
   useEffect(() => {
     if (user) {
       fetchAddress();
+    }else{
+      return;
     }
   }, [])
 
   const fetchAddress = async () => {
     try {
 
-      const response = await sendGetRequestToBackend(`checkout/Address/${user.id}`);
+      const response = await sendGetRequestToBackend(`checkout/Address`,token);
       // console.log(response);
       if (response.address.length >= 1) {
-        console.log("response.address", response.address);
         setShowAddressForm(false);
         setAddress(response.address);
       }
@@ -78,14 +79,16 @@ export default function Address() {
     e.preventDefault();
     // console.log("data", address);
     if (user) {
-      const adressWithUser = {
+      const addressWithUser = {
         ...address,
         userid: user.id
       }
       if (!active.homebtn && !active.workbtn) {
         alert("Please select an option: Home or Work ");
       } else {
-        const response = await sendPostRequestToBackend('checkout/addAddress', adressWithUser);
+        const response = await sendPostRequestToBackend('checkout/addAddress', addressWithUser,token);
+        console.log("RESPONSE OF ADDRSS",response);
+        
         if (response.success) {
           window.location.reload();
           setShowAddressForm(false);

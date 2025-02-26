@@ -20,8 +20,10 @@ import Dashboard from './components/AdminPanel/Dashboard';
 import Sidebar from './components/AdminPanel/Sidebar';
 import MainAdminLayout from './components/AdminPanel/MainAdminLayout';
 import ProductViewPage from './pages/ProductViewPage';
-import ProductTable from './components/AdminPanel/ProductTable';
+import ManageProduct from './components/AdminPanel/ManageProduct.jsx';
 import ProductAddForm from './components/AdminPanel/ProductAddForm';
+import ManageOrder from './components/AdminPanel/ManageOrder';
+import ProductDetails from './components/AdminPanel/ProductDetails.jsx';
 const App = () => {
   return (
     <div className="app">
@@ -36,9 +38,13 @@ const App = () => {
         }>
 
           <Route index element={<Dashboard />} />
-          <Route path="products/manage" element={< ProductTable />} />
+          <Route path="products/manage" element={< ManageProduct />} />
           <Route path="products/add" element={<ProductAddForm />} />
+          <Route path="products/view" element={<ProductDetails />} />
+
           <Route path="attributes" element={<AdminAttributes />} />
+          <Route path="manage-order" element={<ManageOrder/>} />
+
 
         </Route>
 

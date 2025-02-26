@@ -66,8 +66,11 @@
   }
 
   .product-card-info {
-    padding: 16px;
-
+    padding: 12px;
+    flex-grow: 1;  // Helps distribute space evenly
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     .brand {
       font-size: 1rem;
       font-weight: bold;
@@ -130,7 +133,8 @@
 
         .original-price,
         .discount {
-          font-size: 0.75rem;
+          
+          font-size: 0.7rem;
         }
       }
     }
