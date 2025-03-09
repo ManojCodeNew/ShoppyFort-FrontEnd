@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -25,9 +26,9 @@ import ProductAddForm from './components/AdminPanel/ProductAddForm';
 import ManageOrder from './components/AdminPanel/ManageOrder';
 import ProductDetails from './components/AdminPanel/ProductDetails.jsx';
 const App = () => {
+
   return (
     <div className="app">
-
       <Routes>
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -43,7 +44,7 @@ const App = () => {
           <Route path="products/view" element={<ProductDetails />} />
 
           <Route path="attributes" element={<AdminAttributes />} />
-          <Route path="manage-order" element={<ManageOrder/>} />
+          <Route path="manage-order" element={<ManageOrder />} />
 
 
         </Route>

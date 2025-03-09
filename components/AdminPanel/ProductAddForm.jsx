@@ -28,6 +28,8 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
 
     useEffect(() => {
         if (initialData) {
+            console.log("update product",initialData);
+            
             setProductData(initialData);
         }
     }, [initialData]);
@@ -35,6 +37,8 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(productData);
+        
         if (initialData) {
             await updateProduct(productData);
         } else {
@@ -209,7 +213,12 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
                             min="0"
                             placeholder='Enter quantity'
                             value={productData.quantity}
-                            onChange={(e) => setProductData({ ...productData, quantity: e.target.value })} />
+                            onChange={(e) =>
+                                setProductData(prevData => ({
+                                    ...prevData,
+                                    quantity: Number(e.target.value) // Ensure it's stored as a number
+                                }))
+                            } />
                     </div>
                     <ImageUpload productName={`${productData.name}`} colors={productData.colors} />
 

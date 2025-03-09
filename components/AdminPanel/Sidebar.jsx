@@ -1,39 +1,22 @@
-import React, { useState } from 'react'; // Importing useState correctly here
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   ShoppingBag,
   Users,
   Package,
   Settings,
-  BarChart3,
-  LogOut,
+  Tag,
+  Gift,
+  LogOut
 } from 'lucide-react';
 import './styles/sidebar.css';
-import { NavLink } from 'react-router-dom';
-
-const menuItems = [
-  { icon: LayoutDashboard, text: 'Dashboard', path: '/' },
-  { icon: ShoppingBag, text: 'Orders', path: 'manage-order' },
-  { icon: Users, text: 'Customers', path: 'customers' },
-  {
-    icon: Package,
-    text: 'Products',
-    // path: 'products',
-    subcategory: [
-      { text: 'Add Product', path: 'products/add' },
-      { text: 'Manage Product', path: 'products/manage' },
-    ],
-  },
-  { icon: BarChart3, text: 'Subcategory', path: '/' },
-  { icon: Settings, text: 'Settings', path: '/' },
-];
 
 const Sidebar = () => {
   const [expandedMenu, setExpandedMenu] = useState(null);
 
-  const toggleSubMenu = (text) => {
-    // Logic to toggle submenus
-    setExpandedMenu(expandedMenu === text ? null : text);
+  const toggleSubMenu = (menuName) => {
+    setExpandedMenu(expandedMenu === menuName ? null : menuName);
   };
 
   return (
@@ -44,34 +27,63 @@ const Sidebar = () => {
       </div>
 
       <nav className="sidebar-menu">
-        {menuItems.map((item) => (
-          <div key={item.text} className="sidebar-menu-group">
-            <NavLink
-              to={item.path}
-              className={`sidebar-menu-item ${item.subcategory ? 'has-submenu' : ''}`}
-              onClick={() => item.subcategory && toggleSubMenu(item.text)}
-            >
-              <item.icon className="sidebar-menu-icon" />
-              <span>{item.text}</span>
-            </NavLink>
+        {/* Dashboard */}
+        <NavLink to="/admin" className="sidebar-menu-item">
+          <LayoutDashboard className="sidebar-menu-icon" />
+          <span>Dashboard</span>
+        </NavLink>
 
-            {item.subcategory && expandedMenu === item.text && (
-              <div className="sidebar-submenu">
-                {item.subcategory.map((sub) => (
-                  <NavLink
-                    key={sub.text}
-                    to={sub.path}
-                    className="sidebar-submenu-item"
-                  >
-                    <span>{sub.text}</span>
-                  </NavLink>
-                ))}
-              </div>
-            )}
+        {/* Orders */}
+        <NavLink to="/admin/manage-order" className="sidebar-menu-item">
+          <ShoppingBag className="sidebar-menu-icon" />
+          <span>Orders</span>
+        </NavLink>
+
+        {/* Customers */}
+        <NavLink to="/admin/customers" className="sidebar-menu-item">
+          <Users className="sidebar-menu-icon" />
+          <span>Customers</span>
+        </NavLink>
+
+        {/* Add Offers */}
+        <NavLink to="/admin/offers" className="sidebar-menu-item">
+          <Gift className="sidebar-menu-icon" />
+          <span>Add Offers</span>
+        </NavLink>
+
+        {/* Products (with Submenu) */}
+        <div className="sidebar-menu-group">
+          <div className="sidebar-menu-item has-submenu" onClick={() => toggleSubMenu("products")}>
+            <Package className="sidebar-menu-icon" />
+            <span>Products</span>
           </div>
-        ))}
+
+          {expandedMenu === "products" && (
+            <div className="sidebar-submenu">
+              <NavLink to="/admin/products/add" className="sidebar-submenu-item">
+                <span>Add Product</span>
+              </NavLink>
+              <NavLink to="/admin/products/manage" className="sidebar-submenu-item">
+                <span>Manage Product</span>
+              </NavLink>
+              <NavLink to="/admin/categories/add" className="sidebar-submenu-item">
+                <span>Add Category</span>
+              </NavLink>
+              <NavLink to="/admin/categories/manage" className="sidebar-submenu-item">
+                <span>Manage Categories</span>
+              </NavLink>
+            </div>
+          )}
+        </div>
+
+        {/* Settings */}
+        <NavLink to="/admin/settings" className="sidebar-menu-item">
+          <Settings className="sidebar-menu-icon" />
+          <span>Settings</span>
+        </NavLink>
       </nav>
 
+      {/* Logout */}
       <div className="sidebar-footer">
         <button className="sidebar-logout-button">
           <LogOut className="sidebar-logout-icon" />

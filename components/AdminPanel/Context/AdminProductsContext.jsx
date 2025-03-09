@@ -2,7 +2,7 @@ import sendGetRequestToBackend from '@/components/Request/Get';
 import sendPostRequestToBackend from '@/components/Request/Post';
 import React, { useCallback, useEffect } from 'react';
 import { createContext, useContext, useState } from 'react';
-
+import { useNotification } from '@/components/Notify/NotificationProvider';
 // Create Context
 const AdminProductsContext = createContext();
 
@@ -12,24 +12,42 @@ function AdminProductsProvider({ children }) {
     const [images, setImages] = useState({});
     const [initialData, setInitialData] = useState(null);
     const [initialImagData, setInitialImgData] = useState(null);
-
+    const { showNotification } = useNotification();
     const token = localStorage.getItem("user");
 
     useEffect(() => {
         if (initialData && products.length > 0) {
+            console.log("SECOND in UseEffect ", products);
+
             // Find the product with the same _id
             const matchingProduct = products.find((product) => product._id === initialData._id);
-
             if (matchingProduct) {
-                // Store its colorImages in initialImagData
-                setInitialImgData(matchingProduct.colorImages);
+                const formattedColorImages = {};
+                Object.entries(matchingProduct.colorImages || {}).forEach(([color, images]) => {
+                    formattedColorImages[color] = images.map(imageName => ({
+                        name: imageName.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1],
+                        url:imageName,
+                        file: null
+                    }));
+                });
+                console.log("formatted Imag DATA:",formattedColorImages);
+                
+
+                setInitialImgData(formattedColorImages);
             }
+                console.log("formatted Product:",products);
         }
     }, [initialData, products]);
+    console.log("THIRD in admin context main", initialImagData);
+
 
 
     const postProduct = useCallback(async (productData) => {
         try {
+            if (Object.keys(images).length === 0) {
+                showNotification("Please upload at least one image before posting the product.", "error");
+                return;
+            }
 
             const finalDataToSend = {
                 ...productData,
@@ -51,10 +69,20 @@ function AdminProductsProvider({ children }) {
 
     const updateProduct = useCallback(async (productData) => {
         try {
+            console.log("FOURTH in UpdateProducts", initialImagData);
+            console.log("Images 2",images,initialImagData);
+            
+            if (Object.keys(images).length === 0 && (!initialImagData || Object.values(initialImagData).every(arr => arr.length === 0))) {
+                showNotification("Please upload at least one image before posting the product.", "error");
+                return;
+            }
+
+            // Check if the images object has any keys
+            const updatedImages = Object.keys(images).length > 0 ? images : initialImagData;
 
             const finalUpdatedDataToSend = {
                 ...productData,
-                colorImages: images,
+                colorImages: updatedImages,
             }
             console.log("finalUpdatedDataToSend", finalUpdatedDataToSend);
 
@@ -67,10 +95,11 @@ function AdminProductsProvider({ children }) {
                 body: JSON.stringify(finalUpdatedDataToSend),
             });
             const data = await response.json();
-            console.log("Response data", data);
+            // console.log("Response data", data);
 
             if (data.success) {
-                console.log("Update success:", data.success);
+                showNotification(data.success, "success");
+                // window.location.reload();
             }
             if (!response.ok) {
                 throw new Error(data.error || "Failed to update product");
@@ -78,13 +107,39 @@ function AdminProductsProvider({ children }) {
         } catch (error) {
             console.error("Update failed:", error.message);
         }
-    }, [images]);
+    }, [images, initialImagData]);
+
+    const removeImgOnDb = useCallback(async (deletedImageQuery) => {
+        try {
+            console.log("Image Query", deletedImageQuery);
+            let UpdateImageInDB = await fetch("http://localhost:3000/admin/updateImage", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(deletedImageQuery),
+            });
+            let result = await UpdateImageInDB.json();
+            // console.log("removeImgDB",result);
+            
+            if (result.success) {
+                showNotification(`${result.success}`, "success");
+                return result;
+            } else {
+                showNotification(`${result.error}`, "error");
+                return result;
+
+            }
+
+        } catch (error) {
+            console.error("Update failed:", error.message);
+        }
+    }, []);
 
 
     const getProducts = useCallback(async () => {
         try {
             const response = await sendGetRequestToBackend("admin/products", token);
             if (response.products) {
+                console.log("FIRST in getProducts() ", response.products);
 
                 // Update colorImages in each product
                 const modifiedProducts = response.products.map(product => {
@@ -92,8 +147,7 @@ function AdminProductsProvider({ children }) {
                     const modifiedColorImages = product.colorImages
                         ? Object.keys(product.colorImages).reduce((acc, color) => {
                             acc[color] = product.colorImages[color].map(imagePath => {
-                                // Prepend the base URL to each image path
-                                return "https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/" + imagePath;
+                                return `https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/${imagePath}`;
                             });
                             return acc;
                         }, {})
@@ -133,8 +187,10 @@ function AdminProductsProvider({ children }) {
         setImages,
         initialData,
         setInitialData,
-        initialImagData,
-        updateProduct
+        // initialImagData,
+        updateProduct,
+        removeImgOnDb,
+        setInitialImgData
     }
 
     return (

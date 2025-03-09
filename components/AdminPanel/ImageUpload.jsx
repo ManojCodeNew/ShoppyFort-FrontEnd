@@ -1,29 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { useAdminProducts } from "./Context/AdminProductsContext";
-
+import { useAdminProducts } from "./Context/AdminProductsContext.jsx";
+// import Notification from "../Notify/Notification.jsx";
+import { useNotification } from "../Notify/NotificationProvider.jsx";
 function ImageUpload({ productName, colors }) {
-    const { setImages, initialData } = useAdminProducts();
+    const { setImages, initialData, removeImgOnDb,setInitialImgData } = useAdminProducts();
     const [selectedImages, setSelectedImages] = useState({});
+    const { showNotification } = useNotification();
+    let isUpdate = false;
 
     useEffect(() => {
         const initialImagesState = colors.reduce((acc, color) => {
             acc[color] = initialData?.colorImages?.[color]?.map(imageUrl => ({
-                name: imageUrl.split('/').pop(),
+                name: imageUrl.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1],
                 url: imageUrl,
                 file: null
             })) || [];
             return acc;
         }, {});
         setSelectedImages(initialImagesState);
+        console.log("Initial Images state :", selectedImages);
+
     }, [colors, initialData]);
+
+    // console.log("checking selected images: ", selectedImages);
 
     const handleImageSelection = (e, colorName) => {
         const files = Array.from(e.target.files);
-        const formattedProductName = productName.replace(/\s+/g, '+');
-        const formattedColorName = colorName.replace(/\s+/g, '+');
 
         const newFiles = files.map(file => ({
-            name: `product_images/${formattedProductName}/${formattedColorName}/${file.name}`,
+            name: file.name,
             url: URL.createObjectURL(file),
             file
         }));
@@ -32,38 +37,69 @@ function ImageUpload({ productName, colors }) {
             ...prevImages,
             [colorName]: [...(prevImages[colorName] || []), ...newFiles],
         }));
+        showNotification("Image(s) selected successfully!", "success");
     };
 
     const removeImage = async (colorName, index, e) => {
         e.preventDefault();
+        if (!selectedImages[colorName]) {
+            showNotification("Color not found!", "error");
+            return;
+        }
+
         const updatedImages = [...selectedImages[colorName]];
-        const { url, file } = updatedImages[index];
+        const { url, file } = updatedImages[index] || {};
+        if (!url) { showNotification("Selected image is missing!", "error"); return; }
 
         if (!file) {
-            let imagePath = url.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1];
-            imagePath = imagePath.replace(/\+/g, " ");
-            const response = await fetch("http://localhost:3000/delete-image", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ imagePath }),
-            });
-            const data = await response.json();
-            if (data.success) {
-                console.log("remove Img RES",data,colorName,index);
-                
-                updatedImages.splice(index, 1);
-                setSelectedImages(prevImages => ({ ...prevImages, [colorName]: updatedImages }));
-                setImages(prevImages => {
-                    const updatedState = { ...prevImages };
-                    if (updatedState[colorName]) {
-                        updatedState[colorName] = updatedState[colorName].filter(img => img.name !== imagePath);
-                    }
-            console.log("IMAGES",updatedState);
+            try {
+                let imagePath = url.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1];
+                console.log("Image Path", url);
+                imagePath = imagePath.replace(/\+/g, " ");
 
-                    return updatedState;
+                const s3Response = await fetch("http://localhost:3000/delete-image", {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ imagePath }),
                 });
+
+                const s3Result = await s3Response.json();
+                console.log("ImageDeleteResponse", s3Result);
+
+                if (s3Result.success) {
+                    showNotification(`${s3Result.success}`, "success");
+                    let dbResponse = await removeImgOnDb({ id: initialData._id, colorname: colorName, position: index });
+                    console.log("dbResponse", dbResponse);
+                    if (dbResponse.success) {
+                        updatedImages.splice(index, 1);
+                        setSelectedImages(prevImages => ({ ...prevImages, [colorName]: updatedImages }));
+                        setImages(prevImages => {
+                            const updatedState = { ...prevImages };
+                            if (updatedState[colorName]) {
+                                updatedState[colorName] = updatedState[colorName].filter(img => img.name !== imagePath);
+                            }
+                            return updatedState;
+                        });
+                        setInitialImgData(prevImages => {
+                            const updatedState = { ...prevImages };
+                            if (updatedState[colorName]) {
+                                updatedState[colorName] = updatedState[colorName].filter(img => img.name !== imagePath);
+                            }
+                            return updatedState;
+                        });
+
+                        console.log("Updated Frontend State After DB Delete:", updatedImages);
+
+                    } else {
+                        showNotification("Failed to remove from DB!", "error");
+                    }
+
+                }else {
+                    showNotification("Failed to remove from S3!", "error");
+                }
+            } catch (error) {
+                showNotification("ERROR removing an Image", "error");
             }
-            
         } else {
             URL.revokeObjectURL(url);
             updatedImages.splice(index, 1);
@@ -73,37 +109,44 @@ function ImageUpload({ productName, colors }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        let isUpdate = false;
 
         const formData = new FormData();
         formData.append("productName", productName);
 
-        const colorImagesMap = {}; // Store { "Red": ["newImage1.jpg"], "Blue": ["newImage2.jpg"] }
-        const deletedImages = []; // Store images to delete from DB and S3
+        const newImagesMap = {}; // Store only new images to upload
+        const updatedImagesMap = {}; // Final image map with S3 paths
 
         Object.entries(selectedImages).forEach(([color, images]) => {
             const newImages = [];
+            const existingImages = [];
+
             images.forEach((image) => {
-                if (image.file) { // ✅ Only send new images
-                    formData.append("images", image.file); // Append actual file
-                    isUpdate = true;
+                if (image.file) {
+                    // ✅ New image: Upload it
+                    formData.append("images", image.file);
                     newImages.push(image.file.name);
+                    isUpdate = true;
+                } else {
+                    // ✅ Already existing image from S3
+                    existingImages.push(image);
                 }
+
             });
 
+
             if (newImages.length > 0) {
-                colorImagesMap[color] = newImages;
+                newImagesMap[color] = newImages;
             }
+
+            // Preserve already existing images in updatedImagesMap
+            if (existingImages.length > 0) {
+                updatedImagesMap[color] = existingImages;
+            }
+
         });
 
-        // ✅ Append colorImages only if new images are added
-        if (Object.keys(colorImagesMap).length > 0) {
-            formData.append("colorImages", JSON.stringify(colorImagesMap));
-        }
-
-        // ✅ If images were deleted, send them to the backend for deletion
-        if (deletedImages.length > 0) {
-            formData.append("deletedImages", JSON.stringify(deletedImages));
+        if (Object.keys(newImagesMap).length > 0) {
+            formData.append("colorImages", JSON.stringify(newImagesMap));
         }
 
         if (isUpdate) {
@@ -114,28 +157,48 @@ function ImageUpload({ productName, colors }) {
                 });
 
                 const data = await response.json();
-                console.log("Upload successful PATH:", data);
+
+                if (data.success) {
+                    showNotification(data.success, "success");
+
+                } else if (data.error) {
+                    showNotification(data.error, "error");
+
+                }
 
                 if (data.path) {
-                    const updatedImages = data.path.reduce((acc, { color, keys }) => {
-                        acc[color] = keys.map((imageUrl) => ({
-                            name: imageUrl,
-                            url: `https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/${imageUrl}`,
-                            file: null // No file because it's already uploaded
-                        }));
-                        return acc;
-                    }, {});
+                    data.path.forEach(({ color, keys }) => {
+                        if (!updatedImagesMap[color]) {
+                            updatedImagesMap[color] = [];
+                        }
 
-                    setSelectedImages((prevImgs) => ({
-                        ...prevImgs,
-                        ...updatedImages,
-                    }));
+                        updatedImagesMap[color] = [
+                            ...(updatedImagesMap[color] || []),
+                            ...keys.map(key => ({
+                                name: key,
+                                url: `https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/${key}`,  // ✅ Store only path, not full URL
+                                file: null,
+                            })),
+                        ];
+                    });
 
-                    setImages((prevImages) => ({
-                        ...prevImages,
-                        ...updatedImages,
-                    }));
-                    console.log("UPDATED IMAGES", updatedImages);
+                    // ✅ Update frontend state correctly
+                    setSelectedImages(updatedImagesMap);
+                    console.log("Images ",selectedImages);
+                    console.log("Before sending to db", updatedImagesMap);
+
+                    setImages(updatedImagesMap);
+
+                    // ✅ Send only final S3 paths to the database
+                    // let imageUpdateResponse = await fetch("http://localhost:3000/admin/updateImages", {
+                    //     method: "PUT",
+                    //     headers: { "Content-Type": "application/json" },
+                    //     body: JSON.stringify({ id: initialData._id, updatedImages: updatedImagesMap }),
+                    // });
+                    // if (imageUpdateResponse.success) {
+                    //     console.log(imageUpdateResponse.success);
+                    // }
+
                 }
             } catch (error) {
                 console.error("Upload failed:", error);
@@ -143,9 +206,9 @@ function ImageUpload({ productName, colors }) {
         }
     };
 
-
     return (
         <div style={{ padding: "20px" }}>
+
             <h2>Product Image Uploader</h2>
             {colors.length > 0 ? colors.map(color => (
                 <div key={color} style={{ marginTop: "20px", padding: "10px", border: "2px solid #333", borderRadius: "5px" }}>
@@ -161,7 +224,7 @@ function ImageUpload({ productName, colors }) {
                     </div>
                 </div>
             )) : <p>You haven't selected any colors yet.</p>}
-            <button onClick={handleSubmit} style={{ marginTop: "20px", padding: "10px 20px", backgroundColor: "green", color: "white" }}>Submit All</button>
+            <button onClick={handleSubmit} style={{ marginTop: "20px", padding: "10px 20px", backgroundColor: "green", color: "white" }} >Submit All</button>
         </div>
     );
 }

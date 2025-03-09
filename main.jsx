@@ -11,31 +11,31 @@ import { OrderDetailsProvider } from './contexts/OrderDetailsContext';
 import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext';
 import { BrowserRouter } from 'react-router-dom';
 import AdminProductsProvider from './components/AdminPanel/Context/AdminProductsContext';
+import { NotificationProvider } from './components/Notify/NotificationProvider';
 const root = createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <OrderProvider>
-
-
-        <AuthProvider>
-          <ProductProvider>
-            <AddressProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <OrderDetailsProvider>
-                    <AdminProductsProvider>
-                      <App />
-                    </AdminProductsProvider>
-                  </OrderDetailsProvider>
-                </WishlistProvider>
-              </CartProvider>
-            </AddressProvider>
-          </ProductProvider>
-        </AuthProvider>
-      </OrderProvider>
-
+      <NotificationProvider>
+        <OrderProvider>
+          <AuthProvider>
+            <ProductProvider>
+              <AddressProvider>
+                <CartProvider>
+                  <WishlistProvider>
+                    <OrderDetailsProvider>
+                      <AdminProductsProvider>
+                        <App />
+                      </AdminProductsProvider>
+                    </OrderDetailsProvider>
+                  </WishlistProvider>
+                </CartProvider>
+              </AddressProvider>
+            </ProductProvider>
+          </AuthProvider>
+        </OrderProvider>
+      </NotificationProvider>
     </BrowserRouter>
 
   </React.StrictMode>
