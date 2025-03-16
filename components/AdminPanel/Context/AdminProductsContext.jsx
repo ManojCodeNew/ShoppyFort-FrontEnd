@@ -3,6 +3,7 @@ import sendPostRequestToBackend from '@/components/Request/Post';
 import React, { useCallback, useEffect } from 'react';
 import { createContext, useContext, useState } from 'react';
 import { useNotification } from '@/components/Notify/NotificationProvider';
+import sendDeleteRequestToBackend from '@/components/Request/Delete';
 // Create Context
 const AdminProductsContext = createContext();
 
@@ -26,16 +27,16 @@ function AdminProductsProvider({ children }) {
                 Object.entries(matchingProduct.colorImages || {}).forEach(([color, images]) => {
                     formattedColorImages[color] = images.map(imageName => ({
                         name: imageName.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1],
-                        url:imageName,
+                        url: imageName,
                         file: null
                     }));
                 });
-                console.log("formatted Imag DATA:",formattedColorImages);
-                
+                console.log("formatted Imag DATA:", formattedColorImages);
+
 
                 setInitialImgData(formattedColorImages);
             }
-                console.log("formatted Product:",products);
+            console.log("formatted Product:", products);
         }
     }, [initialData, products]);
     console.log("THIRD in admin context main", initialImagData);
@@ -55,11 +56,11 @@ function AdminProductsProvider({ children }) {
             }
             const response = await sendPostRequestToBackend("admin/addProduct", finalDataToSend);
             if (response.msg) {
-                throw new Error(response.msg);
+                showNotification(response.msg,"error");
             }
             if (response.success) {
-                console.error(response.success);
-
+                showNotification(response.success,"success");
+                window.location.reload();
             }
         } catch (error) {
 
@@ -70,8 +71,8 @@ function AdminProductsProvider({ children }) {
     const updateProduct = useCallback(async (productData) => {
         try {
             console.log("FOURTH in UpdateProducts", initialImagData);
-            console.log("Images 2",images,initialImagData);
-            
+            console.log("Images 2", images, initialImagData);
+
             if (Object.keys(images).length === 0 && (!initialImagData || Object.values(initialImagData).every(arr => arr.length === 0))) {
                 showNotification("Please upload at least one image before posting the product.", "error");
                 return;
@@ -99,7 +100,7 @@ function AdminProductsProvider({ children }) {
 
             if (data.success) {
                 showNotification(data.success, "success");
-                // window.location.reload();
+                window.location.reload();
             }
             if (!response.ok) {
                 throw new Error(data.error || "Failed to update product");
@@ -119,7 +120,7 @@ function AdminProductsProvider({ children }) {
             });
             let result = await UpdateImageInDB.json();
             // console.log("removeImgDB",result);
-            
+
             if (result.success) {
                 showNotification(`${result.success}`, "success");
                 return result;
@@ -175,6 +176,30 @@ function AdminProductsProvider({ children }) {
         }
     }, []);
 
+    const deleteProduct = useCallback(async (productId) => {
+        try {
+            if (!productId) {
+                showNotification("Invalid product ID", "error");
+                return;
+            }
+
+            const deleteResponse = await sendDeleteRequestToBackend("admin/delete-product", {productId} , token);
+
+            if (deleteResponse.success) {
+                showNotification(deleteResponse.success, "success");
+
+                // Update the products list after deletion
+                setProducts(prevProducts => prevProducts.filter(product => product._id !== productId));
+            } else {
+                throw new Error(deleteResponse.error || "Failed to delete product");
+            }
+        } catch (error) {
+            console.error("Delete failed:", error.message);
+            showNotification(error.message, "error");
+        }
+    }, []);
+
+
     useEffect(() => {
         getProducts();
     }, [getProducts]);
@@ -187,10 +212,10 @@ function AdminProductsProvider({ children }) {
         setImages,
         initialData,
         setInitialData,
-        // initialImagData,
         updateProduct,
         removeImgOnDb,
-        setInitialImgData
+        setInitialImgData,
+        deleteProduct
     }
 
     return (

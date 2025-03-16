@@ -71,7 +71,7 @@ const Hero = () => {
             <h1>{banner.title}</h1>
             {banner.subtitle && <p>{banner.subtitle}</p>}
             {banner.link && (
-              <Link to={banner.link} className="cta-button">
+              <Link to={banner.link} className="bg-red-800 cta-button">
                 Shop Now
               </Link>
             )}

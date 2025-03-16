@@ -1,16 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect ,useState} from "react";
 import "./styles/ProductTable.css";
 import { useNavigate } from "react-router-dom";
 import { useAdminProducts } from "./Context/AdminProductsContext";
-
+import Loader from "../Load/Loader";
 
 const ProductTable = () => {
-    const { products, setInitialData } = useAdminProducts();
+    const { products, setInitialData, deleteProduct } = useAdminProducts();
     const navigate = useNavigate();
-
-    console.log("MANAGE PRODUT DATA", products);
-
-
+    const [isLoading, setIsLoading] = useState(true);
+    useEffect(() => {
+        if (products) {
+            setIsLoading(false);
+        }
+    }, [products])
 
     return (
         <div className="table-container">
@@ -23,16 +25,15 @@ const ProductTable = () => {
                         <th>Created At</th>
                         <th>Stock</th>
                         <th>Price</th>
-                        <th>Publish</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {products ? (
                         <>
-
+                            {isLoading && <Loader />}
                             {products.map((product, index) => (
-                                <tr key={product.id}>
+                                <tr key={product._id}>
                                     <td>
                                         <b>{index + 1}</b>
                                     </td>
@@ -55,20 +56,18 @@ const ProductTable = () => {
                                         </span>
                                     </td>
                                     <td>{product.price}</td>
+                                    
                                     <td>
-                                        <span className={`status ${product.publishStatus === "Published" ? "published" : "draft"}`}>
-                                            {product.publishStatus}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <button className="view-btn" onClick={()=>{
+                                        <button className="view-btn" onClick={() => {
                                             setInitialData(product);
                                             navigate('/admin/products/view')
-                                            }}>View</button>
+                                        }}>View</button>
                                         <button className="edit-btn" onClick={() => {
                                             setInitialData(product);
-                                            navigate("/admin/products/add");
+                                            navigate("/admin/products/edit");
                                         }}>Edit</button>
+
+                                        <button className="delete-btn" onClick={() => deleteProduct(product._id)}  >Delete</button>
                                     </td>
                                 </tr>
                             ))

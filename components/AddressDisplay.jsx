@@ -30,7 +30,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
             const user = jwtDecode(token);
 
             const generateOrderId = () => {
-                return Math.floor(100000 + Math.random() * 900000).toString(); // Generates a 6-digit number
+                return `SH-${Math.floor(1000 + Math.random() * 9000)}`; // Generates SH-XXXX (4-digit number)
             };
 
             const shippingAddress = addressData.find(address => address._id === selectedAddress);

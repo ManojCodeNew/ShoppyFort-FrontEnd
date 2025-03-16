@@ -1,5 +1,4 @@
 @import '../variables';
-// @use '../variables' as vars;
 
 .header {
   position: sticky;
@@ -131,7 +130,17 @@
       background: $hover-color;
     }
   }
-  .user-order-link {
+  .user-notification {
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    &:hover {
+      background: $hover-color;
+    }
+  }
+  .user-order-link,
+  .user-notification-link {
     text-decoration: none;
     color: black;
   }
@@ -163,14 +172,13 @@
     @include mobile-only {
       margin-left: -50px;
       // width: 100%;
-
     }
   }
-// .search-bar-container{
-//   @include mobile-only{
-//     display: none;
-//   }
-// }
+  // .search-bar-container{
+  //   @include mobile-only{
+  //     display: none;
+  //   }
+  // }
   .nav-action-profile {
     display: flex;
     flex-direction: column;
@@ -182,11 +190,11 @@
     &:hover {
       color: #06987b;
     }
-    .user-icon{
+    .user-icon {
       width: 21px;
     }
-    @include mobile-and-tablet{
-      .user-icon{
+    @include mobile-and-tablet {
+      .user-icon {
         width: 20px;
       }
     }
@@ -269,24 +277,23 @@
         //   display: none;
         // }
       }
-      .heart-icon{
+      .heart-icon {
         width: 21px;
       }
-      .ShoppingBag-icon{
+      .ShoppingBag-icon {
         width: 25px;
       }
-      @include mobile-and-tablet{
-        .ShoppingBag-icon{
+      @include mobile-and-tablet {
+        .ShoppingBag-icon {
           width: 20px;
         }
-        .heart-icon{
+        .heart-icon {
           width: 20px;
         }
-        .user-icon{
+        .user-icon {
           width: 2px;
         }
       }
-
     }
   }
 }

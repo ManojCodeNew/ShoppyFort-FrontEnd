@@ -1,34 +1,38 @@
 import React from 'react';
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import CategoryPage from './pages/CategoryPage';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
-import WishlistPage from './pages/WishlistPage';
-import AdminLogin from './pages/admin/AdminLogin';
-import AdminAttributes from './pages/admin/Attributes';
-import Address from './components/checkout/Address';
-import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute';
-import CartPage from './pages/CartPage';
-import OrderPlaced from './pages/OrdePlaced';
-import OrderDetails from './pages/OrderDetails';
+import Navbar from './components/Navbar.jsx';
+import Footer from './components/Footer.jsx';
+import Home from './pages/Home.jsx';
+import CategoryPage from './pages/CategoryPage.jsx';
+import LoginPage from './pages/auth/LoginPage.jsx';
+import RegisterPage from './pages/auth/RegisterPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import WishlistPage from './pages/WishlistPage.jsx';
+import AdminLogin from './pages/admin/AdminLogin.jsx';
+import AdminAttributes from './pages/admin/Attributes.jsx';
+import Address from './components/checkout/Address.jsx';
+import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute.jsx';
+import CartPage from './pages/CartPage.jsx';
+import OrderPlaced from './pages/OrdePlaced.jsx';
+import OrderDetails from './pages/OrderDetails.jsx';
 import Offers from './components/Offers.jsx';
-import Dashboard from './components/AdminPanel/Dashboard';
-import Sidebar from './components/AdminPanel/Sidebar';
-import MainAdminLayout from './components/AdminPanel/MainAdminLayout';
-import ProductViewPage from './pages/ProductViewPage';
+import Dashboard from './components/AdminPanel/Dashboard.jsx';
+import Sidebar from './components/AdminPanel/Sidebar.jsx';
+import MainAdminLayout from './components/AdminPanel/MainAdminLayout.jsx';
+import ProductViewPage from './pages/ProductViewPage.jsx';
 import ManageProduct from './components/AdminPanel/ManageProduct.jsx';
-import ProductAddForm from './components/AdminPanel/ProductAddForm';
-import ManageOrder from './components/AdminPanel/ManageOrder';
+import ProductAddForm from './components/AdminPanel/ProductAddForm.jsx';
+import ManageOrder from './components/AdminPanel/ManageOrder.jsx';
 import ProductDetails from './components/AdminPanel/ProductDetails.jsx';
+import UserNotification from './components/UserNotification.jsx'
+import './index.css'; // Adjust based on your file structure
+
 const App = () => {
 
   return (
     <div className="app">
+
       <Routes>
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -41,7 +45,10 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="products/manage" element={< ManageProduct />} />
           <Route path="products/add" element={<ProductAddForm />} />
+          <Route path="products/edit" element={<ProductAddForm />} />
           <Route path="products/view" element={<ProductDetails />} />
+          <Route path="customers/view" element={<ProductDetails />} />
+
 
           <Route path="attributes" element={<AdminAttributes />} />
           <Route path="manage-order" element={<ManageOrder />} />
@@ -71,6 +78,9 @@ const App = () => {
                 <Route path="checkout/address" element={<Address />} />
                 <Route path="successToOrder" element={<OrderPlaced />} />
                 <Route path="offers" element={<Offers />} />
+                <Route path="notifications" element={<UserNotification/>} />
+
+                
               </Routes>
             </main>
             <Footer />

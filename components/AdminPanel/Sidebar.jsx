@@ -66,9 +66,6 @@ const Sidebar = () => {
               <NavLink to="/admin/products/manage" className="sidebar-submenu-item">
                 <span>Manage Product</span>
               </NavLink>
-              <NavLink to="/admin/categories/add" className="sidebar-submenu-item">
-                <span>Add Category</span>
-              </NavLink>
               <NavLink to="/admin/categories/manage" className="sidebar-submenu-item">
                 <span>Manage Categories</span>
               </NavLink>

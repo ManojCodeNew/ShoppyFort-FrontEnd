@@ -24,6 +24,9 @@
 .error {
     background-color: #dc3545; /* Red */
 }
+.info {
+    background-color: #007bff; /* Blue for OTP */
+}
 
 .close-btn {
     background: none;

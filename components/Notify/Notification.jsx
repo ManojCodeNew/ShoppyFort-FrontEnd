@@ -10,7 +10,7 @@ const Notification = ({ message, type, onClose }) => {
     }, [message, onClose]);
     if (!message) return null;
     return (
-        <div className={`notification ${type === "success" ? "success" : "error"}`}>
+        <div className={`notification ${type}`}>
             {message}
             <button className="close-btn" onClick={onClose}>×</button>
         </div>

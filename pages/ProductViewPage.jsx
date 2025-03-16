@@ -22,7 +22,6 @@ const ProductViewPage = () => {
   // Product Image displaying state
   const [productImage, setProductImage] = useState();
 
-  console.log("View Page", product);
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 

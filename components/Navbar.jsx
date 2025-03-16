@@ -76,6 +76,7 @@ const Navbar = () => {
                       <Link to='/login' className='user-order-link'><p className='user-order'>Orders</p></Link>
 
                   }
+                  <Link to='/notifications' className='user-notification-link'><p className='user-notification'>Notification</p></Link>
                   {user && (
                     <p className='user-logout' onClick={() => logout()}>logout</p>
                   )}
@@ -92,7 +93,7 @@ const Navbar = () => {
             </Link>
             <button
               className="nav-action"
-              // onClick={() => setIsCartOpen(true)}
+            // onClick={() => setIsCartOpen(true)}
             >
               <Link to="/cart" className="nav-action">
 

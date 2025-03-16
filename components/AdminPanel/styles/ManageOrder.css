@@ -1,193 +1,251 @@
-/* Container styles */
-.table-container {
-  width: 90%;
-  margin: auto;
-  overflow-x: auto;
+.order-table-container {
+  width: 100%;
   padding: 20px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
-/* Table styles */
+.table-title {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
 .custom-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
-  font-size: 16px;
-  text-align: left;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 5px;
   overflow: hidden;
 }
 
 .custom-table th,
 .custom-table td {
-  padding: 14px 18px;
-  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
 }
 
-.custom-table th {
-  background: #f8f9fa;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: #333;
-}
-
-.custom-table tr:hover {
-  background-color: #f3f3f3;
-  transition: 0.3s ease;
-}
-
-/* Status badge styles */
 .status {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 4px;
   font-weight: bold;
-  text-transform: capitalize;
-  display: inline-block;
-}
-
-.status.refunded {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.status.completed {
   background-color: #28a745;
-  color: white;
 }
-
-.status.pending {
-  background-color: #ff9800;
-  color: white;
-}
-
-/* Email and time styling */
-.email,
-.time {
-  color: #6c757d;
-  font-size: 14px;
-}
-
-/* Toggle button */
-.toggle-btn {
-  background-color: #007bff;
-  color: white;
+.action-btn {
+  padding: 10px 16px;
+  margin-top: 10px;
   border: none;
-  padding: 6px 12px;
-  cursor: pointer;
   border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
   font-size: 14px;
+  color: white;
+  cursor: pointer;
   transition: background 0.3s ease;
 }
 
-.toggle-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Expanded row styles */
-.expanded-row td {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-top: 2px solid #ddd;
-}
-
-/* Product details section */
-.products-container {
-  padding: 10px;
-}
-
-.products-container h4 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.expanded-row ul {
-  list-style: none;
-  padding: 0;
-}
-
-.expanded-row ul li {
-  padding: 8px 12px;
-  background: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-  font-size: 15px;
-}
-
-.expanded-row ul li strong {
-  color: #333;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .custom-table {
-    font-size: 14px;
-  }
-  .custom-table th,
-  .custom-table td {
-    padding: 10px;
-  }
-  .toggle-btn {
-    font-size: 12px;
-    padding: 4px 8px;
-  }
-}
-
-/* Product Table Styles */
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.product-table th,
-.product-table td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-.product-table th {
-  background: #f8f9fa;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: #333;
-}
-
-.product-table tr:hover {
-  background-color: #f3f3f3;
-  transition: 0.3s ease;
-}
-.action-btn {
-  padding: 5px 10px;
-  margin: 3px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.placed {
-  background-color: #ffc107;
-  color: #000;
-}
-
 .shipped {
-  background-color: #17a2b8;
-  color: white;
+  background-color: #008080; /* Teal */
+}
+
+.shipped:hover {
+  background-color: #006666; /* Darker shade of teal */
 }
 
 .delivered {
-  background-color: #28a745;
+  background-color: #008b8b; /* DarkCyan */
+}
+
+.delivered:hover {
+  background-color: #007777; /* Darker shade of dark cyan */
+}
+
+.cancel {
+  background-color: #ff4d4d; /* Red for cancel */
+}
+
+.cancel:hover {
+  background-color: #cc0000; /* Darker red */
+}
+
+.action-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.toggle-btn {
+  padding: 2px 8px;
+  font-size: 10px;
+  background-color: #004d4d;
+  color: white;
+  border: none;
+  border-radius: 10px; /* Rounded corners */
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.toggle-btn:hover {
+  background-color: #007777; /* Lighter teal on hover */
+  transform: scale(1.1); /* Slight zoom effect */
+}
+.expanded-row {
+  text-align: left;
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.order-details {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+}
+
+.order-info {
+  text-align: left;
+  flex: 1;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.order-info span {
+  font-weight: normal;
+  display: block;
+  margin-top: 5px;
+  color: #b0b0b0;
+}
+
+.ordered-product-table {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #e7e7e7;
+  border-collapse: collapse;
+}
+
+.ordered-product-table th,
+.ordered-product-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.ordered-product-table th {
+  background-color: #004d4d;
   color: white;
 }
+.address-details {
+  text-align: left;
+}
+.confirm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Dim background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.confirm-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 30%;
+}
+
+.confirm-modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+.confirm-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.confirm-btn:hover {
+  background-color: #218838;
+}
+
+.confirm-cancel-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.confirm-cancel-btn:hover {
+  background-color: #c82333;
+}
+
+.otp-verification-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.otp-verification-container p {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+#otp-input {
+  width: 100px;
+  height: 40px;
+  font-size: 18px;
+  text-align: center;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+#otp-input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 91, 187, 0.5);
+}
+
+#otp-input::placeholder {
+  color: #999;
+  font-size: 16px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  #otp-input {
+    width: 80px;
+    height: 35px;
+    font-size: 16px;
+  }
+}
+.verifyOtp-btn {
+  background-color: #28a745; /* Green background */
+  color: white; /* White text */
+  border: none; /* Remove default border */
+  border-radius: 6px; /* Slightly rounded corners */
+  padding: 6px 12px; /* Smaller padding */
+  font-size: 14px; /* Smaller font size */
+  font-weight: bold; /* Make text bold */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transition only color and bg */
+}
+

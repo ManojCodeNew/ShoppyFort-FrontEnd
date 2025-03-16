@@ -1,4 +1,5 @@
-@import '../../variables';
+@use '../../variables' as *;
+@use "sass:color";
 
 .admin-login {
   min-height: 100vh;
@@ -86,7 +87,7 @@
     transition: all 0.3s ease;
 
     &:hover {
-      background: darken($primary-color, 5%);
+      background: color.scale($primary-color, $lightness: -5%);
       transform: translateY(-2px);
     }
 

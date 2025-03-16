@@ -41,7 +41,7 @@ export default function ProductProvider({ children }) {
                 console.log("Modified Products:", modifiedProducts);
                 setProducts(modifiedProducts);
             } catch (error) {
-                console.error("Error fetching products:", error);
+                console.error("Error fetching products ", error);
             }
         };
 

@@ -1,4 +1,5 @@
-@import '../variables';
+@use "sass:color";
+@use '../variables' as *;
 
 .modal-overlay {
   position: fixed;
@@ -42,7 +43,7 @@
       cursor: pointer;
       padding: 4px;
       color: $gray-dark;
-      
+
       &:hover {
         color: $black;
       }
@@ -175,7 +176,7 @@
       cursor: pointer;
 
       &:hover {
-        background: darken($primary-color, 5%);
+        background: color.scale($primary-color, $lightness: -5%);
       }
     }
   }

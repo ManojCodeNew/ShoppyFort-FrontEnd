@@ -4,6 +4,8 @@ import '../../styles/components/admin/product-add-form.scss';
 import { useAdminProducts } from './Context/AdminProductsContext';
 import sendPostRequestToBackend from '../Request/Post';
 import ImageUpload from './ImageUpload';
+import { useNotification } from '../Notify/NotificationProvider.jsx';
+import { useNavigate } from 'react-router-dom';
 const ProductAddForm = ({ onSubmit, onClose }) => {
 
     const [productData, setProductData] = useState({
@@ -19,34 +21,65 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
         colors: [],
         quantity: ''
     });
+
+    const navigate = useNavigate();
+    const { showNotification } = useNotification();
+    const [categories, setCategories] = useState([]); // Store unique categories
+    const [customCategory, setCustomCategory] = useState(""); // Custom category input
     const [color, setColor] = useState();
     const [size, setSize] = useState();
     const [previewImgs, setPreviewImgs] = useState({});
-    const { postProduct, initialData, updateProduct } = useAdminProducts();
+    const { postProduct, initialData, updateProduct, products } = useAdminProducts();
     const [imgFiles, setImgFiles] = useState([]);
-
+    console.log("Product=", products, initialData);
 
     useEffect(() => {
+
         if (initialData) {
-            console.log("update product",initialData);
-            
             setProductData(initialData);
         }
-    }, [initialData]);
+        if (products) {
+            // Extract unique categories
+            const uniqueCategories = [
+                ...new Set(products.map((p) => p.category)),
+            ];
+            setCategories(uniqueCategories);
+        } else {
+            showNotification("No products found", "error");
+        }
+    }, [initialData, products]);
 
+    // useEffect(() => {
+    //     window.location.href = "/admin/products/add";;
+    // }, [products])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(productData);
-        
-        if (initialData) {
-            await updateProduct(productData);
-        } else {
-            await postProduct(productData);
+        let finalCategory = productData.category === "Others" ? customCategory : productData.category;
+
+
+        if (!finalCategory) {
+            showNotification("Please select or enter a category.", "error");
+            return;
         }
-        console.log("Product data", productData);
+
+        // If it's a new category, add it to the list
+        if (productData.category === "Others" && customCategory.trim() !== "") {
+            setCategories((prevCategories) => [...prevCategories, customCategory]);
+        }
+
+        const updatedProductData = { ...productData, category: finalCategory };
+
+        if (initialData) {
+            await updateProduct(updatedProductData);
+        } else {
+            await postProduct(updatedProductData);
+        }
+        console.log("Product data", updatedProductData);
 
     };
+    console.log("categories", categories);
 
 
     return (
@@ -136,13 +169,28 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
                                 required
                             >
                                 <option value="">Select Category</option>
-                                <option value="t-shirts">T-Shirts</option>
-                                <option value="shirts">Shirts</option>
-                                <option value="jeans">Jeans</option>
-                                <option value="dresses">Dresses</option>
-                                <option value="accessories">Accessories</option>
+                                {categories.map((cat, index) => (
+                                    <option key={index} value={cat}>
+                                        {cat}
+                                    </option>
+                                ))}
+                                <option value="Others">Others</option>
                             </select>
                         </div>
+                        {/* Custom Category Input (Only when "Others" is selected) */}
+                        {productData.category === "Others" && (
+                            <div className="form-group">
+                                <label>Enter Custom Category</label>
+                                <input
+                                    type="text"
+                                    value={customCategory}
+                                    onChange={(e) => setCustomCategory(e.target.value)}
+                                    placeholder="Enter new category"
+                                    required
+                                />
+                            </div>
+                        )}
+
                     </div>
 
                     <div className="form-group">

@@ -10,6 +10,8 @@ import { useAddress } from '@/contexts/AddressContext';
 import { NavLink } from 'react-router-dom';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../Notify/NotificationProvider.jsx';
+import Loader from '../Load/Loader.jsx';
 export default function Address() {
   const [address, setAddress] = useState({
     userid: '',
@@ -27,8 +29,9 @@ export default function Address() {
   const navigate = useNavigate();
   const [showAddressForm, setShowAddressForm] = useState(true);
   const { selectedAddressPresence } = useAddress();
-
+  const { showNotification } = useNotification();
   const [CODSelections, setCODSelections] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [active, setActive] = useState({
     homebtn: false,
@@ -45,23 +48,23 @@ export default function Address() {
   useEffect(() => {
     if (user) {
       fetchAddress();
-    }else{
+    } else {
       return;
     }
   }, [])
 
   const fetchAddress = async () => {
+    setLoading(true);
     try {
-
-      const response = await sendGetRequestToBackend(`checkout/Address`,token);
-      // console.log(response);
+      const response = await sendGetRequestToBackend(`checkout/Address`, token);
       if (response.address.length >= 1) {
         setShowAddressForm(false);
         setAddress(response.address);
       }
     } catch (error) {
-      console.error("Error fetching products", error);
-
+      showNotification("Error fetching products", "error");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -79,20 +82,22 @@ export default function Address() {
     e.preventDefault();
     // console.log("data", address);
     if (user) {
+      setLoading(true);
       const addressWithUser = {
         ...address,
         userid: user.id
       }
       if (!active.homebtn && !active.workbtn) {
-        alert("Please select an option: Home or Work ");
+        showNotification("Please select an option: Home or Work ", "error");
+        setLoading(false);
+        return;
       } else {
-        const response = await sendPostRequestToBackend('checkout/addAddress', addressWithUser,token);
-        console.log("RESPONSE OF ADDRSS",response);
-        
+        const response = await sendPostRequestToBackend('checkout/addAddress', addressWithUser, token);
         if (response.success) {
           window.location.reload();
           setShowAddressForm(false);
         }
+        setLoading(false);
       }
     }
   }
@@ -126,28 +131,30 @@ export default function Address() {
   }
 
   const placeOrder = async () => {
-    if (CODSelections === true) {
-      setOrderDetails((prevData) => ({
-        ...prevData,
-        CashOnDelivery: CODSelections,
-      })
-
-      );
-      const response = await sendPostRequestToBackend('order/addOrder', orderDetails);
-      if (response.success) {
-        
-        navigate('/successToOrder');
-      } else {
-        alert("Error in placing order ");
-      }
-    } else {
-      alert("Plaese select Payment option")
+    if (!CODSelections) {
+      showNotification("Please select Payment option", "error");
+      return;
     }
+    setOrderDetails((prevData) => ({
+      ...prevData,
+      CashOnDelivery: CODSelections,
+    }));
+    setLoading(true);
+    const orderData = { ...orderDetails, CashOnDelivery: CODSelections };
+
+    const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
+    if (response.success) {
+      navigate('/successToOrder');
+    } else {
+      showNotification("Error in placing order", "error");
+    }
+    setLoading(false);
   }
   return (
     <>
-
-
+    {/* Loader */}
+      {loading && <Loader />}
+      
       <div className='Address-page'>
         {showAddressForm ? (
           <div className='Address-container'>

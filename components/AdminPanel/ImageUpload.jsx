@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
+import "./styles/ImageUpload.css";
 import { useAdminProducts } from "./Context/AdminProductsContext.jsx";
-// import Notification from "../Notify/Notification.jsx";
 import { useNotification } from "../Notify/NotificationProvider.jsx";
+import Loader from "../Load/Loader.jsx";
 function ImageUpload({ productName, colors }) {
-    const { setImages, initialData, removeImgOnDb,setInitialImgData } = useAdminProducts();
+    const { setImages, initialData, removeImgOnDb, setInitialImgData } = useAdminProducts();
     const [selectedImages, setSelectedImages] = useState({});
     const { showNotification } = useNotification();
+    const [hasNewImages, setHasNewImages] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     let isUpdate = false;
 
     useEffect(() => {
@@ -18,6 +21,7 @@ function ImageUpload({ productName, colors }) {
             return acc;
         }, {});
         setSelectedImages(initialImagesState);
+        setHasNewImages(false);
         console.log("Initial Images state :", selectedImages);
 
     }, [colors, initialData]);
@@ -37,6 +41,7 @@ function ImageUpload({ productName, colors }) {
             ...prevImages,
             [colorName]: [...(prevImages[colorName] || []), ...newFiles],
         }));
+        setHasNewImages(true);
         showNotification("Image(s) selected successfully!", "success");
     };
 
@@ -94,7 +99,7 @@ function ImageUpload({ productName, colors }) {
                         showNotification("Failed to remove from DB!", "error");
                     }
 
-                }else {
+                } else {
                     showNotification("Failed to remove from S3!", "error");
                 }
             } catch (error) {
@@ -109,6 +114,10 @@ function ImageUpload({ productName, colors }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!hasNewImages) return;// If no images is selected then prevent the submit btn
+
+
+        setIsLoading(true);
 
         const formData = new FormData();
         formData.append("productName", productName);
@@ -159,9 +168,11 @@ function ImageUpload({ productName, colors }) {
                 const data = await response.json();
 
                 if (data.success) {
+                    setIsLoading(false);
                     showNotification(data.success, "success");
 
                 } else if (data.error) {
+                    setIsLoading(false);
                     showNotification(data.error, "error");
 
                 }
@@ -184,21 +195,10 @@ function ImageUpload({ productName, colors }) {
 
                     // ✅ Update frontend state correctly
                     setSelectedImages(updatedImagesMap);
-                    console.log("Images ",selectedImages);
-                    console.log("Before sending to db", updatedImagesMap);
-
                     setImages(updatedImagesMap);
-
-                    // ✅ Send only final S3 paths to the database
-                    // let imageUpdateResponse = await fetch("http://localhost:3000/admin/updateImages", {
-                    //     method: "PUT",
-                    //     headers: { "Content-Type": "application/json" },
-                    //     body: JSON.stringify({ id: initialData._id, updatedImages: updatedImagesMap }),
-                    // });
-                    // if (imageUpdateResponse.success) {
-                    //     console.log(imageUpdateResponse.success);
-                    // }
-
+                    setHasNewImages(false);
+                } else {
+                    showNotification(data.error, "error");
                 }
             } catch (error) {
                 console.error("Upload failed:", error);
@@ -211,7 +211,7 @@ function ImageUpload({ productName, colors }) {
 
             <h2>Product Image Uploader</h2>
             {colors.length > 0 ? colors.map(color => (
-                <div key={color} style={{ marginTop: "20px", padding: "10px", border: "2px solid #333", borderRadius: "5px" }}>
+                <div key={color} className="img-selection-block">
                     <h3>{color}</h3>
                     <input type="file" multiple onChange={(e) => handleImageSelection(e, color)} />
                     <div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}>
@@ -224,7 +224,11 @@ function ImageUpload({ productName, colors }) {
                     </div>
                 </div>
             )) : <p>You haven't selected any colors yet.</p>}
-            <button onClick={handleSubmit} style={{ marginTop: "20px", padding: "10px 20px", backgroundColor: "green", color: "white" }} >Submit All</button>
+            {isLoading && <Loader />}
+            {hasNewImages && (
+                <button onClick={handleSubmit} style={{ marginTop: "20px", padding: "10px 20px", backgroundColor: "green", color: "white" }} >Submit All</button>
+            )
+            }
         </div>
     );
 }

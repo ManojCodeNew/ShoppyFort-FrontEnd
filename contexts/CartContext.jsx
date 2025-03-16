@@ -46,7 +46,7 @@ export const CartProvider = ({ children }) => {
             }
 
         } catch (error) {
-            console.error("Error fetching cart items:", error);
+            console.error("Error fetching cart items", error);
         }
     }, [user, products]);
 
