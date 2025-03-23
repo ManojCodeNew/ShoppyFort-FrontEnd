@@ -29,9 +29,9 @@ const ProductCard = ({ product }) => {
     colors,
     defaultImg
   } = product;
-const [defaultImage,setDefaultImage]=useState(colors[0])
+  const [defaultImage, setDefaultImage] = useState(colors[0])
 
-console.log("Product",product);
+  console.log("Product", product);
 
   const handleProductClick = (e) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ console.log("Product",product);
     if (e.target.closest('.wishlist-button') || e.target.closest('.add-to-bag')) {
       return;
     }
-    
+
     navigate(`/product/view/${_id}`);
   };
 
@@ -96,8 +96,8 @@ console.log("Product",product);
       </div>
 
       <div className="product-card-info">
-        <h3 className="brand">{brand}</h3>
-        <p className="name">{name}</p>
+        <h3 className="brand">{brand.length > 15 ? brand.slice(0, 13) + "...":brand}</h3>
+        <p className="name">{name.length > 15 ? name.slice(0, 13) + "...":name}</p>
         <div className="price-info">
           <span className="current-price">₹{price}</span>
           {originalPrice && (

@@ -140,12 +140,22 @@ const ManageOrder = () => {
                                                     Mark as Delivered
                                                 </button>
                                             )}
-                                            <button
-                                                className="action-btn cancel"
-                                                onClick={() => updateOrderStatus(order.orderid, "Cancelled")}
-                                            >
-                                                Cancel Order
-                                            </button>
+                                            {order.status !== "Cancelled" && (
+                                                <button
+                                                    className="action-btn cancel"
+                                                    onClick={() => updateOrderStatus(order.orderid, "Cancelled")}
+                                                >
+                                                    Cancel Order
+                                                </button>
+                                            )}
+                                            {order.status === "Delivered" || order.status === "Cancelled" && (
+                                                <button
+                                                    className="action-btn cancel"
+                                                // onClick={() => updateOrderStatus(order.orderid, "Cancelled")}
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
                                             {otpModal.show == true && otpModal.orderId == order.orderid && (
                                                 <>
                                                     <div className="otp-verification-container">

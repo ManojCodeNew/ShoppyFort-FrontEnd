@@ -11,6 +11,7 @@ export function OrderProvider({ children }) {
     const [ordersData, setOrdersData] = useState([]);
     const token = localStorage.getItem("user"); // Get JWT Token
     const { showNotification } = useNotification();
+    const [totalOrders, setTotalOrders] = useState(null);
 
     // Fetch Orders (Authenticated Request)
     useEffect(() => {
@@ -26,7 +27,9 @@ export function OrderProvider({ children }) {
             if (response.success) {
                 console.log(response.success);
 
-                setOrdersData(response.success);
+                setOrdersData(response.orders);
+            setTotalOrders(response.orders.length)
+
             } else {
                 showNotification("Failed to fetch orders:", "error");
             }
@@ -89,9 +92,9 @@ export function OrderProvider({ children }) {
             showNotification(response.error);
             return null;
         }
-    }, [token])
+    }, [token]);
 
-    const value = { ordersData, updateOrderStatus, sendOtpToBackend, getOtpOnDb }
+    const value = { ordersData, updateOrderStatus, sendOtpToBackend, getOtpOnDb,totalOrders }
     return (
         <OrderContext.Provider value={value}>
             {children}

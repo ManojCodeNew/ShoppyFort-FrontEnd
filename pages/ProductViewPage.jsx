@@ -93,14 +93,14 @@ const ProductViewPage = () => {
   const fallbackImage = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800';
 
   return (
-    <div className="product-page">
-      <div className="container">
-        <div className="product-layout">
+    <div className="product-view-page">
+      <div className="product-view-page-container">
+        <div className="product-view-page-layout">
 
-          <div className="product-image">
-            <img src={productImage} alt="Product Image" className='product-image-img' />
+          <div className="product-view-page-image">
+            <img src={productImage} alt="Product Image" className='product-view-page-image-img' />
 
-            <div className="product-gallery">
+            <div className="product-view-page-gallery">
 
               {product.colorImages[selectedColor].map((image, index) => (
                 <img key={index} src={image ? image : fallbackImage} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
@@ -109,23 +109,23 @@ const ProductViewPage = () => {
           </div>
 
           <div className="product-view-page-info">
-            <h1 className="product-brand">{product.brand} </h1>
-            <h2 className="product-name">{product.name} </h2>
+            <h1 className="product-view-page-brand">{product.brand} </h1>
+            <h2 className="product-view-page-name">{product.name} </h2>
 
-            <div className="product-price">
-              <span className="current-price">₹{product.price}</span>
-              <span className="original-price">₹{product.originalPrice}</span>
-              <span className="discount">({product.discount}% OFF)</span>
+            <div className="product-view-page-price">
+              <span className="product-view-page-current-price">₹{product.price}</span>
+              <span className="product-view-page-original-price">₹{product.originalPrice}</span>
+              <span className="product-view-page-discount">({product.discount}% OFF)</span>
             </div>
 
-            <div className="product-options">
-              <div className="size-selector">
+            <div className="product-view-page-options">
+              <div className="product-view-page-size-selector">
                 <h3>Select Size</h3>
-                <div className="size-options">
+                <div className="product-view-page-size-options">
                   {product.sizes.map(size => (
                     <button
                       key={size}
-                      className={`size-option ${selectedSize === size ? 'selected' : ''}`}
+                      className={`product-view-page-size-option ${selectedSize === size ? 'selected' : ''}`}
                       onClick={() => setSelectedSize(size)}
                     >
                       {size}
@@ -134,13 +134,13 @@ const ProductViewPage = () => {
                 </div>
               </div>
 
-              <div className="color-selector">
+              <div className="product-view-page-color-selector">
                 <h3>Select Color</h3>
-                <div className="color-options">
+                <div className="product-view-page-color-options">
                   {product.colors.map(color => (
                     <button
                       key={color}
-                      className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                      className={`product-view-page-color-option ${selectedColor === color ? 'selected' : ''}`}
                       onClick={() => {
                         setSelectedColor(color)
                         setProductImage(product.colorImages[color][0]);
@@ -153,30 +153,30 @@ const ProductViewPage = () => {
               </div>
             </div>
 
-            <div className="product-actions">
+            <div className="product-view-page-actions">
               <button
-                className="add-to-bag btn-primary"
+                className="product-view-page-add-to-bag btn-primary"
                 onClick={handleAddToCart}
               >
-                <img src={ShoppingBag} alt="shopping bag" className='shoppingbag-icon' />
+                <img src={ShoppingBag} alt="shopping bag" className='product-view-page-shoppingbag-icon' />
                 {/* <ShoppingBag /> */}
                 Add to Bag
               </button>
               <button
-                className={`btn-secondary wishlist${isInWishlist(product._id) ? 'active' : ''}`}
+                className={`product-view-page-btn-secondary wishlist ${isInWishlist(product._id) ? 'active' : ''}`}
                 onClick={handleWishlistToggle}
               >
                 {
                   isInWishlist(product._id) ?
-                    <img src={ActiveHeartBtn} alt="" className='heart-icon' />
+                    <img src={ActiveHeartBtn} alt="" className='product-view-page-heart-icon' />
                     :
-                    <img src={heart} alt="" className='heart-icon' />
+                    <img src={heart} alt="" className='product-view-page-heart-icon' />
                 }
                 {isInWishlist(product._id) ? 'Wishlisted' : 'Wishlist'}
               </button>
             </div>
 
-            <div className="product-description">
+            <div className="product-view-page-description">
               <h3>Product Details</h3>
               <p>{product.description}</p>
             </div>

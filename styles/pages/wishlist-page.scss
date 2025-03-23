@@ -1,7 +1,7 @@
 @import '../variables';
 
 .wishlist-page {
-  padding: 32px 0;
+  padding: 35px 0;
 
   h1 {
     font-size: 24px;
@@ -19,16 +19,19 @@
 
   .wishlist-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
-    gap: 34px;
-    @include mobile-only{
-      margin-left: -25px;
-      grid-template-columns: 200px 200px;
-      gap: 1px;
-      padding: 0 5px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); // Adjust width dynamically
+    gap: 24px; // Consistent spacing
+    justify-content: center; // Center align items
+
+    @include mobile-only {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); // More flexible for small screens
+      gap: 10px; // Reduce gap on mobile
+      padding: 0 10px;
     }
-    @include tablet-only{
-      gap: 24px;
+
+    @include tablet-only {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); // Adjusted for tablets
+      gap: 20px;
     }
   }
 }

@@ -4,8 +4,13 @@ import StatCard from './StatCard';
 import RecentOrders from './RecentOrders';
 import { ShoppingBag, Users, TrendingUp, IndianRupeeIcon } from 'lucide-react';
 import { Outlet } from 'react-router-dom';
-
+import { useOrderContext } from './Context/ManageOrderContext';
+import { useUserContext } from './Context/ManageUsersContext';
 function Dashboard() {
+    const { totalOrders } = useOrderContext();
+    const { user } = useUserContext();
+    console.log("Name",user);
+    
     return (
         <div className="admin-container">
 
@@ -16,16 +21,16 @@ function Dashboard() {
                 </div>
 
                 <div className="stats-grid">
-                    <StatCard
+                    {/* <StatCard
                         title="Total Revenue"
                         value="₹54,239"
                         change="+12.5%"
                         isPositive={true}
                         Icon={IndianRupeeIcon}
-                    />
+                    /> */}
                     <StatCard
                         title="Total Orders"
-                        value="1,245"
+                        value={`${totalOrders}+`}
                         change="+8.2%"
                         isPositive={true}
                         Icon={ShoppingBag}
@@ -37,13 +42,13 @@ function Dashboard() {
                         isPositive={true}
                         Icon={Users}
                     />
-                    <StatCard
+                    {/* <StatCard
                         title="Growth Rate"
                         value="2.8%"
                         change="-0.5%"
                         isPositive={false}
                         Icon={TrendingUp}
-                    />
+                    /> */}
                 </div>
 
                 <div className="orders-grid">
