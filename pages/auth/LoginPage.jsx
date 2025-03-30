@@ -2,27 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
+import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, error, isLoading } = useAuth();
+  const { showNotification } = useNotification();
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    const user=localStorage.getItem('user');
+  useEffect(() => {
+    const user = localStorage.getItem('user');
     if (user) {
       navigate('/profile');
     }
-  },[])
+  }, [navigate])
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userLoginResponse = await login(email, password);
-    console.log(userLoginResponse);
-    
+
     if (userLoginResponse.success) {
-      localStorage.setItem('user',userLoginResponse.token);
+      showNotification('Login successful! 🎉', 'success');
       navigate('/profile');
+    } else {
+      showNotification('Invalid email or password!', 'error');
     }
   };
 
@@ -30,7 +34,7 @@ const LoginPage = () => {
     <div className="auth-page">
       <div className="auth-container">
         <h1>Login</h1>
-        
+
         {error && (
           <div className="error-message">
             {error}
@@ -58,10 +62,10 @@ const LoginPage = () => {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-primary"
-            disabled={isLoading}
+            disabled={isLoading || !email || !password}
           >
             {isLoading ? 'Loading...' : 'Login'}
           </button>
