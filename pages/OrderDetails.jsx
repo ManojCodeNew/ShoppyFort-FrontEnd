@@ -3,109 +3,115 @@ import '../styles/pages/OrderDetails.scss';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 
 function OrderDetails() {
-    const [orderStatus, setOrderStatus] = useState("placed");
-    const overAllPrice = 0;
-    const { allOrder, user } = useOrderDetails();
-    console.log(allOrder);
+    const { allOrder } = useOrderDetails();
+    const [activeReturnReasons, setActiveReturnReasons] = useState(null);
+    const [selectedReason, setSelectedReason] = useState(null);
+    const returnReasons = [
+        "Wrong size ordered",
+        "Product damaged",
+        "Not as described",
+        "Changed my mind",
+        "other"
+    ];
 
-    const getProgressBarWidth = (status) => {
-        if (status === 'shipped') return '66%';
-        if (status === 'delivered') return '100%';
-        return '33%';
-    };
-
+    const toggleReturnDropdown = (orderId) => {
+        setActiveReturnReasons(activeReturnReasons === orderId ? null : orderId);
+        setSelectedReason(null);
+    }
     return (
-        <section className="gradient-custom">
-            <div className="orderDisplay-container">
-                <div className="center-content row">
-                    <div className="col-10">
-                        <div className="card">
-                            <div className="card-header">
-                                <h5 className="text-muted">
-                                    Thanks for your Order, <span className="highlight">{user.fullname}</span>!
-                                </h5>
-                            </div>
-                            <div className="card-body">
-                                <div className="receipt-header">
-                                    <p className="receipt-title lead">All orders</p>
+        <section className="order-section">
+            <h2 className="order-title">All Orders</h2>
+            <div className="order-container">
+                {allOrder?.length > 0 ? (
+                    allOrder.slice().reverse().map((order, orderIndex) => (
+                        <div className="order-card" key={order.id || orderIndex}>
+                            {order.items.map((product, productIndex) => (
+                                <div className="order-item" key={product.id || productIndex}>
+                                    <div className="product-img-container">
+                                        <img src={product.defaultImg} alt={product.name || "Product"} className="product-img" />
+                                    </div>
+                                    <div className="product-details">
+                                        <h3 className="product-name">{product.name || "Unknown Product"}</h3>
+                                        <p className="product-meta">
+                                            <span className="product-color">Color: {product.selections?.color || "N/A"}</span> |
+                                            <span className="product-size"> Size: {product.quantity || "N/A"}</span>
+                                        </p>
+                                        <p className="product-price">₹{product.price || 0}</p>
+                                    </div>
                                 </div>
+                            ))}
 
-                                {allOrder && allOrder.length > 0 ? (
-                                    allOrder.slice().reverse().map((order, orderIndex) => {
-                                        const progressBarWidth = getProgressBarWidth(order.status || orderStatus);
-                                        return (
-                                            <div className="orderDisplay-product-card" key={orderIndex}>
-                                                {order.items.map((product, productIndex) => {
-                                                    return (
-
-                                                        <div className="product-row" key={productIndex}>
-
-                                                            <div className="product-img-container">
-                                                                <img
-                                                                // product.colorImages[product.selections.color] 
-                                                                src={product.defaultImg}
-                                                                    alt={product.name || "Product Image"}
-                                                                    className="product-img"
-                                                                />
-                                                            </div>
-                                                            <div className="product-info">
-                                                                <p className="product-name">{product.name || "Unknown Product"}</p>
-                                                                <div className="product-price-details">
-                                                                    <span className="product-price">₹{product.price || 0}</span>
-                                                                </div>
-                                                                <p className="product-meta">
-                                                                    Color: <span className="meta-value">{product.selections.color || "N/A"}</span>
-                                                                    &nbsp; Size: <span className="meta-value">{product.quantity || "N/A"}</span>
-                                                                </p>
-                                                            </div>
-
-                                                        </div>
-                                                    )
-                                                })}
-                                                <hr />
-                                                <div className="tracker-container">
-                                                    <div
-                                                        className="progress-bar-container"
-                                                        style={{ width: progressBarWidth }}
-                                                    ></div>
-                                                    <ul className="progressbar-container">
-                                                        <li
-                                                            className={order.status === "placed" ? "active step" : "step"}
-                                                            id="step1"
-                                                        >
-                                                            <span>PLACED</span>
-                                                        </li>
-                                                        <li
-                                                            className={
-                                                                order.status === "shipped" || order.status === "delivered"
-                                                                    ? "active step"
-                                                                    : "step"
-                                                            }
-                                                            id="step2"
-                                                        >
-                                                            <span>SHIPPED</span>
-                                                        </li>
-                                                        <li
-                                                            className={order.status === "delivered" ? "active step" : "step"}
-                                                            id="step3"
-                                                        >
-                                                            <span>DELIVERED</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                {/* <div className="btn-container">
-                                                <button class="btn ripple">Cancel</button>
-                                                </div> */}
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    <p>No orders found.</p>
-                                )}
+                            {/* Simple Order Tracker */}
+                            <div className="order-tracker">
+                                <div className="tracker-steps">
+                                    <div className={`step ${order.status.toLowerCase() === "placed" ? "active" : ""}`}>
+                                        <span className="circle">✔</span>
+                                        <p className="step-label">Order Placed</p>
+                                        <p className="step-action">Processing</p>
+                                    </div>
+                                    <div className={`step ${order.status.toLowerCase() === "shipped" ? "active" : ""}`}>
+                                        <span className="circle">🚚</span>
+                                        <p className="step-label">Shipped</p>
+                                        <p className="step-action">On the way</p>
+                                    </div>
+                                    <div className={`step ${order.status.toLowerCase() === "delivered" ? "active" : ""}`}>
+                                        <span className="circle">🏠</span>
+                                        <p className="step-label">Delivered</p>
+                                        <p className="step-action">Arrived</p>
+                                    </div>
+                                </div>
+                                <div className="tracker-bar">
+                                    <div className={`progress ${order.status.toLowerCase()}`}></div>
+                                </div>
                             </div>
+
+                            {/* Return Section */}
+                            {/*Return button */}
+                            {order.status.toLowerCase() === "delivered" && (
+                                <div className='return-section'>
+                                    <div
+                                        className="return-btn"
+                                        onClick={() => toggleReturnDropdown(order._id)}
+                                    >
+                                        Return
+                                    </div>
+                                    {activeReturnReasons === order._id && (
+                                        <div className="return-dropdown" >
+                                            {returnReasons.map((reason, index) => (
+                                                <div className="return-reason" key={index} onClick={() => {
+                                                    setSelectedReason(reason);
+                                                    setActiveReturnReasons(null);
+                                                }}>
+                                                    {reason}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {selectedReason === "other" && (
+                                        <div className="other-reason">
+                                            <input type="text" id="other-reason-input" />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {/* cancel Section */}
+                            {/*cancel order button */}
+                            {order.status.toLowerCase() != "delivered" && (
+                                <div className='cancel-section'>
+                                    <div className="cancel-btn">
+                                        cancel
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
-                    </div>
-                </div>
+
+
+
+                    ))
+                ) : (
+                    <p className="no-orders">No orders found.</p>
+                )}
             </div>
         </section>
     );
