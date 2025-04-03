@@ -139,6 +139,8 @@ export default function Address() {
       ...prevData,
       CashOnDelivery: CODSelections,
     }));
+    console.log("Before Order DATA",orderDetails);
+    
     setLoading(true);
     const orderData = { ...orderDetails, CashOnDelivery: CODSelections };
 

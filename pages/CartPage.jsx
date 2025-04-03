@@ -27,7 +27,8 @@ const CartPage = () => {
                                 <img src={item.defaultImg} alt={item.name} className="cart-item-image" />
                                 <div className="cart-item-details">
                                     <h3 className='cart-item-title'>{item.name}</h3>
-                                    <p className='cart-item-description'>{item.description}</p>
+                                    {/* {brand.length > 15 ? brand.slice(0, 13) + "...":brand} */}
+                                    {/* <p className='cart-item-description'>{item.description.length>50?item.description.slice(0,50)+"...":item.description}</p> */}
                                     <p className='cart-item-price'>Price: ₹{item.price.toFixed(2)}</p>
                                     <div className="cart-item-actions">
                                         <button

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const CartModal = ({ isOpen, onClose }) => {
   const { items, removeItem, updateQuantity, totalItems, totalAmount } = useCart();
-  // console.log("Items",items);
+  console.log("cart Items",items);
   const navigation = useNavigate();
   if (!isOpen) return null;
 

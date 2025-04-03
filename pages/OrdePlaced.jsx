@@ -1,3 +1,4 @@
+
 import React from 'react';
 import '../styles/pages/OrderPlaced.scss';
 import { useNavigate } from 'react-router-dom';

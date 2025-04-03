@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 // import {  ShoppingBag } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import { useWishlist } from '../contexts/WishlistContext';
+import { useCart } from '../contexts/CartContext.jsx';
+import { useWishlist } from '../contexts/WishlistContext.jsx';
 import sendGetRequestToBackend from '../components/Request/Get.jsx';
 import '../styles/pages/product-view-page.scss';
 import heart from '../assets/Images/heartgreen.png';
 import ActiveHeartBtn from '../assets/Images/active.png';
 import ShoppingBag from '../assets/Images/bagwhite.png';
-import { useProducts } from '@/contexts/ProductsContext';
+import { useProducts } from '@/contexts/ProductsContext.jsx';
+import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 const ProductViewPage = () => {
   const { id } = useParams();
   const { products } = useProducts();
@@ -18,7 +19,7 @@ const ProductViewPage = () => {
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState();
-
+  const { showNotification } = useNotification();
   // Product Image displaying state
   const [productImage, setProductImage] = useState();
 
@@ -26,29 +27,25 @@ const ProductViewPage = () => {
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
-    // const productId = id;
+    setProduct(null);
 
     const fetchProduct = async () => {
       try {
-        // const foundProduct = await sendGetRequestToBackend('');
-        // const filteredProduct = foundProduct.find(p => p._id === productId);
-
         const filteredProduct = products.find(p => p._id === id);
         if (filteredProduct) {
           setProduct(filteredProduct);
           const defaultColor = filteredProduct.colors[0];
           setProductImage(filteredProduct.colorImages[defaultColor][0]);
           setSelectedColor(defaultColor);
-
         } else {
           navigate('/');
         }
       } catch (error) {
-        console.log('Error fetching product:', error);
+        showNotification(`Error fetching product: ${error}`, "error");
       }
     };
     fetchProduct()
-  }, [id, navigate]);
+  }, [id, navigate, products]);
 
   if (!product) {
     return (
@@ -61,11 +58,11 @@ const ProductViewPage = () => {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert('Please select a size');
+      showNotification('Please select a size', "error");
       return;
     }
     if (!selectedColor) {
-      alert('Please select a color');
+      showNotification('Please select a color', "error");
       return;
     }
 
@@ -80,8 +77,6 @@ const ProductViewPage = () => {
     }, selections);
   };
 
-
-
   const handleWishlistToggle = () => {
     if (isInWishlist(product._id)) {
       removeFromWishlist(product._id);
@@ -90,7 +85,7 @@ const ProductViewPage = () => {
     }
 
   };
-  const fallbackImage = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800';
+  const fallbackImage = 'https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-6f08-51f7-b6ec-c58003fd17aa/raw?se=2025-03-30T15%3A23%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=944cb68e-fe60-5752-a04c-4ff2474237ed&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-03-30T13%3A34%3A20Z&ske=2025-03-31T13%3A34%3A20Z&sks=b&skv=2024-08-04&sig=5eof3pHpGOQfYNahuDmm0nPDVOqE2iXplkSjrOXwz0I%3D';
 
   return (
     <div className="product-view-page">
@@ -98,12 +93,12 @@ const ProductViewPage = () => {
         <div className="product-view-page-layout">
 
           <div className="product-view-page-image">
-            <img src={productImage} alt="Product Image" className='product-view-page-image-img' />
+            <img src={productImage || fallbackImage} alt="Product Image" className='product-view-page-image-img' />
 
             <div className="product-view-page-gallery">
 
-              {product.colorImages[selectedColor].map((image, index) => (
-                <img key={index} src={image ? image : fallbackImage} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
+              {product.colorImages[selectedColor]?.map((image, index) => (
+                <img key={index} src={image || fallbackImage} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
               ))}
             </div>
           </div>

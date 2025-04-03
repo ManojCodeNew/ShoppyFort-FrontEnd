@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
 import { useProducts } from './ProductsContext';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 // Create CartContext
 const CartContext = createContext();
 
@@ -11,9 +12,11 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
     const { products } = useProducts();
     const [cartItems, setCartItems] = useState([]);
+    const { showNotification } = useNotification();
     const navigate = useNavigate();
+
     const token = localStorage.getItem('user');
-    const user = token ? jwtDecode(token) : null;
+    const user = token && token.split('.').length === 3 ? jwtDecode(token) : null;
 
     useEffect(() => {
         if (user) {
@@ -22,9 +25,9 @@ export const CartProvider = ({ children }) => {
     }, [user]);
     // Fetch cart items from the server
     const fetchCartItems = useCallback(async () => {
-        if (!user) return;
+        if (!user) navigate('/login');
         try {
-            const response = await sendGetRequestToBackend(`cart/`,token);
+            const response = await sendGetRequestToBackend(`cart/`, token);
 
             if (response.success) {
                 const cartedProducts = products.filter(product =>
@@ -46,7 +49,7 @@ export const CartProvider = ({ children }) => {
             }
 
         } catch (error) {
-            console.error("Error fetching cart items", error);
+            showNotification(`Error fetching cart items : ${error}`, "error");
         }
     }, [user, products]);
 
@@ -54,16 +57,19 @@ export const CartProvider = ({ children }) => {
     const addItem = useCallback(async (product, selections = {}) => {
 
         try {
-            if (!user) return;
+            if (!user) navigate('/login');
             const body = {
                 userid: user.id,
                 productid: product._id,
-                quantity: product.quantity,
+                quantity: product.quantity || 1,
                 selections: selections
             }
 
             const data = await sendPostRequestToBackend('cart/addCartProduct', body, token);
+            console.log("cart context", data);
+
             if (data.success) {
+
                 setCartItems((prevCartItems) => {
                     // Check if the product already exists in the cart
                     const existingItem = prevCartItems.find((item) => item._id === product._id);
@@ -81,32 +87,31 @@ export const CartProvider = ({ children }) => {
                 });
             }
             if (data.msg) {
-                alert(data.msg);
+                showNotification(data.msg, "error");
             }
 
         } catch (error) {
-            console.error("Error adding item to cart:", error);
+            showNotification(`Error adding item to cart: ${error}`, "error");
         }
     }, [user]);
 
     // Handle item removal from cart
     const handleRemove = useCallback(async (itemId) => {
         try {
-            const response = await sendPostRequestToBackend("cart/removeCart", { productid: itemId },token);
+            const response = await sendPostRequestToBackend("cart/removeCart", { productid: itemId }, token);
             if (response.success) {
-                console.log("handleRemove", response.success);
 
                 setCartItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
             }
         } catch (error) {
-            console.error("Error removing item:", error);
+            showNotification(`Error removing item: ${error}`, "error");
         }
     }, []);
 
     // Handle item quantity update
     const handleQuantityChange = useCallback(async (itemId, newQuantity) => {
         try {
-            const response = await sendPostRequestToBackend("cart/updateQuantity", { productid: itemId, quantity: newQuantity },token);
+            const response = await sendPostRequestToBackend("cart/updateQuantity", { productid: itemId, quantity: newQuantity }, token);
             if (response.success) {
                 setCartItems((prevItems) =>
                     prevItems.map((item) =>
@@ -115,7 +120,7 @@ export const CartProvider = ({ children }) => {
                 );
             }
         } catch (error) {
-            console.error("Error updating quantity:", error);
+            showNotification(`Error updating quantity: ${error}`, "error");
         }
     }, []);
 
