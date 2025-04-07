@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/pages/OrderDetails.scss';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 
 function OrderDetails() {
-    const { allOrder, submitReturnRequest } = useOrderDetails();
+    const { allOrder, submitReturnRequest, allReturns, cancelOrder } = useOrderDetails();
     const [activeReturnReasons, setActiveReturnReasons] = useState(null);
     const [activeReturnId, setActiveReturnId] = useState(null);
     const [selectedReason, setSelectedReason] = useState(null);
+    const [returnStatus, setReturnStatus] = useState("Waiting...");
     const returnReasons = [
         "Wrong size ordered",
         "Product damaged",
@@ -16,27 +17,43 @@ function OrderDetails() {
     ];
     const [returnData, setReturnData] = useState({
         orderId: null,
+        product_id: null,
         reason: '',
         otherReason: '',
         isSubmitting: false
     });
+    useEffect(() => {
+        // Update return status if needed based on allReturns
+        if (allReturns && returnData.product_id) {
+            const activeReturn = allReturns.find(r => r.productid === returnData.product_id);
+            if (activeReturn) {
+                setReturnStatus(activeReturn.status);
+            }
+        }
+    }, [allReturns, returnData.product_id])
+    console.log("All Orders :", allOrder);
 
+    const toggleReturnDropdown = (product_id, orderId) => {
+        // Don't allow toggling if there's already a return for this product
+        if (allReturns && allReturns.some(r => r.productid === product_id)) {
+            return; // Don't toggle if already returned
+        }
 
-    const toggleReturnDropdown = (orderId) => {
-        setActiveReturnReasons(activeReturnReasons === orderId ? null : orderId);
+        setActiveReturnReasons(activeReturnReasons === product_id ? null : product_id);
         setReturnData({
             ...returnData,
             orderId,
+            product_id,
             reason: '',
             otherReason: ''
         });
     }
 
-    const handleReasonSelect = (reason, orderId) => {
+    const handleReasonSelect = (reason, product_id) => {
         if (reason === "Other reason") {
             setReturnData({
                 ...returnData,
-                orderId,
+                product_id,
                 reason: "Other reason",
                 otherReason: ''
             });
@@ -44,13 +61,11 @@ function OrderDetails() {
         } else {
             setReturnData({
                 ...returnData,
-                orderId,
+                product_id,
                 reason,
                 otherReason: ''
             });
-            // setActiveReturnId(null);
             setActiveReturnReasons(null)
-
         }
     };
 
@@ -68,31 +83,41 @@ function OrderDetails() {
             // Prepare data for backend
             const returnRequest = {
                 orderId: returnData.orderId,
+                productId: returnData.product_id,
                 reason: returnData.reason === "Other reason"
                     ? returnData.otherReason
                     : returnData.reason,
-                status: "requested"
+                status: "Return Requested",
             };
             const success = await submitReturnRequest(returnRequest);
             if (success) {
                 // Reset after submission
                 setReturnData({
                     orderId: null,
+                    product_id: null,
                     reason: '',
                     otherReason: '',
                     isSubmitting: false
                 });
-                setActiveReturnReasons(null)
+                setActiveReturnReasons(null);
+
             } else {
                 setReturnData({ ...returnData, isSubmitting: false });
             }
-
-
         } catch (error) {
             console.error("Return submission failed:", error);
             setReturnData({ ...returnData, isSubmitting: false });
         }
     };
+    // Helper function to check if a product has a return request
+    const getReturnStatus = (productId) => {
+        if (!allReturns || !Array.isArray(allReturns)) {
+            return null;
+        }
+        const returnRecord = allReturns.find(r => r.productid === productId);
+        return returnRecord ? returnRecord.status : null;
+    };
+
 
     return (
         <section className="order-section">
@@ -113,6 +138,70 @@ function OrderDetails() {
                                             <span className="product-size"> Size: {product.quantity || "N/A"}</span>
                                         </p>
                                         <p className="product-price">₹{product.price || 0}</p>
+
+                                        {/* Return Section */}
+                                        {/* Return button */}
+                                        {order.status.toLowerCase() === "delivered" && (
+                                            <div className='return-section' key={product._id}>
+                                                <div
+                                                    className={`return-btn ${getReturnStatus(product._id) ? 'disabled' : ''}`}
+                                                    onClick={() => toggleReturnDropdown(product._id, order._id)}
+                                                >
+                                                    {(() => {
+                                                        const returnStatus = getReturnStatus(product._id);
+                                                        if (returnStatus) {
+                                                            return returnStatus;
+                                                        } else if (returnData.isSubmitting && returnData.product_id === product._id) {
+                                                            return "Submitting...";
+                                                        } else {
+                                                            return "Return";
+                                                        }
+                                                    })()}
+                                                </div>
+                                                {activeReturnReasons === product._id && (
+                                                    <div className="return-dropdown" >
+                                                        {returnReasons.map((reason, index) => (
+                                                            <div className="return-reason" key={index}
+                                                                onClick={() => handleReasonSelect(reason, product._id)}
+                                                            >
+                                                                {reason}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {(returnData.orderId === order._id && returnData.product_id === product._id && returnData.reason === "Other reason") && (
+                                                    <div className="other-reason-container">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Please specify your reason"
+                                                            value={returnData.otherReason}
+                                                            onChange={handleOtherReasonChange}
+                                                            className="other-reason-input"
+                                                        />
+                                                        <button
+                                                            onClick={handleSubmitReturn}
+                                                            disabled={!returnData.otherReason || returnData.isSubmitting}
+                                                            className="submit-reason-btn"
+                                                        >
+                                                            {returnData.isSubmitting ? returnStatus : 'Submit Return'}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {(returnData.orderId === order._id && returnData.reason && returnData.reason !== "Other reason") && (
+                                            <div className="selected-reason">
+                                                <p>Selected: {returnData.reason}</p>
+                                                <button
+                                                    onClick={handleSubmitReturn}
+                                                    disabled={returnData.isSubmitting}
+                                                    className="submit-reason-btn"
+                                                >
+                                                    {returnData.isSubmitting ? 'Submitting...' : 'Confirm Return'}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -141,78 +230,23 @@ function OrderDetails() {
                                 </div>
                             </div>
 
-                            {/* Return Section */}
-                            {/*Return button */}
-                            {order.status.toLowerCase() === "delivered" && (
-                                <div className='return-section'>
-                                    <div
-                                        className="return-btn"
-                                        onClick={() => toggleReturnDropdown(order._id)}
-                                    >
-                                        Return
-                                    </div>
-                                    {activeReturnReasons === order._id && (
-                                        <div className="return-dropdown" >
-                                            {returnReasons.map((reason, index) => (
-                                                <div className="return-reason" key={index}
-                                                    onClick={() => handleReasonSelect(reason, order._id)}
-                                                >
-                                                    {reason}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {(returnData.orderId === order._id && returnData.reason === "Other reason") && (
-                                        <div className="other-reason-container">
-                                            <input
-                                                type="text"
-                                                placeholder="Please specify your reason"
-                                                value={returnData.otherReason}
-                                                onChange={handleOtherReasonChange}
-                                                className="other-reason-input"
-                                            />
-                                            <button
-                                                onClick={handleSubmitReturn}
-                                                disabled={!returnData.otherReason || returnData.isSubmitting}
-                                                className="submit-reason-btn"
-                                            >
-                                                {returnData.isSubmitting ? 'Submitting...' : 'Submit Return'}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                            {(returnData.orderId === order._id && returnData.reason && returnData.reason !== "Other reason") && (
-                                <div className="selected-reason">
-                                    <p>Selected: {returnData.reason}</p>
-                                    <button
-                                        onClick={handleSubmitReturn}
-                                        disabled={returnData.isSubmitting}
-                                        className="submit-reason-btn"
-                                    >
-                                        {returnData.isSubmitting ? 'Submitting...' : 'Confirm Return'}
-                                    </button>
-                                </div>
-                            )}
-                            {/* </div>
-                    )} */}
-
-
                             {/* cancel Section */}
                             {/*cancel order button */}
-                            {order.status.toLowerCase() != "delivered" && (
+                            {order.status.toLowerCase() !== "delivered" && (
                                 <div className='cancel-section'>
-                                    <div className="cancel-btn">
-                                        cancel
-                                    </div>
+                                    {order.status.toLowerCase() === "cancelled" ? (
+                                        <span className="cancelled-label">Order Cancelled</span>
+                                    ) : (
+                                        <div className="cancel-btn"
+                                            onClick={() => cancelOrder(order._id)}
+                                        >
+                                            Cancel Order
+                                        </div>
+                                    )}
+
                                 </div>
                             )}
-
                         </div>
-
-
-
                     ))
                 ) : (
                     <p className="no-orders">No orders found.</p>

@@ -37,7 +37,7 @@ export default function Address() {
     homebtn: false,
     workbtn: false
   });
-  const { cartItems, totalCost } = useCart(); // Use the context values
+  const { cartItems, totalCost, clearCart } = useCart(); // Use the context values
 
   const totalMRP = cartItems.reduce((total, item) => total + item.originalPrice * item.quantity, 0);
   const discountMRP = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -137,26 +137,33 @@ export default function Address() {
     }
     setOrderDetails((prevData) => ({
       ...prevData,
-      CashOnDelivery: CODSelections,
+      CashOnDelivery: CODSelections ? 'COD' : 'Online',
     }));
-    console.log("Before Order DATA",orderDetails);
-    
     setLoading(true);
-    const orderData = { ...orderDetails, CashOnDelivery: CODSelections };
+    console.log("checking  orderdetails", orderDetails);
 
-    const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
-    if (response.success) {
-      navigate('/successToOrder');
-    } else {
-      showNotification("Error in placing order", "error");
+
+    try {
+      const orderData = { ...orderDetails, CashOnDelivery: CODSelections ? 'COD' : 'Online' };
+
+      const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
+      if (response.success) {
+        clearCart(); // Clear cart after successful order
+        navigate('/successToOrder');
+      } else {
+        showNotification(response.error || "Error placing order", "error");
+      }
+    } catch (error) {
+      showNotification("Failed to place order", "error");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
   return (
     <>
-    {/* Loader */}
+      {/* Loader */}
       {loading && <Loader />}
-      
+
       <div className='Address-page'>
         {showAddressForm ? (
           <div className='Address-container'>

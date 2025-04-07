@@ -1,40 +1,50 @@
 import React from "react";
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-// import sendGetRequestToBackend from "@/components/Request/Get";
+import sendGetRequestToBackend from "@/components/Request/Get";
+import { useNotification } from "@/components/Notify/NotificationProvider";
+
 // Create Context
 const UserContext = createContext();
 
 // Create Provider component
 export function UserProvider({ children }) {
-    const [user, setUser] = useState("MAnoj");
+    const [allUsers, setAllUsers] = useState([]);
+    const token = localStorage.getItem("user"); // Get JWT Token
+    const { showNotification } = useNotification();
 
-    // const fetchOrders = useCallback(async () => {
-    //     if (!token) return;
-    //     try {
-    //         const response = await sendGetRequestToBackend("admin/orders", token); // Send token to backend
-    //         if (response.success) {
-    //             console.log(response.success);
+    // Fetch Users (Authenticated Request)
+    const fetchUsers = useCallback(async () => {
+        if (!token) return;
 
-    //             setOrdersData(response.orders);
-    //         setTotalOrders(response.orders.length)
+        try {
+            const usersResult = await sendGetRequestToBackend('admin/dashboard/users', token);
+            if (usersResult.success) {
+                setAllUsers(usersResult.users);
+            } else if (usersResult.error) {
+                showNotification(usersResult.error, "error");
+            }
+        } catch (error) {
+            showNotification("Failed to fetch users", "error");
+            console.error("Error fetching users:", error);
+        }
+    }, [token, showNotification]);
 
-    //         } else {
-    //             showNotification("Failed to fetch Users:", "error");
-    //         }
-    //     } catch (error) {
-    //         showNotification("Error fetching Users:", "error");
-    //     }
-    // }, [token]);
+    useEffect(() => {
+        if (token) {
+            fetchUsers();
+        }
+    }, [token, fetchUsers]);
 
-    const value = { user }
+    const value = { allUsers, fetchUsers };
+
     return (
         <UserContext.Provider value={value}>
             {children}
         </UserContext.Provider>
-    )
+    );
 }
 
-// create custom hook
+// Create custom hook
 export function useUserContext() {
     const context = useContext(UserContext);
     if (!context) {

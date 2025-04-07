@@ -164,64 +164,26 @@
   background: linear-gradient(90deg, #008eae, #00bfff);
 }
 .return-section {
-  margin: 12px 10px;
   position: relative;
+  margin-top: 12px;
+  display: inline-block;
 }
 
 .return-btn {
   padding: 8px 16px;
+  background: #fff;
   border: 1px solid #0586dc;
-  width: fit-content;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
   color: #0586dc;
-  background-color: white;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-
-  /* Gradient border effect */
-  &::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
-    bottom: -1px;
-    background: linear-gradient(135deg, #0586dc, #05c3dc);
-    z-index: -1;
-    border-radius: 6px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  
   &:hover {
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(5, 134, 220, 0.2);
-
-    &::before {
-      opacity: 1;
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  /* Optional icon */
-  &::after {
-    content: '→';
-    margin-left: 6px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover::after {
-    transform: translateX(3px);
+    background: #f0f8ff;
   }
 }
+
 .return-dropdown {
   position: absolute;
   top: 100%;
@@ -229,22 +191,73 @@
   background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   z-index: 10;
   width: 200px;
+  margin-top: 4px;
 }
 
 .return-reason {
-  padding: 8px 16px;
+  padding: 8px 12px;
   cursor: pointer;
   transition: background 0.2s;
-
+  
   &:hover {
     background: #f5f5f5;
   }
-
+  
   &:not(:last-child) {
     border-bottom: 1px solid #eee;
+  }
+}
+
+.other-reason-container {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.other-reason-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  
+  &:focus {
+    outline: none;
+    border-color: #0586dc;
+  }
+}
+
+.submit-reason-btn {
+  padding: 8px 16px;
+  background: #0586dc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+}
+
+.selected-reason {
+  margin-top: 12px;
+  padding: 8px;
+  background: #f8f8f8;
+  border-radius: 4px;
+  
+  p {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
   }
 }
 /* Cancel Button Styles */

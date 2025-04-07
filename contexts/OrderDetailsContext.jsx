@@ -21,11 +21,29 @@ export const OrderDetailsProvider = ({ children }) => {
     const { showNotification } = useNotification();
     const token = localStorage.getItem('user');
     const user = token ? jwtDecode(token) : null;
+    const [allReturns, setAllReturns] = useState(null);
+
 
     const fetchOrders = async () => {
-        const response = await sendGetRequestToBackend("order", token);
-        if (response.success) {
-            setAllOrder(response.orders);
+        try {
+            const response = await sendGetRequestToBackend("order", token);
+            if (response.success) {
+                setAllOrder(response.orders);
+            }
+        } catch (error) {
+            showNotification("Error fetching orders", "error");
+        }
+    };
+
+    const fetchReturns = async () => {
+        try {
+            const response = await sendGetRequestToBackend("order/returns", token);
+            if (response.success) {
+                setAllReturns(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching returns:", error);
+            showNotification("Error fetching return requests", "error");
         }
     };
 
@@ -34,39 +52,66 @@ export const OrderDetailsProvider = ({ children }) => {
             const body = {
                 userid: user.id,
                 orderid: returnData.orderId,
+                productid: returnData.productId,
                 reason: returnData.reason,
                 status: returnData.status
             }
             const Result = await sendPostRequestToBackend("order/Return", body, token);
 
-            console.log("Return submission response:", Result);
-
             if (Result.success) {
                 showNotification("Return request submitted successfully!", "success");
+                // Refresh returns data after successful submission
+                fetchReturns();
                 return true;
             }
             if (Result.msg) {
-                showNotification(data.msg, "error");
+                showNotification(Result.msg, "error");
             }
             return false;
         } catch (error) {
             showNotification(`Error submitting return: ${error.message}`, "error");
             return false;
         }
-    }, [token]);
+    }, [token, user]);
+
+    const cancelOrder = useCallback(async (orderid) => {
+        try {
+            const response = await sendPostRequestToBackend(
+                "order/cancel",
+                { orderid },
+                token
+            );
+            if (response.success) {
+                showNotification(response.message, "success");
+                fetchOrders(); // Refresh the orders list
+                return true;
+            } else {
+                showNotification(response.error || "Failed to cancel order", "error");
+                return false;
+            }
+
+        } catch (error) {
+            showNotification(`Error cancelling order: ${error.message}`, "error");
+            return false;
+        }
+    }, [token, fetchOrders, showNotification]);
 
     useEffect(() => {
-        if (user) {
+        if (token) {
             fetchOrders();
+            fetchReturns();
         }
-    }, [user])
+    }, [token])
 
     const value = {
         orderDetails,
         setOrderDetails,
         submitReturnRequest,
         allOrder,
-        user
+        fetchOrders,
+        user,
+        allReturns,
+        cancelOrder
     }
 
     return (

@@ -17,32 +17,31 @@ const root = createRoot(document.getElementById('root'));
 // import './index.css'; // Adjust based on your file structure
 import "bootstrap/dist/css/bootstrap.min.css";
 import UserNotificationsProvider from './contexts/UserNotificationContext';
-
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <NotificationProvider>
-        <OrderProvider>
-          <AuthProvider>
-            <ProductProvider>
-              <AddressProvider>
-                <CartProvider>
-                  <WishlistProvider>
-                    <OrderDetailsProvider>
-                      <AdminProductsProvider>
-                        <UserNotificationsProvider>
-                          <UserProvider>
+        <UserProvider>
+          <OrderProvider>
+            <AuthProvider>
+              <ProductProvider>
+                <AddressProvider>
+                  <CartProvider>
+                    <WishlistProvider>
+                      <OrderDetailsProvider>
+                        <AdminProductsProvider>
+                          <UserNotificationsProvider>
                             <App />
-                          </UserProvider>
-                        </UserNotificationsProvider>
-                      </AdminProductsProvider>
-                    </OrderDetailsProvider>
-                  </WishlistProvider>
-                </CartProvider>
-              </AddressProvider>
-            </ProductProvider>
-          </AuthProvider>
-        </OrderProvider>
+                          </UserNotificationsProvider>
+                        </AdminProductsProvider>
+                      </OrderDetailsProvider>
+                    </WishlistProvider>
+                  </CartProvider>
+                </AddressProvider>
+              </ProductProvider>
+            </AuthProvider>
+          </OrderProvider>
+        </UserProvider>
       </NotificationProvider>
     </BrowserRouter>
 

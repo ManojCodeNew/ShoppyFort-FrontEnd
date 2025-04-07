@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
                         return {
                             ...product,
                             quantity: cartItem?.quantity || 1,
-                            selections: cartItem?.selections || {}
+                            selections: cartItem?.selections || {},
                         };
                     });
 
@@ -58,36 +58,26 @@ export const CartProvider = ({ children }) => {
 
         try {
             if (!user) navigate('/login');
+            // Use product.quantity or default to 1
+            const itemQuantity = product.quantity || 1;
+
             const body = {
                 userid: user.id,
                 productid: product._id,
-                quantity: product.quantity || 1,
+                quantity: itemQuantity,
                 selections: selections
             }
 
             const data = await sendPostRequestToBackend('cart/addCartProduct', body, token);
-            console.log("cart context", data);
-
             if (data.success) {
-
-                setCartItems((prevCartItems) => {
-                    // Check if the product already exists in the cart
-                    const existingItem = prevCartItems.find((item) => item._id === product._id);
-                    if (existingItem) {
-                        // Update quantity if product exists
-                        return prevCartItems.map((item) =>
-                            item._id === product._id
-                                ? { ...item, quantity: item.quantity + product.quantity }
-                                : item
-                        );
-                    } else {
-                        // Add new product to the cart
-                        return [...prevCartItems, product];
-                    }
+                // Only update the cart state if the backend operation was successful
+                setCartItems(prevCartItems => {
+                    return [...prevCartItems, { ...product, quantity: itemQuantity, selections }];
                 });
+                showNotification(data.success, "success");
             }
-            if (data.msg) {
-                showNotification(data.msg, "error");
+            if (data.error) {
+                showNotification(data.error, "error");
             }
 
         } catch (error) {
@@ -100,8 +90,9 @@ export const CartProvider = ({ children }) => {
         try {
             const response = await sendPostRequestToBackend("cart/removeCart", { productid: itemId }, token);
             if (response.success) {
-
                 setCartItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
+                showNotification("Product removed from cart", "success");
+
             }
         } catch (error) {
             showNotification(`Error removing item: ${error}`, "error");
@@ -124,12 +115,27 @@ export const CartProvider = ({ children }) => {
         }
     }, []);
 
+
+    // Clear cart after successful order
+    const clearCart = useCallback(async () => {
+        try {
+            const response = await sendGetRequestToBackend('cart/clear', token);
+            if (response.success) {
+                // Implement a backend endpoint to clear cart if needed
+                setCartItems([]);
+            }
+
+        } catch (error) {
+            showNotification(`Error clearing cart: ${error}`, "error");
+        }
+    }, [token]);
+
     // Calculate total cost of items in the cart
     const totalCost = cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
     const totalItems = cartItems.length;
 
 
-    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCost, totalItems }
+    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCost, totalItems, clearCart }
     return (
         <CartContext.Provider value={value}>
             {children}
