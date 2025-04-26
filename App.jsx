@@ -27,6 +27,7 @@ import ManageOrder from './components/AdminPanel/ManageOrder.jsx';
 import ProductDetails from './components/AdminPanel/ProductDetails.jsx';
 import UserNotification from './components/UserNotification.jsx'
 import './index.css'; // Adjust based on your file structure
+import ManageReturn from './components/AdminPanel/ManageReturn.jsx';
 
 const App = () => {
 
@@ -52,6 +53,8 @@ const App = () => {
 
           <Route path="attributes" element={<AdminAttributes />} />
           <Route path="manage-order" element={<ManageOrder />} />
+          <Route path="manage-return" element={<ManageReturn />} />
+
 
 
         </Route>

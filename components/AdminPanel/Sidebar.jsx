@@ -38,18 +38,21 @@ const Sidebar = () => {
           <ShoppingBag className="sidebar-menu-icon" />
           <span>Orders</span>
         </NavLink>
-
+        <NavLink to="/admin/manage-return" className="sidebar-menu-item">
+          <Gift className="sidebar-menu-icon" />
+          <span>Returns</span>
+        </NavLink>
         {/* Customers */}
-        <NavLink to="/admin/customers" className="sidebar-menu-item">
+        {/* <NavLink to="/admin/customers" className="sidebar-menu-item">
           <Users className="sidebar-menu-icon" />
           <span>Customers</span>
-        </NavLink>
+        </NavLink> */}
 
         {/* Add Offers */}
-        <NavLink to="/admin/offers" className="sidebar-menu-item">
+        {/* <NavLink to="/admin/offers" className="sidebar-menu-item">
           <Gift className="sidebar-menu-icon" />
           <span>Add Offers</span>
-        </NavLink>
+        </NavLink> */}
 
         {/* Products (with Submenu) */}
         <div className="sidebar-menu-group">
@@ -74,10 +77,10 @@ const Sidebar = () => {
         </div>
 
         {/* Settings */}
-        <NavLink to="/admin/settings" className="sidebar-menu-item">
+        {/* <NavLink to="/admin/settings" className="sidebar-menu-item">
           <Settings className="sidebar-menu-icon" />
           <span>Settings</span>
-        </NavLink>
+        </NavLink> */}
       </nav>
 
       {/* Logout */}

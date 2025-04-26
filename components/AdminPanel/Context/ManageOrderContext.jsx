@@ -30,7 +30,6 @@ export function OrderProvider({ children }) {
             };
         });
     }, []);
-    console.log("enhanced users :", allUsers);
 
     // Centralized error handler
     const handleError = useCallback((error, defaultMessage) => {
@@ -132,6 +131,7 @@ export function OrderProvider({ children }) {
             return () => controller.abort();
         }
     }, [token, fetchOrders]);
+console.log("ordersData", ordersData);
 
     const value = { ordersData, fetchOrders, updateOrderStatus, sendOtpToBackend, getOtpOnDb, totalOrders }
     return (

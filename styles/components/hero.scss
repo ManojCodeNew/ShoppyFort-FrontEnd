@@ -1,16 +1,17 @@
+@use "sass:color";
 @import '../variables';
 
 .hero {
   position: relative;
   height: 50vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 
   @include tablet-and-up {
     height: 70vh;
   }
 
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 
   &::before {
     content: '';
@@ -80,7 +81,7 @@
       }
 
       &:hover {
-        background: darken($primary-color, 10%);
+        background: color.adjust($primary-color, $lightness: -10%);
       }
     }
   }

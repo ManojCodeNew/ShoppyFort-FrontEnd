@@ -13,7 +13,9 @@ import { BrowserRouter } from 'react-router-dom';
 import AdminProductsProvider from './components/AdminPanel/Context/AdminProductsContext';
 import { NotificationProvider } from './components/Notify/NotificationProvider';
 import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext';
+import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturn.jsx';
 const root = createRoot(document.getElementById('root'));
+
 // import './index.css'; // Adjust based on your file structure
 import "bootstrap/dist/css/bootstrap.min.css";
 import UserNotificationsProvider from './contexts/UserNotificationContext';
@@ -31,7 +33,9 @@ root.render(
                       <OrderDetailsProvider>
                         <AdminProductsProvider>
                           <UserNotificationsProvider>
-                            <App />
+                            <ManageReturnProvider>
+                              <App />
+                            </ManageReturnProvider>
                           </UserNotificationsProvider>
                         </AdminProductsProvider>
                       </OrderDetailsProvider>

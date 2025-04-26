@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Mail } from 'lucide-react';
 import '../styles/components/footer.scss';
-import Sign from "../../dist/assets/sign.jpg";
+import Sign from '../assets/Images/sign.jpg';
 
 const Footer = () => {
   return (

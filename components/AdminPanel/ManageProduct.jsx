@@ -1,4 +1,4 @@
-import React, { useEffect ,useState} from "react";
+import React, { useEffect, useState } from "react";
 import "./styles/ProductTable.css";
 import { useNavigate } from "react-router-dom";
 import { useAdminProducts } from "./Context/AdminProductsContext";
@@ -10,9 +10,11 @@ const ProductTable = () => {
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         if (products) {
+
             setIsLoading(false);
         }
     }, [products])
+    console.log("Products:", products);
 
     return (
         <div className="table-container">
@@ -38,7 +40,7 @@ const ProductTable = () => {
                                         <b>{index + 1}</b>
                                     </td>
                                     <td>
-                                        <p>{index}</p>
+                                        <p>{product.productid ? product.productid : "N/A"}</p>
                                     </td>
                                     <td>
                                         <div className="product-info">
@@ -56,7 +58,7 @@ const ProductTable = () => {
                                         </span>
                                     </td>
                                     <td>{product.price}</td>
-                                    
+
                                     <td>
                                         <button className="view-btn" onClick={() => {
                                             setInitialData(product);

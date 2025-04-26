@@ -1,5 +1,3 @@
-import React from 'react'
-import add from '../../dist/assets/add.jpg';
 import '../styles/components/add.scss';
 export default function Add({title,desc,bgcolor}) {
     return (
