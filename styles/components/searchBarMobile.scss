@@ -1,27 +1,36 @@
 @import '../variables';
 
-.search-container {
+.search-container-mobile {
   position: relative;
   flex: 1;
   max-width: 400px;
+  display: flex;
   justify-content: center;
   align-items: center;
   margin: 10px auto;
-  @include mobile-only {
-    display: none !important;
-  }
+
+@include mobile-only {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
   @include tablet-and-up {
-    display: flex !important;
+    display: none !important;
     max-width: 400px;
   }
-  .search-input-wrapper {
+  @include desktop-only {
+    display: none !important;
+  }
+
+  .search-input-wrapper-mobile {
     position: relative;
-    width: 100%;
+    width: 80%;
     height: 40px;
     display: flex;
+    justify-content: center;
     align-items: center;
 
-    .search-icon {
+    .search-icon-mobile {
       position: absolute;
       left: 12px;
       width: 20px;
@@ -52,7 +61,7 @@
       }
     }
 
-    .clear-search {
+    .clear-search-mobile {
       position: absolute;
       right: 8px;
       background: none;
@@ -75,7 +84,7 @@
     }
   }
 
-  .search-results {
+  .search-results-mobile {
     position: absolute;
     top: 100%;
     left: 0;
@@ -89,7 +98,7 @@
     margin-top: 4px;
     border: 1px solid $gray-light;
 
-    .search-result-item {
+    .search-result-item-mobile {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -108,7 +117,7 @@
         border-radius: 4px;
       }
 
-      .result-info {
+      .result-info-mobile {
         flex: 1;
 
         h4 {
@@ -123,12 +132,18 @@
           margin-bottom: 2px;
         }
 
-        .price {
+        .price-mobile {
           font-weight: 500;
           color: $primary-color;
           font-size: 13px;
         }
       }
+    }
+    .no-results-mobile {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: $gray-dark;
     }
   }
 }

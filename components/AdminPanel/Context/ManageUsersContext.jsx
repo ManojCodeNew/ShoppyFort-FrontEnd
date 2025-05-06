@@ -5,11 +5,11 @@ import { useNotification } from "@/components/Notify/NotificationProvider";
 
 // Create Context
 const UserContext = createContext();
-
+const TOKEN_TYPE = "token";
 // Create Provider component
 export function UserProvider({ children }) {
     const [allUsers, setAllUsers] = useState([]);
-    const token = localStorage.getItem("user"); // Get JWT Token
+    const token = localStorage.getItem(TOKEN_TYPE); // Get JWT Token
     const { showNotification } = useNotification();
 
     // Fetch Users (Authenticated Request)
@@ -35,7 +35,7 @@ export function UserProvider({ children }) {
         }
     }, [token, fetchUsers]);
 
-    const value = { allUsers, fetchUsers };
+    const value = { allUsers, fetchUsers, token };
 
     return (
         <UserContext.Provider value={value}>

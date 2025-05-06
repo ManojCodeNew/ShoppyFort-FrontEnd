@@ -12,14 +12,23 @@ const ManageOrder = () => {
     const { ordersData, updateOrderStatus, sendOtpToBackend, getOtpOnDb } = useOrderContext();
     const [confirmModal, setConfirmModal] = useState({ show: false, orderId: null })
     const { showNotification } = useNotification();
-    const [otpModal, setOtpModal] = useState({ show: false, orderId: null, otp: "" });
+    const [otpModal, setOtpModal] = useState({ show: false, orderId: null, otp: "", expiresAt: null });
+    const [timeLeft, setTimeLeft] = useState(0);
 
     useEffect(() => {
         if (ordersData && ordersData.length > 0) {
             setOrders([...ordersData].reverse()); // Reverse to show latest orders first
             setIsLoading(false);
         }
-    }, [ordersData]);
+        let interval;
+        if (otpModal.show && otpModal.expiresAt) {
+            interval = setInterval(() => {
+                const secondsLeft = Math.floor((otpModal.expiresAt - Date.now()) / 1000);
+                setTimeLeft(secondsLeft > 0 ? secondsLeft : 0);
+            }, 1000)
+        }
+        return () => clearInterval(interval);
+    }, [ordersData, otpModal]);
 
 
     const toggleRow = (orderId) => {
@@ -40,15 +49,17 @@ const ManageOrder = () => {
 
     const sendOtpNotification = (orderId, userId) => {
         const otp = Math.floor(1000 + Math.random() * 9000); // Generate 4-digit OTP
+        const expiresAt = Date.now() + 1 * 60 * 1000; // 1 min
         const newOTP = {
             orderid: orderId,
             userid: userId,
             status: "out-for-delivery",
             otp,
-            otpExpiresAt: Date.now() + 1 * 60 * 1000,//One minute for expire
+            otpExpiresAt: expiresAt,
         };
         sendOtpToBackend(newOTP);
-        setOtpModal({ show: true, orderId, otp: "" });
+        setOtpModal({ show: true, orderId, otp: "", expiresAt });
+        setTimeLeft(60);
     };
 
     const verifyOtp = async (orderid) => {
@@ -145,28 +156,25 @@ const ManageOrder = () => {
                                                         Cancel Order
                                                     </button>
                                                 )}
-                                                {order.status === "Delivered" || order.status === "Cancelled" && (
+                                                {(order.status === "Delivered" || order.status === "Cancelled") && (
                                                     <button
                                                         className="action-btn cancel"
-                                                    // onClick={() => updateOrderStatus(order.orderid, "Cancelled")}
                                                     >
                                                         Delete
                                                     </button>
                                                 )}
-                                                {otpModal.show == true && otpModal.orderId == order.orderid && (
-                                                    <>
-                                                        <div className="otp-verification-container">
-                                                            <p>OTP :</p>
-                                                            <input
-                                                                type="text"
-                                                                name="otp"
-                                                                id="otp-input"
-                                                                maxLength="4"
-                                                                value={otpModal.otp}
-                                                                onChange={(e) => setOtpModal({ ...otpModal, otp: e.target.value })} />
-                                                            <button className="verifyOtp-btn" onClick={() => verifyOtp(order.orderid)}>verifyOtp</button>
-                                                        </div>
-                                                    </>
+                                                {otpModal.show && otpModal.orderId == order.orderid && (
+                                                    <div className="otp-verification-container" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                        <p>OTP :</p>
+                                                        <input
+                                                            type="text"
+                                                            name="otp"
+                                                            id="otp-input"
+                                                            maxLength="4"
+                                                            value={otpModal.otp}
+                                                            onChange={(e) => setOtpModal({ ...otpModal, otp: e.target.value })} />
+                                                        <button className="verifyOtp-btn" onClick={() => verifyOtp(order.orderid)} disabled={otpModal.otp.length !== 4 || timeLeft <= 0}>verifyOtp</button>
+                                                    </div>
                                                 )}
 
                                             </>
@@ -178,7 +186,6 @@ const ManageOrder = () => {
                                             className="toggle-btn"
                                             onClick={() => toggleRow(order.orderid)}
                                         >
-                                            {/* {expandedRows[order.orderid] ? "Hide" : "Show"} */}
                                             {expandedRows[order.orderid] ? <ChevronUp /> : <ChevronDown />}
                                         </button>
                                     </td>

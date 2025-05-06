@@ -58,7 +58,7 @@ const CartModal = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="price-info">
-                      <p className="price">₹{item.price * item.quantity}</p>
+                      <p className="price"> <small className="currency-label">AED</small>{item.price * item.quantity}</p>
                       <button
                         className="remove-btn"
                         onClick={() => removeItem(item._id)}
@@ -77,7 +77,7 @@ const CartModal = ({ isOpen, onClose }) => {
           <div className="cart-footer">
             <div className="total">
               <span>Total Amount</span>
-              <span>₹{totalAmount}</span>
+              <span> <small className="currency-label">AED</small>{totalAmount}</span>
             </div>
             <Link to="/checkout/Address">
               <button className="checkout-btn"

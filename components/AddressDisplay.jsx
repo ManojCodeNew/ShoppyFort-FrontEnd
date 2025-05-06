@@ -2,21 +2,19 @@
 import React, { useEffect, useState } from "react";
 import "../styles/components/AddressDisplay.scss"; // Make sure to include styles
 import { useAddress } from "@/contexts/AddressContext";
-import sendGetRequestToBackend from "./Request/Get";
 import sendPostRequestToBackend from "./Request/Post";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from 'uuid';
 import { useOrderDetails } from "@/contexts/OrderDetailsContext";
 import { useCart } from "@/contexts/CartContext";
-import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/contexts/AuthContext";
 const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     const [addressData, setAddressData] = useState(addressList);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const { selectedAddressPresence, setSelectedAddressPresence } = useAddress();
     const { cartItems, totalCost } = useCart();
+    const { user, token } = useAuth();
 
     // Access Token
-    const token = localStorage.getItem('user');
 
     const navigate = useNavigate();
     const addNewAddress = () => {
@@ -27,8 +25,6 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
 
     const setOrderDetailsDataToContext = () => {
         if (token) {
-            const user = jwtDecode(token);
-
             const generateOrderId = () => {
                 return `SH-${Math.floor(1000 + Math.random() * 9000)}`; // Generates SH-XXXX (4-digit number)
             };
@@ -38,7 +34,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
             if (shippingAddress) {
                 const orderDetails = {
                     orderid: generateOrderId(),
-                    userid: user.id,
+                    userid: user._id,
                     shippingaddress: shippingAddress,
                     items: cartItems,
                     totalprice: totalCost
@@ -72,13 +68,10 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     }, [selectedAddress]);
 
     const removeAddress = async (addressid) => {
-        const response = await sendPostRequestToBackend('checkout/address/remove', {addressid} );
+        const response = await sendPostRequestToBackend('checkout/address/remove', { addressid });
         if (response.success) {
             setAddressData(currentItems => currentItems.filter(item => item._id !== addressid));
-
         }
-
-
     };
 
     const handleCheckboxChange = (addressId) => {

@@ -2,18 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { useProducts } from '@/contexts/ProductsContext.jsx';
-// import products from './Request/Get.jsx';
-import '../styles/components/search-bar.scss';
+import '../styles/components/searchBarMobile.scss';
 
-const SearchBar = ({ onSearch }) => {
+const SearchBarMobile = ({ onSearch }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
-
   const { products } = useProducts();
-  
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -21,7 +19,6 @@ const SearchBar = ({ onSearch }) => {
         setQuery('');
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -35,10 +32,9 @@ const SearchBar = ({ onSearch }) => {
     const searchResults = products.filter(product =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase())||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.gender.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    console.log("SEARH RESULT", searchResults);
 
     setResults(searchResults);
     setIsOpen(true);
@@ -58,9 +54,9 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <div className="search-container" ref={searchRef}>
-      <div className="search-input-wrapper">
-        <Search className="search-icon" />
+    <div className="search-container-mobile" ref={searchRef}>
+      <div className="search-input-wrapper-mobile">
+        <Search className="search-icon-mobile" />
         <input
           type="text"
           value={query}
@@ -68,35 +64,39 @@ const SearchBar = ({ onSearch }) => {
             setQuery(e.target.value);
             handleSearch(e.target.value);
           }}
-          placeholder="Search for products, brands and more"
+          placeholder="Search for products, brands, and more"
         />
         {query && (
-          <button className="clear-search" onClick={clearSearch}>
-            <X />
+          <button className="clear-search-mobile" onClick={clearSearch}>
+            <X size={20} />
           </button>
         )}
       </div>
 
-      {isOpen && results.length > 0 && (
-        <div className="search-results">
-          {results.map(product => (
-            <div
-              key={product._id}
-              className="search-result-item"
-              onClick={() => handleResultClick(product)}
-            >
-              <img src={product.defaultImg} alt={product.name} />
-              <div className="result-info">
-                <h4>{product.brand}</h4>
-                <p>{product.name}</p>
-                <span className="price"> <small className="currency-label">AED</small>{product.price}</span>
+      {isOpen && (
+        <div className="search-results-mobile">
+          {results.length > 0 ? (
+            results.map(product => (
+              <div
+                key={product._id}
+                className="search-result-item-mobile"
+                onClick={() => handleResultClick(product)}
+              >
+                <img src={product.defaultImg} alt={product.name} />
+                <div className="result-info-mobile">
+                  <h4>{product.brand}</h4>
+                  <p>{product.name}</p>
+                  <span className="price-mobile"> <small className="currency-label">AED</small>{product.price}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="no-results-mobile">No products found.</div>
+          )}
         </div>
       )}
     </div>
   );
 };
 
-export default SearchBar;
+export default SearchBarMobile;

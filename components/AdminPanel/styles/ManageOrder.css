@@ -196,12 +196,25 @@
 
 .otp-verification-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+  align-items: start;
+  gap: 8px;
+  /* margin-top: 10px; */
+}
+.countdown-text {
+  font-size: 0.9rem;
+  color: #555;
 }
 
+.resend-otp-btn {
+  background-color: #f0ad4e;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
 .otp-verification-container p {
   font-size: 16px;
   font-weight: bold;
@@ -248,4 +261,3 @@
   cursor: pointer; /* Pointer cursor on hover */
   transition: background-color 0.3s ease, color 0.3s ease; /* Transition only color and bg */
 }
-

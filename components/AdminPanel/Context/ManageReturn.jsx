@@ -3,17 +3,16 @@ import sendGetRequestToBackend from "@/components/Request/Get.jsx";
 import sendPostRequestToBackend from "@/components/Request/Post.jsx";
 import { useNotification } from "@/components/Notify/NotificationProvider.jsx";
 import { useOrderContext } from "./ManageOrderContext.jsx";
-// import { useUserContext } from "./ManageUsersContext.jsx";
+import { useUserContext } from "./ManageUsersContext.jsx";
 // Create Context
 const ManageReturnContext = createContext();
 
 // Create Provider component
 export function ManageReturnProvider({ children }) {
     const [returns, setReturns] = useState([]);
-    const token = localStorage.getItem("user"); // Get JWT Token
     const { showNotification } = useNotification();
     const { ordersData, fetchOrders } = useOrderContext();
-    // const { allUsers } = useUserContext();
+    const { allUsers,token } = useUserContext();
 
     // Fetch Returns (Authenticated Request)
     const fetchReturns = useCallback(async () => {

@@ -1,0 +1,89 @@
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+  padding: 1rem;
+
+  .card-element-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+
+    // Default layout (desktop/tablet)
+    .stripe-row {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    // Responsive for small screens
+    @media (max-width: 600px) {
+      .stripe-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+
+        > div {
+          flex: 1 1 48%; // Make input boxes share the row
+        }
+      }
+    }
+
+    .stripe-box {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px;
+      background: #fff;
+    }
+  }
+  .zip-code-wrapper {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+  }
+
+  .pay-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: #6772e5;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+
+    &:disabled {
+      background-color: #bbb;
+      cursor: not-allowed;
+    }
+  }
+
+  .error {
+    color: red;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+}

@@ -4,6 +4,7 @@ import React, { createContext, useState, useContext, useCallback, useEffect } fr
 import { jwtDecode } from 'jwt-decode';
 import sendPostRequestToBackend from '@/components/Request/Post';
 import { useNotification } from '@/components/Notify/NotificationProvider';
+import { useAuth } from './AuthContext.jsx';
 // Create CartContext
 const OrderDetailsContext = createContext();
 
@@ -19,10 +20,8 @@ export const OrderDetailsProvider = ({ children }) => {
     })
     const [allOrder, setAllOrder] = useState([]);
     const { showNotification } = useNotification();
-    const token = localStorage.getItem('user');
-    const user = token ? jwtDecode(token) : null;
     const [allReturns, setAllReturns] = useState(null);
-
+    const { token, user } = useAuth();
 
     const fetchOrders = async () => {
         try {
@@ -50,7 +49,7 @@ export const OrderDetailsProvider = ({ children }) => {
     const submitReturnRequest = useCallback(async (returnData) => {
         try {
             const body = {
-                userid: user.id,
+                userid: user._id,
                 orderid: returnData.orderId,
                 productid: returnData.productId,
                 reason: returnData.reason,
@@ -100,6 +99,8 @@ export const OrderDetailsProvider = ({ children }) => {
         if (token) {
             fetchOrders();
             fetchReturns();
+            console.log("OrderDetails :",orderDetails);
+            
         }
     }, [token])
 

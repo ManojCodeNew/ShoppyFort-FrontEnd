@@ -1,61 +1,61 @@
 import sendGetRequestToBackend from '@/components/Request/Get';
 import sendPostRequestToBackend from '@/components/Request/Post';
-import { jwtDecode } from 'jwt-decode';
 import { useProducts } from './ProductsContext.jsx';
 import { useNavigate } from 'react-router-dom';
-// import { useAuth } from './AuthContext.jsx';
-
+import { useAuth } from './AuthContext.jsx';
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
-const WishlistContext = createContext();
+const WishlistContext = createContext(null);
 
-export function WishlistProvider({ children }) {
+function WishlistProvider({ children }) {
   const { products } = useProducts();
   const [items, setItems] = useState([]);
   const navigate = useNavigate();
-
-  const token = localStorage.getItem('user');
-  const user = token ? jwtDecode(token) : null;
-
-
+const {token}=useAuth();
   const fetchUserWishlist = useCallback(async () => {
-    if (!user) {
-      return
-    } else {
-      const response = await sendGetRequestToBackend(`wishlist`,token);
-      if (response && response.wishlist) {
-        const userWishlistedProducts = products.filter(product =>
-          response.wishlist.some(wishlistItem => wishlistItem.productid === product._id)
-        );
-        setItems(userWishlistedProducts);
-      }
+    if (!token) {
+      navigate("/login");
+      return;
     }
-  }, [user, products]);
+    const response = await sendGetRequestToBackend(`wishlist`, token);
+    if (response?.wishlist) {
+      const userWishlistedProducts = products.filter(product =>
+        response.wishlist.some(wishlistItem => wishlistItem.productid === product._id)
+      );
+      setItems(userWishlistedProducts);
+    }
+
+  }, [token, products, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (token) {
       fetchUserWishlist();
     }
-  }, [user, fetchUserWishlist])
+  }, [token, fetchUserWishlist])
 
   const addItem = useCallback(async (item) => {
-    if (user) {
-      const response = await sendPostRequestToBackend('wishlist/addWishlist', { productid: item._id },token);
-      setItems(currentItems => {
-        if (currentItems.some(i => i._id === item._id)) return currentItems;
-        return [...currentItems, item];
-      });
-    } else {
+    if (!token) {
       navigate("/login");
+      return;
     }
+    await sendPostRequestToBackend('wishlist/addWishlist', { productid: item._id }, token);
 
+    setItems(currentItems => {
+      if (currentItems.some(i => i._id === item._id)) return currentItems;
+      return [...currentItems, item];
+    });
 
-  }, []);
+  }, [token, navigate]);
 
   const removeItem = useCallback(async (id) => {
-    const response = await sendPostRequestToBackend('wishlist/removeWishlist', { productid: id },token);
-    setItems(currentItems => currentItems.filter(item => item.id !== id));
-  }, []);
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    await sendPostRequestToBackend('wishlist/removeWishlist', { productid: id }, token);
+    setItems(currentItems => currentItems.filter(item => item._id !== id));
+  }, [token, navigate]);
 
   const isInWishlist = useCallback((id) => {
     return items.some(item => item._id === id);
@@ -77,11 +77,11 @@ export function WishlistProvider({ children }) {
   );
 }
 
-export function useWishlist() {
-
+function useWishlist() {
   const context = useContext(WishlistContext);
   if (!context) {
     throw new Error('useWishlist must be used within a WishlistProvider');
   }
   return context;
 }
+export { WishlistProvider, useWishlist };

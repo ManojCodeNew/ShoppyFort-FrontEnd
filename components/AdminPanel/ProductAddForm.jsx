@@ -19,7 +19,7 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
         gender: 'Others',
         sizes: ['One Size'],
         colors: [],
-        quantity: ''
+        stock: ''
     });
 
     const navigate = useNavigate();
@@ -80,6 +80,7 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
 
     };
     console.log("categories", categories);
+    console.log("Initial stock value:", initialData?.stock);
 
 
     return (
@@ -254,17 +255,17 @@ const ProductAddForm = ({ onSubmit, onClose }) => {
                     </div>
 
                     <div className="Quantity-of-product">
-                        <label >Quantity</label>
+                        <label >Stock</label>
                         <input
                             type="number"
                             className="quantityofproduct"
                             min="0"
                             placeholder='Enter quantity'
-                            value={productData.quantity}
+                            value={productData.stock !== undefined ? String(productData.stock) : ''}
                             onChange={(e) =>
                                 setProductData(prevData => ({
                                     ...prevData,
-                                    quantity: Number(e.target.value) // Ensure it's stored as a number
+                                    stock: Number(e.target.value) // Ensure it's stored as a number
                                 }))
                             } />
                     </div>

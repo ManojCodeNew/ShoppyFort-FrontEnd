@@ -42,16 +42,47 @@
         padding: 8px 0;
         border-bottom: 1px solid $gray-light;
       }
+      .phoneno-input {
+        font-size: 16px;
+        color: $black;
+        padding: 8px 0;
+        border: 1px solid $gray-dark;
+        border-radius: 5px;
+        width: 30%;
+      }
+      .address-input {
+        width: 30%;
+        border-radius: 5px;
+        // outline: none;
+        font-size: 16px;
+        color: $black;
+        padding: 8px 0;
+        border: 1px solid $gray-dark;
+      }
     }
   }
 
   .profile-actions {
     margin-top: 32px;
     display: flex;
+    justify-content: flex-end;
     gap: 16px;
 
-    button {
-      flex: 1;
+    .logout {
+      color: red;
+      float: left;
+      padding: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10%;
+      border: 1px solid #f9acac;
+      border-radius: 5px;
+
+      &:hover {
+        background: #f9acac;
+        padding: 8px;
+        border-radius: 5px;
+      }
     }
   }
 }

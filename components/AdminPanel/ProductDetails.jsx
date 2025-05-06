@@ -22,7 +22,7 @@ function ProductDetails() {
                 <span className="original-price"> ${initialData.originalPrice}</span>
                 <span className="discount"> ({initialData.discount}% Off)</span>
             </p>
-            <p className="product-quantity"><strong>Stock:</strong> {initialData.quantity} available</p>
+            <p className="product-quantity"><strong>Stock:</strong> {initialData.stock} available</p>
             <p className="product-description"><strong>Description:</strong>{initialData.description}</p>
 
             {/* Sizes */}

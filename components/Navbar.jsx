@@ -4,7 +4,6 @@ import { Menu } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
-import CartModal from './CartModal';
 import MobileSidebar from './MobileSidebar.jsx';
 import SearchBar from './SearchBar.jsx';
 import '../styles/components/navbar.scss';
@@ -15,13 +14,37 @@ import User from '../assets/Images/user.png';
 
 
 const Navbar = () => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { totalItems: cartItems } = useCart();
-
   const { totalItems: wishlistItems } = useWishlist();
-  const [isHovered, setisHovered] = useState(false);
-  const { logout, user } = useAuth();
+  const { logout, user, token } = useAuth();
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
+  const userProfile = user ? (
+    <>
+      <Link to="/profile" className='user-details'>
+        <p className='user-name'>{user.fullname}</p>
+        <p className='user-email'>{user.phoneno}</p>
+      </Link>
+      <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
+      <Link to='/notifications' className='user-notification-link'><p className='user-notification'>Notification</p></Link>
+      <p className='user-logout' onClick={logout}>Logout</p>
+    </>
+  ) : (
+    <>
+      <div className="Guest-container">
+        <h5>Welcome</h5>
+        <p>Sign in to continue.</p>
+        <Link to='/login'><button className='sign-in'>Sign in</button></Link>
+      </div>
+      <hr className='underline' />
+      <Link to='/login' className='user-order-link'><p className='user-order'>Orders</p></Link>
+      <Link to='/notifications' className='user-notification-link'><p className='user-notification'>Notification</p></Link>
+    </>
+  );
+
   return (
     <header className="header">
       <nav className="navbar">
@@ -37,49 +60,22 @@ const Navbar = () => {
             <Link to="/" className="logo">
               <img src={logo} alt="" />
             </Link>
-            {/* <div className="search-bar-container"> */}
-
-            <SearchBar />
-            {/* </div> */}
+            {/* <SearchBar /> */}
           </div>
 
           <div className="nav-actions">
             <div className="nav-action-profile"
-              onMouseEnter={() => setisHovered(true)}
-              onMouseLeave={() => setisHovered(false)} >
-
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
               <img src={User} alt="User" className='user-icon' />
-
               <span className='profile-title'>Profile</span>
               {isHovered && (
                 <div className="popup-profile"
-                  onMouseEnter={() => setisHovered(true)}
+                  onMouseEnter={handleMouseEnter}
                 >
                   <h4>Profile Details</h4>
-                  {user ?
-                    <Link to="/profile" className='user-details'>
-                      <p className='user-name'>{user.fullname}</p>
-                      <p className='user-email'>{user.phoneno}</p>
-                    </Link>
-                    :
-                    <div className="Guest-container">
-                      <h5>Welcome</h5>
-                      <p>Sign in to continue.</p>
-                      <Link to='/login' ><button className='sign-in'>Sign in</button></Link>
-                    </div>
-                  }
-                  <hr className='underline' />
-                  {
-                    user ?
-                      <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
-                      :
-                      <Link to='/login' className='user-order-link'><p className='user-order'>Orders</p></Link>
-
-                  }
-                  <Link to='/notifications' className='user-notification-link'><p className='user-notification'>Notification</p></Link>
-                  {user && (
-                    <p className='user-logout' onClick={() => logout()}>logout</p>
-                  )}
+                  {userProfile}
                 </div>
               )}
 
@@ -93,7 +89,6 @@ const Navbar = () => {
             </Link>
             <button
               className="nav-action"
-            // onClick={() => setIsCartOpen(true)}
             >
               <Link to="/cart" className="nav-action">
 

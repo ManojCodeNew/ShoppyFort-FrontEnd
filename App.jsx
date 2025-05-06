@@ -28,7 +28,9 @@ import ProductDetails from './components/AdminPanel/ProductDetails.jsx';
 import UserNotification from './components/UserNotification.jsx'
 import './index.css'; // Adjust based on your file structure
 import ManageReturn from './components/AdminPanel/ManageReturn.jsx';
-
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEYYnDOqG6JTw68x8JjiuSluNPb5iemtpiLdOcxqp1irCCddXp6p3U001PeLWXNf'); // Replace with your actual publishable key
 const App = () => {
 
   return (
@@ -78,7 +80,11 @@ const App = () => {
                 <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
                 <Route path="product/view/:id" element={<ProductViewPage />} />
                 <Route path="product/search/:id" element={<ProductViewPage />} />
-                <Route path="checkout/address" element={<Address />} />
+                <Route path="checkout/address" element={
+                  <Elements stripe={stripePromise}>
+                    <Address />
+                  </Elements>
+                  } />
                 <Route path="successToOrder" element={<OrderPlaced />} />
                 <Route path="offers" element={<Offers />} />
                 <Route path="notifications" element={<UserNotification/>} />

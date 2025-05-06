@@ -15,39 +15,42 @@ import { NotificationProvider } from './components/Notify/NotificationProvider';
 import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext';
 import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturn.jsx';
 const root = createRoot(document.getElementById('root'));
-
-// import './index.css'; // Adjust based on your file structure
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import "bootstrap/dist/css/bootstrap.min.css";
 import UserNotificationsProvider from './contexts/UserNotificationContext';
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <NotificationProvider>
-        <UserProvider>
-          <OrderProvider>
-            <AuthProvider>
-              <ProductProvider>
-                <AddressProvider>
-                  <CartProvider>
-                    <WishlistProvider>
-                      <OrderDetailsProvider>
-                        <AdminProductsProvider>
-                          <UserNotificationsProvider>
-                            <ManageReturnProvider>
-                              <App />
-                            </ManageReturnProvider>
-                          </UserNotificationsProvider>
-                        </AdminProductsProvider>
-                      </OrderDetailsProvider>
-                    </WishlistProvider>
-                  </CartProvider>
-                </AddressProvider>
-              </ProductProvider>
-            </AuthProvider>
-          </OrderProvider>
-        </UserProvider>
-      </NotificationProvider>
+      <GoogleOAuthProvider clientId="994690946679-8sjellqs7o44r8b3ij4oqduasatgmc91.apps.googleusercontent.com">
+        <NotificationProvider>
+          <AuthProvider>
+            <ProductProvider>
+              <CartProvider>
+                <UserProvider>
+                  <OrderProvider>
+                    <AddressProvider>
+                      <WishlistProvider>
+                        <OrderDetailsProvider>
+                          <AdminProductsProvider>
+                            <UserNotificationsProvider>
+                              <ManageReturnProvider>
+
+                                <App />
+
+                              </ManageReturnProvider>
+                            </UserNotificationsProvider>
+                          </AdminProductsProvider>
+                        </OrderDetailsProvider>
+                      </WishlistProvider>
+                    </AddressProvider>
+                  </OrderProvider>
+                </UserProvider>
+              </CartProvider>
+            </ProductProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </GoogleOAuthProvider>
     </BrowserRouter>
 
-  </React.StrictMode>
+  </React.StrictMode >
 );

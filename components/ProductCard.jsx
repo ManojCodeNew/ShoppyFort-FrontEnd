@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { Heart, Images, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import '../styles/components/product-card.scss';
 import heart from "../assets/Images/heart.png";
-import ActiveHeartBtn from "../assets/Images/active.png";
-import { Images } from 'lucide-react';
+import activeHeart from "../assets/Images/active.png";
 
 const ProductCard = ({ product }) => {
   const [showAddToBag, setShowAddToBag] = useState(false);
@@ -23,15 +21,9 @@ const ProductCard = ({ product }) => {
     price,
     originalPrice,
     discount,
-    colorImages,
-    category,
-    gender,
     colors,
     defaultImg
   } = product;
-  const [defaultImage, setDefaultImage] = useState(colors[0])
-
-  console.log("Product", product);
 
   const handleProductClick = (e) => {
     e.preventDefault();
@@ -39,7 +31,6 @@ const ProductCard = ({ product }) => {
     if (e.target.closest('.wishlist-button') || e.target.closest('.add-to-bag')) {
       return;
     }
-
     navigate(`/product/view/${_id}`);
   };
 
@@ -85,27 +76,22 @@ const ProductCard = ({ product }) => {
           className={`wishlist-button ${isInWishlist(_id) ? 'active' : ''}`}
           onClick={handleWishlistToggle}
         >
-          {/* <Heart className="heart-icon" /> */}
 
-          {isInWishlist(_id) ?
-            <img src={ActiveHeartBtn} alt="" className='heart-icon' /> :
-            <img src={heart} alt="" className='heart-icon' />
-          }
+          <img src={isInWishlist(_id) ? activeHeart : heart} alt="wishlist" className='heart-icon' /> :
         </button>
-
       </div>
 
       <div className="product-card-info">
-        <h3 className="brand">{brand.length > 15 ? brand.slice(0, 13) + "...":brand}</h3>
-        <p className="name">{name.length > 15 ? name.slice(0, 13) + "...":name}</p>
+        <h3 className="brand">{brand.length > 15 ? brand.slice(0, 13) + "..." : brand}</h3>
+        <p className="name">{name.length > 15 ? name.slice(0, 13) + "..." : name}</p>
         <div className="price-info">
-          <span className="current-price">₹{price}</span>
+          <span className="current-price"><small className="currency-label">AED</small>{price}</span>
           {originalPrice && (
-            <span className="original-price">₹{originalPrice}</span>
+            <span className="original-price"> <small className="currency-label">AED</small>{originalPrice}</span>
           )}
-          {discount > 0 && (
+          {/* {discount > 0 && (
             <span className="discount">({discount}% OFF)</span>
-          )}
+          )} */}
         </div>
       </div>
     </div>

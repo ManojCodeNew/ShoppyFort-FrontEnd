@@ -1,22 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-    Box,
-    Typography,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Button,
-    IconButton,
-    Collapse,
-} from "@mui/material";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useManageReturnContext } from "./Context/ManageReturn.jsx";
 import Loader from "../Load/Loader.jsx";
-
+import './styles/ManageReturn.css';
 const ManageReturn = () => {
     const { returns, fetchReturns, updateStatus, deleteReturn } = useManageReturnContext();
     const [loading, setLoading] = useState(false);
@@ -24,7 +9,7 @@ const ManageReturn = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (hasFetched.current) return; // Prevent double fetch
+            if (hasFetched.current) return;
             hasFetched.current = true;
             try {
                 setLoading(true);
@@ -37,160 +22,78 @@ const ManageReturn = () => {
         };
         fetchData();
     }, [fetchReturns]);
-console.log("returns :", returns);
+
     const handleAccept = useCallback((id) => updateStatus(id, "approved"), [updateStatus]);
     const handleReject = useCallback((id) => updateStatus(id, "rejected"), [updateStatus]);
     const handleProcessed = useCallback((id) => updateStatus(id, "processed"), [updateStatus]);
     const handleDelete = useCallback((id) => deleteReturn(id), [deleteReturn]);
 
-    const renderActions = (returnItem) => {
-        switch (returnItem.status) {
+    const renderActions = (item) => {
+        switch (item.status) {
             case "Return Requested":
                 return (
                     <>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleAccept(returnItem._id)}
-                        >
-                            Accept
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => handleReject(returnItem._id)}
-                            sx={{ ml: 1 }}
-                        >
-                            Reject
-                        </Button>
+                        <button className="btn primary" onClick={() => handleAccept(item._id)}>Accept</button>
+                        <button className="btn secondary" onClick={() => handleReject(item._id)}>Reject</button>
                     </>
                 );
             case "approved":
-                return (
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => handleProcessed(returnItem._id)}
-                    >
-                        Processed
-                    </Button>
-                );
+                return <button className="btn success" onClick={() => handleProcessed(item._id)}>Processed</button>;
             case "rejected":
-                return (
-                    <Button
-                        variant="contained"
-                        color="error"
-                        onClick={() => handleDelete(returnItem._id)}
-                    >
-                        Delete
-                    </Button>
-                );
+                return <button className="btn danger" onClick={() => handleDelete(item._id)}>Delete</button>;
             default:
                 return null;
         }
     };
 
     return (
-        <Box sx={{ padding: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                Manage Returns
-            </Typography>
+        <div className="returns-container">
+            <h2>Manage Returns</h2>
             {loading ? (
                 <Loader />
             ) : returns.length === 0 ? (
-                <Typography>No return requests found.</Typography>
+                <p>No return requests found.</p>
             ) : (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell />
-                                <TableCell>Order ID</TableCell>
-                                <TableCell>Customer</TableCell>
-                                <TableCell>Reason</TableCell>
-                                <TableCell>Return Date</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {returns.map((returnItem) => (
-                                <ReturnRow
-                                    key={returnItem._id}
-                                    returnItem={returnItem}
-                                    renderActions={renderActions}
-                                />
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <table className="returns-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Reason</th>
+                            <th>Return Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {[...returns].reverse().map((item, index) => (
+                            <React.Fragment key={item._id}>
+                                <tr>
+                                    <td>{index + 1}</td>
+                                    <td>{item.orderid}</td>
+                                    <td>{item.userDetails?.name || "Unknown"}</td>
+                                    <td>{item.reason}</td>
+                                    <td>{new Date(item.createdAt).toLocaleString()}</td>
+                                    <td>{item.status}</td>
+                                    <td>{renderActions(item)}</td>
+                                </tr>
+                                <tr className="product-details-row">
+                                    <td colSpan="7">
+                                        <div className="product-details">
+                                            <strong>Product:</strong> {item.productDetails?.name || "Unknown"} |
+                                            <strong> SKU:</strong> {item.productDetails?.sku || "N/A"} |
+                                            <strong> Quantity:</strong> {item.productDetails?.quantity || "N/A"} |
+                                            <strong> Price:</strong> ₹{item.productDetails?.price || "N/A"}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </React.Fragment>
+                        ))}
+                    </tbody>
+                </table>
             )}
-        </Box>
-    );
-};
-
-const ReturnRow = ({ returnItem, renderActions }) => {
-    const [open, setOpen] = useState(false);
-
-    return (
-        <>
-            <TableRow>
-                <TableCell>
-                    <IconButton
-                        aria-label="expand row"
-                        size="small"
-                        onClick={() => setOpen(!open)}
-                    >
-                        {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                    </IconButton>
-                </TableCell>
-                <TableCell>{returnItem.orderid}</TableCell>
-                <TableCell>{returnItem.userDetails?.name || "Unknown User"}</TableCell>
-                <TableCell>{returnItem.reason}</TableCell>
-                <TableCell>
-                    {new Date(returnItem.createdAt).toLocaleString()}
-                </TableCell>
-                <TableCell>{returnItem.status}</TableCell>
-                <TableCell>{renderActions(returnItem)}</TableCell>
-            </TableRow>
-            <TableRow>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
-                        <Box margin={2}>
-                            <Typography variant="h6" gutterBottom component="div">
-                                Product Details
-                            </Typography>
-                            <Table size="small" aria-label="product details">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Product Name</TableCell>
-                                        <TableCell>SKU</TableCell>
-                                        <TableCell>Quantity</TableCell>
-                                        <TableCell>Price</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell>
-                                            {returnItem.productDetails?.name || "Unknown Product"}
-                                        </TableCell>
-                                        <TableCell>
-                                            {returnItem.productDetails?.sku || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                            {returnItem.productDetails?.quantity || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                            ₹{returnItem.productDetails?.price || "N/A"}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </Box>
-                    </Collapse>
-                </TableCell>
-            </TableRow>
-        </>
+        </div>
     );
 };
 

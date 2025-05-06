@@ -1,12 +1,12 @@
-// Colors
+// Updated _variables.scss
 $primary-color: #28a745;
-$hover-color:#97ffafcb;
+$hover-color: #97ffafcb;
 $secondary-color: #3e4152;
 $white: #ffffff;
 $black: #000000;
 $gray-light: #f4f4f4;
 $gray-dark: #4b5563;
-$selected:rgb(0, 53, 32);
+$selected: rgb(0, 53, 32);
 
 // Breakpoints
 $breakpoint-xs: 480px;
@@ -15,10 +15,15 @@ $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
 
-// Mixins for responsive design
+// FIXED mobile-only mixin - use a more realistic mobile breakpoint
 @mixin mobile-only {
-  @media (max-width: #{$breakpoint-sm - 1px}) and (max-width:  #{$breakpoint-lg - 1px})
-  {
+  @media (max-width: #{$breakpoint-sm - 1px}) {  // Screen size below 740px
+    @content;
+  }
+}
+
+@mixin mobile-and-up {
+  @media (min-width: #{$breakpoint-xs}) {
     @content;
   }
 }

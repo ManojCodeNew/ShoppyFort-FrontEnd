@@ -11,7 +11,6 @@ const UserNotifications = () => {
         );
 
     };
-    console.log("Notifications", notifications);
 
 
     return (

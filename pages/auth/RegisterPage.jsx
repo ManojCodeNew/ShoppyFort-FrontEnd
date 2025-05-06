@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
 
 const RegisterPage = () => {
- 
+
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -14,24 +14,23 @@ const RegisterPage = () => {
     confirmpassword: ''
   });
   const [errors, setErrors] = useState({});
-  const { register, error, isLoading } = useAuth();
+  const { register, error, isLoading, user, token } = useAuth();
   const navigate = useNavigate();
   // Checking if user is exist or not 
-  useEffect(()=>{
-    const user=localStorage.getItem('user');
+  useEffect(() => {
     if (user) {
       navigate('/profile');
     }
-  },[])
+  }, [])
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (formData.password !== formData.confirmpassword) {
       newErrors.confirmpassword = 'Passwords do not match';
     }
-    
+
     if (formData.phoneno.length !== 10) {
-      newErrors.phoneno= 'Phone number must be 10 digits';
+      newErrors.phoneno = 'Phone number must be 10 digits';
     }
 
     setErrors(newErrors);
@@ -39,15 +38,15 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("RegisterPage data",formData);
-    
+    console.log("RegisterPage data", formData);
+
     e.preventDefault();
     if (validateForm()) {
       const userRegisterResponse = await register(formData);
       console.log(userRegisterResponse);
-      
+
       if (userRegisterResponse.success) {
-        localStorage.setItem('user',userRegisterResponse.token);
+        // localStorage.setItem('user',userRegisterResponse.token);
         navigate('/profile');
       }
     }
@@ -65,7 +64,7 @@ const RegisterPage = () => {
     <div className="auth-page">
       <div className="auth-container">
         <h1>Create Account</h1>
-        
+
         {error && (
           <div className="error-message">
             {error}
@@ -145,8 +144,8 @@ const RegisterPage = () => {
             )}
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-primary"
             disabled={isLoading}
           >

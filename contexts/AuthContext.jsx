@@ -3,31 +3,50 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { jwtDecode } from 'jwt-decode';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 import { useNavigate } from 'react-router-dom';
+import sendGetRequestToBackend from '@/components/Request/Get';
+import { set } from 'mongoose';
 const AuthContext = createContext();
-
+const TOKEN_TYPE = "token";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem(TOKEN_TYPE);
   const { showNotification } = useNotification();
   const navigate = useNavigate();
+  console.log("AuthContext user", user);
 
-  // It will check If user is present or not
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(jwtDecode(storedUser));
-      } catch (error) {
-        console.error('Invalid token:', error);
-        localStorage.removeItem('user');
-        setUser(null);
+    const fetchUser = async () => {
+      const storedToken = localStorage.getItem(TOKEN_TYPE);
+      console.log("Stored token:", storedToken);
+
+      if (storedToken) {
+        try {
+
+          const accessUserData = await sendGetRequestToBackend('auth/getUser', storedToken);
+
+          if (accessUserData.er) {
+            console.log("Error fetching user data:", accessUserData.er);
+
+            showNotification(`Failed to load user: ${accessUserData.er}`, 'error');
+            setUser(null);
+            localStorage.removeItem(TOKEN_TYPE);
+          } else {
+            setUser(accessUserData.user);
+          }
+        } catch (err) {
+          console.error('Error loading user:', err);
+          localStorage.removeItem(TOKEN_TYPE);
+          setUser(null);
+        }
       }
-    } else {
-      setUser(null);
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    fetchUser();
   }, []);
+
 
   // Login actions
   const login = useCallback(async (email, password) => {
@@ -39,8 +58,15 @@ export function AuthProvider({ children }) {
       }
 
       // ✅ Store token & decode user info
-      localStorage.setItem('user', response.token);
-      setUser(jwtDecode(response.token));
+      localStorage.setItem(TOKEN_TYPE, response.token);
+      const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
+      if (accessUserData.er) {
+        showNotification(`Failed to get user data : ${accessUserData.er}`, "error");
+        return false;
+      }
+      setUser(accessUserData.user);
+      console.log("LoginPage data", accessUserData.user);
+
       showNotification('Login successful! 🎉', 'success');
       return response;
     } catch (err) {
@@ -66,8 +92,16 @@ export function AuthProvider({ children }) {
         return false;
       }
       // ✅ Decode the token and store it in user state
-      setUser(jwtDecode(response.token));
-      localStorage.setItem('user', response.token);
+      localStorage.setItem(TOKEN_TYPE, response.token);
+
+      const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
+      if (accessUserData.er) {
+        showNotification(`Failed to get user data : ${accessUserData.er}`, "error");
+        return false;
+      }
+      setUser(accessUserData.user);
+      console.log("Register data", accessUserData.user);
+
       showNotification("Registration successful! 🎉", "success");
       return response;
 
@@ -79,12 +113,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('user');
-    setError(null);
-    showNotification('Logged out successfully!', 'success');
-    navigate('/login');
-    setTimeout(() => window.location.reload(), 500);
+    setLoading(true);
+    showNotification('Logging out...', 'info');
+
+    setTimeout(() => {
+      setUser(null);
+      localStorage.removeItem(TOKEN_TYPE);
+      setError(null);
+      showNotification('Logged out successfully!', 'success');
+      navigate('/login');
+      setLoading(false);
+    }, 800);
   }, [navigate]);
 
   const value = {
@@ -92,8 +131,10 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
-    loading,
-    error
+    isLoading: loading,
+    error,
+    token,
+    setUser
   };
 
   return (

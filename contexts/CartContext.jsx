@@ -1,10 +1,10 @@
 import sendGetRequestToBackend from '@/components/Request/Get';
 import sendPostRequestToBackend from '@/components/Request/Post';
-import { jwtDecode } from 'jwt-decode';
 import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
-import { useProducts } from './ProductsContext';
+import { useProducts } from './ProductsContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
+import { useAuth } from './AuthContext.jsx';
 // Create CartContext
 const CartContext = createContext();
 
@@ -14,18 +14,11 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const { showNotification } = useNotification();
     const navigate = useNavigate();
+    const { user, token } = useAuth();
 
-    const token = localStorage.getItem('user');
-    const user = token && token.split('.').length === 3 ? jwtDecode(token) : null;
-
-    useEffect(() => {
-        if (user) {
-            fetchCartItems();
-        }
-    }, [user]);
     // Fetch cart items from the server
     const fetchCartItems = useCallback(async () => {
-        if (!user) navigate('/login');
+        if (!token) return navigate('/login');
         try {
             const response = await sendGetRequestToBackend(`cart/`, token);
 
@@ -46,12 +39,20 @@ export const CartProvider = ({ children }) => {
 
                 setCartItems(cartedProducts);
 
+            } else {
+                showNotification("Error fetching cart items", "error");
             }
 
         } catch (error) {
             showNotification(`Error fetching cart items : ${error}`, "error");
         }
-    }, [user, products]);
+    }, [user, token, navigate, products]);
+
+    useEffect(() => {
+        if (user && products.length > 0) {
+            fetchCartItems();
+        }
+    }, [user, products.length]);
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {
@@ -61,17 +62,38 @@ export const CartProvider = ({ children }) => {
             // Use product.quantity or default to 1
             const itemQuantity = product.quantity || 1;
 
+            // hecks current product stock is 0
+            if (product.stock === 0) {
+                showNotification(`Sorry, '${product.name}' is out of stock.`, 'error');
+                return;
+            }
+
+            if (itemQuantity > product.stock) {
+                showNotification(`Only ${product.stock} items available in stock`, 'error');
+                return;
+            }
+
             const body = {
-                userid: user.id,
+                userid: user._id,
                 productid: product._id,
                 quantity: itemQuantity,
                 selections: selections
             }
 
+
             const data = await sendPostRequestToBackend('cart/addCartProduct', body, token);
             if (data.success) {
-                // Only update the cart state if the backend operation was successful
+                // If cart item already there in cartitem it will just append it
                 setCartItems(prevCartItems => {
+                    const existingIndex = prevCartItems.findIndex(item => item._id === product._id);
+                    if (existingIndex >= 0) {
+                        const updatedItems = [...prevCartItems];
+                        updatedItems[existingIndex].quantity = Math.min(
+                            updatedItems[existingIndex].quantity + itemQuantity,
+                            product.stock
+                        );
+                        return updatedItems;
+                    }
                     return [...prevCartItems, { ...product, quantity: itemQuantity, selections }];
                 });
                 showNotification(data.success, "success");
@@ -83,7 +105,7 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             showNotification(`Error adding item to cart: ${error}`, "error");
         }
-    }, [user]);
+    }, [user, token, navigate]);
 
     // Handle item removal from cart
     const handleRemove = useCallback(async (itemId) => {
@@ -97,23 +119,47 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             showNotification(`Error removing item: ${error}`, "error");
         }
-    }, []);
+    }, [token]);
 
     // Handle item quantity update
-    const handleQuantityChange = useCallback(async (itemId, newQuantity) => {
+    const handleQuantityChange = useCallback(async (itemId, newQuantity, selections) => {
         try {
+            if (newQuantity < 1) return;
+
+            const item = cartItems.find(item =>
+                item._id === itemId &&
+                item.selections?.color === selections.color &&
+                item.selections?.size === selections.size
+            );
+
+            if (!item) return;
+
+            if (newQuantity > item.stock) {
+                showNotification(`Only ${item.stock} items available in stock`, "error");
+                return;
+            }
+
+            setCartItems(prevItems =>
+                prevItems.map(item =>
+                    item._id === itemId &&
+                        item.selections?.color === selections.color &&
+                        item.selections?.size === selections.size
+                        ? { ...item, quantity: newQuantity }
+                        : item
+                )
+            );
+
+
             const response = await sendPostRequestToBackend("cart/updateQuantity", { productid: itemId, quantity: newQuantity }, token);
-            if (response.success) {
-                setCartItems((prevItems) =>
-                    prevItems.map((item) =>
-                        item._id === itemId ? { ...item, quantity: newQuantity } : item
-                    )
-                );
+            if (!response?.success) {
+                showNotification("Failed to update quantity", "error");
+                fetchCartItems();
             }
         } catch (error) {
             showNotification(`Error updating quantity: ${error}`, "error");
+            fetchCartItems();
         }
-    }, []);
+    }, [token, fetchCartItems, cartItems]);
 
 
     // Clear cart after successful order
@@ -131,11 +177,17 @@ export const CartProvider = ({ children }) => {
     }, [token]);
 
     // Calculate total cost of items in the cart
-    const totalCost = cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
-    const totalItems = cartItems.length;
+    const totalCost_of_products = cartItems?.reduce((sum, item) => {
+        const itemTotal = (item.quantity || 1) * (item.price || 0);
+        return sum + itemTotal;
+    }, 0) || 0;
+    const VAT_Price = Number((totalCost_of_products * 0.05).toFixed(2));
+    const totalCost = Number((totalCost_of_products + VAT_Price).toFixed(2));
+    const totalItems = cartItems?.length || 0;
 
+    console.log("VAT_Price in cartcontext", VAT_Price);
 
-    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCost, totalItems, clearCart }
+    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCost, totalItems, clearCart, VAT_Price, fetchCartItems }
     return (
         <CartContext.Provider value={value}>
             {children}

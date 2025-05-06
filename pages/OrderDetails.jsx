@@ -31,7 +31,7 @@ function OrderDetails() {
             }
         }
     }, [allReturns, returnData.product_id])
-    console.log("All Orders :", allOrder);
+    console.log("All Orders - from orderdetails,jsx:", allOrder);
 
     const toggleReturnDropdown = (product_id, orderId) => {
         // Don't allow toggling if there's already a return for this product
@@ -118,6 +118,18 @@ function OrderDetails() {
         return returnRecord ? returnRecord.status : null;
     };
 
+    const isWithinReturnWindow = (order) => {
+        if (!order || !order.deliveredAt || order.status.toLowerCase() !== "delivered") {
+            return false;
+        }
+
+        const deliveredDate = new Date(order.deliveredAt);
+        const currentDate = new Date();
+
+        const diffTime = currentDate - deliveredDate; // time difference in milliseconds
+        const diffDays = diffTime / (1000 * 60 * 60 * 24); // convert milliseconds to minutes
+        return diffDays <= 3;
+    };
 
     return (
         <section className="order-section">
@@ -137,11 +149,12 @@ function OrderDetails() {
                                             <span className="product-color">Color: {product.selections?.color || "N/A"}</span> |
                                             <span className="product-size"> Size: {product.quantity || "N/A"}</span>
                                         </p>
-                                        <p className="product-price">₹{product.price || 0}</p>
+                                        <p className="product-price"> <small className="currency-label">AED</small>{product.price || 0}</p>
 
                                         {/* Return Section */}
-                                        {/* Return button */}
-                                        {order.status.toLowerCase() === "delivered" && (
+                                        {/* Return button - only show if within return window */}
+                                        {order.status.toLowerCase() === "delivered" && isWithinReturnWindow(order) && (
+
                                             <div className='return-section' key={product._id}>
                                                 <div
                                                     className={`return-btn ${getReturnStatus(product._id) ? 'disabled' : ''}`}

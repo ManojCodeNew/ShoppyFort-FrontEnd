@@ -10,7 +10,7 @@
   cursor: pointer;
   max-width: 200px;
   max-height: fit-content;
-// padding: 10px;
+  // padding: 10px;
   &:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   }
@@ -67,7 +67,7 @@
 
   .product-card-info {
     padding: 12px;
-    flex-grow: 1;  // Helps distribute space evenly
+    flex-grow: 1; // Helps distribute space evenly
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -94,6 +94,7 @@
         font-weight: bold;
         color: #000;
       }
+      
 
       .original-price {
         font-size: 0.875rem;
@@ -107,7 +108,6 @@
       }
     }
   }
-
 }
 
 // Responsive Design
@@ -133,7 +133,6 @@
 
         .original-price,
         .discount {
-          
           font-size: 0.7rem;
         }
       }
@@ -166,5 +165,11 @@
       }
     }
   }
-
+}
+.currency-label {
+  font-size: 0.65rem;
+  margin-right: 2px;
+  vertical-align: baseline;
+  font-weight: 600;
+  color: #444;
 }

@@ -3,12 +3,13 @@ import React from 'react';
 import '../styles/pages/OrderPlaced.scss';
 import { useNavigate } from 'react-router-dom';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
+
 const OrderPlaced = () => {
 
   const navigate = useNavigate();
-  const { orderDetails } = useOrderDetails();
+  const { orderDetails, setOrderDetails,fetchOrders } = useOrderDetails();
 
-  const order = orderDetails; 
+  const order = orderDetails;
 
   return (
     <div className="order-success-container">
@@ -25,12 +26,14 @@ const OrderPlaced = () => {
         </div>
       )}
       <div className="actions">
-        <button onClick={() => {
+        <button onClick={({ }) => {
           navigate("/")
         }} className="button">
           Continue Shopping
         </button>
         <button onClick={() => {
+          setOrderDetails({})
+          fetchOrders();
           navigate("/orders");
         }} className="button secondary">
           View My Orders

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect } from 'react';
 import { createContext, useContext, useState } from 'react';
 import { useNotification } from '@/components/Notify/NotificationProvider';
 import sendDeleteRequestToBackend from '@/components/Request/Delete';
+import { useUserContext } from './ManageUsersContext';
 // Create Context
 const AdminProductsContext = createContext();
 
@@ -14,11 +15,10 @@ function AdminProductsProvider({ children }) {
     const [initialData, setInitialData] = useState(null);
     const [initialImagData, setInitialImgData] = useState(null);
     const { showNotification } = useNotification();
-    const token = localStorage.getItem("user");
+    const { token } = useUserContext();
 
     useEffect(() => {
         if (initialData && products.length > 0) {
-            console.log("SECOND in UseEffect ", products);
 
             // Find the product with the same _id
             const matchingProduct = products.find((product) => product._id === initialData._id);
@@ -31,17 +31,12 @@ function AdminProductsProvider({ children }) {
                         file: null
                     }));
                 });
-                console.log("formatted Imag DATA:", formattedColorImages);
 
 
                 setInitialImgData(formattedColorImages);
             }
-            console.log("formatted Product:", products);
         }
     }, [initialData, products]);
-    console.log("THIRD in admin context main", initialImagData);
-
-
 
     const postProduct = useCallback(async (productData) => {
         try {
@@ -54,15 +49,17 @@ function AdminProductsProvider({ children }) {
                 ...productData,
                 colorImages: images,
             }
-            const response = await sendPostRequestToBackend("admin/addProduct", finalDataToSend);
+            const response = await sendPostRequestToBackend("admin/addProduct", finalDataToSend, token);
             if (response.msg) {
-                showNotification(response.msg,"error");
+                showNotification(response.msg, "error");
             }
             if (response.success) {
-                showNotification(response.success,"success");
+                showNotification(response.success, "success");
                 window.location.reload();
             }
         } catch (error) {
+            console.error("Post failed:", error.message);
+            showNotification("Something went wrong while posting the product.", "error");
 
         }
     }, [images]);
@@ -70,9 +67,6 @@ function AdminProductsProvider({ children }) {
 
     const updateProduct = useCallback(async (productData) => {
         try {
-            console.log("FOURTH in UpdateProducts", initialImagData);
-            console.log("Images 2", images, initialImagData);
-
             if (Object.keys(images).length === 0 && (!initialImagData || Object.values(initialImagData).every(arr => arr.length === 0))) {
                 showNotification("Please upload at least one image before posting the product.", "error");
                 return;
@@ -88,10 +82,11 @@ function AdminProductsProvider({ children }) {
             console.log("finalUpdatedDataToSend", finalUpdatedDataToSend);
 
 
-            const response = await fetch(`http://127.0.0.1:3000/admin/update-product`, {
+            const response = await fetch(`http://localhost:3000/admin/update-product`, {
                 method: "PUT", // or "PATCH" if updating only specific fields
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(finalUpdatedDataToSend),
             });
@@ -100,22 +95,27 @@ function AdminProductsProvider({ children }) {
 
             if (data.success) {
                 showNotification(data.success, "success");
-                window.location.reload();
+                getProducts();
             }
             if (!response.ok) {
                 throw new Error(data.error || "Failed to update product");
             }
         } catch (error) {
-            console.error("Update failed:", error.message);
+            console.error("Post failed:", error.message);
+            showNotification("Something went wrong while posting the product.", "error");
+
         }
-    }, [images, initialImagData]);
+    }, [images, initialImagData, token]);
 
     const removeImgOnDb = useCallback(async (deletedImageQuery) => {
         try {
             console.log("Image Query", deletedImageQuery);
             let UpdateImageInDB = await fetch("http://localhost:3000/admin/updateImage", {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify(deletedImageQuery),
             });
             let result = await UpdateImageInDB.json();
@@ -133,7 +133,7 @@ function AdminProductsProvider({ children }) {
         } catch (error) {
             console.error("Update failed:", error.message);
         }
-    }, []);
+    }, [token]);
 
 
     const getProducts = useCallback(async () => {
@@ -148,7 +148,8 @@ function AdminProductsProvider({ children }) {
                     const modifiedColorImages = product.colorImages
                         ? Object.keys(product.colorImages).reduce((acc, color) => {
                             acc[color] = product.colorImages[color].map(imagePath => {
-                                return `https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/${imagePath}`;
+                                const S3_BASE = "https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/";
+                                return `${S3_BASE}${imagePath}`;
                             });
                             return acc;
                         }, {})
@@ -183,7 +184,7 @@ function AdminProductsProvider({ children }) {
                 return;
             }
 
-            const deleteResponse = await sendDeleteRequestToBackend("admin/delete-product", {productId} , token);
+            const deleteResponse = await sendDeleteRequestToBackend("admin/delete-product", { productId }, token);
 
             if (deleteResponse.success) {
                 showNotification(deleteResponse.success, "success");

@@ -73,13 +73,14 @@
 .cart-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 20px;
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: $border-radius;
   background-color: white;
   transition: box-shadow 0.3s ease;
+  // min-height: 150px;
 }
 
 .cart-item:hover {
@@ -90,18 +91,23 @@
   width: 100px;
   height: 100px;
   object-fit: cover;
+  flex-shrink: 0;
   border-radius: $border-radius;
   border: 1px solid #ddd;
 }
 
 .cart-item-details {
-  flex-direction: space-between;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .cart-item-title {
-  margin: 0;
-  font-size: 20px;
+  font-size: 18px;
+  margin-bottom: 5px;
   color: $gray-dark;
+  word-break: break-word;
 }
 
 .cart-item-description {
@@ -114,7 +120,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  margin: 10px 0;
 }
 
 .cart-item-action-btn {
@@ -187,15 +193,18 @@
   .cart-summary {
     flex-direction: column;
     align-items: flex-start;
+    gap: 5px;
+    padding: 8px;
   }
 
   .cart-summary-text {
-    font-size: 16px;
+    font-size: 15px;
+    margin: 0;
   }
 
   .cartPage-container {
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
   }
 
   .cart-items {
@@ -204,12 +213,14 @@
 
   .cart-item {
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
+    padding: 10px;
   }
 
   .cart-item-image {
     width: 80px;
     height: 80px;
+    margin: 0 auto;
   }
 
   .cart-item-actions {
@@ -222,10 +233,31 @@
     box-shadow: none;
     padding: 10px;
   }
+  .cart-item-title {
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+  .cart-item-description,
+  .selections {
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .cart-item-actions {
+    gap: 10px;
+    margin: 5px 0;
+    justify-content: center;
+  }
 
   .remove-btn {
     width: 100%;
     margin-top: 15px;
+  }
+  .cart-price-details {
+    width: 100%;
+    position: relative;
+    box-shadow: none;
+    padding: 10px;
   }
 }
 
@@ -247,7 +279,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     gap: 15px;
-
   }
 
   .cart-item {

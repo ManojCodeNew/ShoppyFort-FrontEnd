@@ -10,10 +10,10 @@ import ActiveHeartBtn from '../assets/Images/active.png';
 import ShoppingBag from '../assets/Images/bagwhite.png';
 import { useProducts } from '@/contexts/ProductsContext.jsx';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
+
 const ProductViewPage = () => {
   const { id } = useParams();
   const { products } = useProducts();
-
 
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
@@ -25,6 +25,21 @@ const ProductViewPage = () => {
 
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+
+
+  const stock_availability = () => {
+    const current_product = products.find(p => p._id === id);
+    const stock = current_product?.stock;
+
+    if (stock === 0) {
+      return <span className="stock-out"> Currently out of stock</span>;
+    } else if (stock <= 5) {
+      return <span className="stock-low"> Only {stock} left in stock — order soon!</span>;
+    } else {
+      return <span className="stock-in">{stock} In stock</span>;
+    }
+  };
+
 
   useEffect(() => {
     setProduct(null);
@@ -44,7 +59,7 @@ const ProductViewPage = () => {
         showNotification(`Error fetching product: ${error}`, "error");
       }
     };
-    fetchProduct()
+    fetchProduct();
   }, [id, navigate, products]);
 
   if (!product) {
@@ -65,6 +80,8 @@ const ProductViewPage = () => {
       showNotification('Please select a color', "error");
       return;
     }
+    console.log("Selected color in ProductViewPage :", selectedColor);
+
 
     const selections = {};
 
@@ -87,6 +104,8 @@ const ProductViewPage = () => {
   };
   const fallbackImage = 'https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-6f08-51f7-b6ec-c58003fd17aa/raw?se=2025-03-30T15%3A23%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=944cb68e-fe60-5752-a04c-4ff2474237ed&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-03-30T13%3A34%3A20Z&ske=2025-03-31T13%3A34%3A20Z&sks=b&skv=2024-08-04&sig=5eof3pHpGOQfYNahuDmm0nPDVOqE2iXplkSjrOXwz0I%3D';
 
+
+
   return (
     <div className="product-view-page">
       <div className="product-view-page-container">
@@ -108,10 +127,15 @@ const ProductViewPage = () => {
             <h2 className="product-view-page-name">{product.name} </h2>
 
             <div className="product-view-page-price">
-              <span className="product-view-page-current-price">₹{product.price}</span>
-              <span className="product-view-page-original-price">₹{product.originalPrice}</span>
+              <span className="product-view-page-current-price"> <small className="currency-label">AED</small>{product.price}</span>
+              <span className="product-view-page-original-price"> <small className="currency-label">AED</small>{product.originalPrice}</span>
               <span className="product-view-page-discount">({product.discount}% OFF)</span>
             </div>
+            {/* {product.stock <= 10 && ( */}
+            <div className="product-stock">
+              <span className="product-stock-availability">Availability :   {stock_availability()}</span>
+            </div>
+            {/*  )} */}
 
             <div className="product-view-page-options">
               <div className="product-view-page-size-selector">

@@ -1,0 +1,51 @@
+.manage-returns {
+  padding: 2rem;
+}
+
+.return-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.return-table th,
+.return-table td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.details-row td {
+  background-color: #f9f9f9;
+}
+
+.product-details {
+  padding: 10px;
+  /* border-left: 3px solid #007bff; */
+}
+
+.btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.primary {
+  background-color: #007bff;
+  color: white;
+}
+.secondary {
+  background-color: #6c757d;
+  color: white;
+}
+.success {
+  background-color: #28a745;
+  color: white;
+}
+.danger {
+  background-color: #dc3545;
+  color: white;
+}

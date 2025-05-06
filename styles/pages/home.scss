@@ -12,8 +12,17 @@
   }
   .home-search-bar-container {
     margin: 10px;
+    
+    // Show only on mobile
     @include mobile-only {
-      display: none;
+      display: block !important; // Added !important to ensure it overrides other styles
+    }
+    @include mobile-and-up {
+      display: block !important; // Added !important to ensure it overrides other styles
+    }
+    // Hide on tablet and up
+    @include tablet-and-up {
+      display: none !important; // Added !important to ensure it overrides
     }
   }
 }
