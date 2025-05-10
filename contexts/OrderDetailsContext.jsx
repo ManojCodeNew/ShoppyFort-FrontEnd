@@ -1,7 +1,6 @@
 
 import sendGetRequestToBackend from '@/components/Request/Get';
-import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useState, useContext, useCallback, useEffect, useMemo } from 'react';
 import sendPostRequestToBackend from '@/components/Request/Post';
 import { useNotification } from '@/components/Notify/NotificationProvider';
 import { useAuth } from './AuthContext.jsx';
@@ -28,6 +27,8 @@ export const OrderDetailsProvider = ({ children }) => {
             const response = await sendGetRequestToBackend("order", token);
             if (response.success) {
                 setAllOrder(response.orders);
+                console.log("orderdetails:", response.orders);
+
             }
         } catch (error) {
             showNotification("Error fetching orders", "error");
@@ -47,12 +48,20 @@ export const OrderDetailsProvider = ({ children }) => {
     };
 
     const submitReturnRequest = useCallback(async (returnData) => {
+        if (!token) {
+            showNotification("You must be logged in", "error");
+            return false;
+        }
+
         try {
+            console.log("Return Type :", returnData);
             const body = {
                 userid: user._id,
                 orderid: returnData.orderId,
                 productid: returnData.productId,
                 reason: returnData.reason,
+                returntype: returnData.returnType,
+                quantity: returnData.quantity,
                 status: returnData.status
             }
             const Result = await sendPostRequestToBackend("order/Return", body, token);
@@ -73,7 +82,14 @@ export const OrderDetailsProvider = ({ children }) => {
         }
     }, [token, user]);
 
+
+
     const cancelOrder = useCallback(async (orderid) => {
+        if (!token) {
+            showNotification("You must be logged in", "error");
+            return false;
+        }
+
         try {
             const response = await sendPostRequestToBackend(
                 "order/cancel",
@@ -99,12 +115,10 @@ export const OrderDetailsProvider = ({ children }) => {
         if (token) {
             fetchOrders();
             fetchReturns();
-            console.log("OrderDetails :",orderDetails);
-            
         }
     }, [token])
 
-    const value = {
+    const value = useMemo(() => ({
         orderDetails,
         setOrderDetails,
         submitReturnRequest,
@@ -113,7 +127,7 @@ export const OrderDetailsProvider = ({ children }) => {
         user,
         allReturns,
         cancelOrder
-    }
+    }), [orderDetails, allOrder, user, allReturns, token])
 
     return (
         <OrderDetailsContext.Provider value={value}>

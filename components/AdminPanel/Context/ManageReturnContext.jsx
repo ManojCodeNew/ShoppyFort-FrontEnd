@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import sendGetRequestToBackend from "@/components/Request/Get.jsx";
 import sendPostRequestToBackend from "@/components/Request/Post.jsx";
 import { useNotification } from "@/components/Notify/NotificationProvider.jsx";
-import { useOrderContext } from "./ManageOrderContext.jsx";
 import { useUserContext } from "./ManageUsersContext.jsx";
+import { useOrderContext } from "./ManageOrderContext.jsx";
 // Create Context
 const ManageReturnContext = createContext();
 
@@ -12,38 +12,41 @@ export function ManageReturnProvider({ children }) {
     const [returns, setReturns] = useState([]);
     const { showNotification } = useNotification();
     const { ordersData, fetchOrders } = useOrderContext();
-    const { allUsers,token } = useUserContext();
-
+    const { allUsers, token } = useUserContext();
+    console.log("Order Data :", ordersData);
     // Fetch Returns (Authenticated Request)
     const fetchReturns = useCallback(async () => {
         if (!token) return;
 
         try {
+            let orders = ordersData;
             // Check if ordersData is empty and fetch orders if needed
-            if (!ordersData || ordersData.length === 0) {
-                console.log("Fetching orders data...");
-                
-                await fetchOrders(); // Fetch orders from ManageOrderContext
+            if (!orders || orders.length === 0) {
+                orders = await fetchOrders();
             }
+
+
             const returnsResult = await sendGetRequestToBackend('admin/returns', token);
-            console.log("returnsResult :", returnsResult);
 
             if (returnsResult.success) {
-                const enhancedReturns = returnsResult.returns.map((returnItem) => {
+                console.log("Return Data :", returnsResult.returns);
+
+                const enhancedReturns = returnsResult.returns?.map((returnItem) => {
+
                     // Find the corresponding order using orderid
-                    const order = ordersData.find(o => o._id === returnItem.orderid);
+                    const order = orders?.find(o => o._id === returnItem.orderid);
 
                     // Find the product details within the order's items array using productid
                     const product = order?.items?.find(p => p._id === returnItem.productid);
 
-                    // Find the user details using userid
-                    // const user = allUsers.find(u => u._id === returnItem.userid);
+                    const user = allUsers?.find(u => u._id === returnItem.userid);
+                    console.log("Return user Result  :", user);
 
                     return {
                         ...returnItem,
                         orderDetails: order || {}, // Add order details
                         productDetails: product || {}, // Add product details
-                        // userDetails: user || {}, // Add user details
+                        userDetails: user || {},
                     };
                 });
 
@@ -56,13 +59,16 @@ export function ManageReturnProvider({ children }) {
             showNotification("Failed to fetch returns", "error");
             console.error("Error fetching returns:", error);
         }
-    }, [token, showNotification]);
+    }, [token, showNotification, fetchOrders, ordersData]);
     console.log("returns :", returns);
 
     // Update Return Status
     const updateStatus = useCallback(
         async (id, status) => {
             try {
+                // if () {
+
+                // }
                 const response = await sendPostRequestToBackend(`admin/returns/updateReturnStatus`, { return_id: id, status }, token);
                 if (response.success) {
                     setReturns((prev) =>
@@ -102,7 +108,55 @@ export function ManageReturnProvider({ children }) {
         [showNotification]
     );
 
-    const value = { returns, fetchReturns, setReturns, updateStatus, deleteReturn };
+    // ✅ Send OTP Notification
+    const sendReturnOtpToBackend = useCallback(async (otpData) => {
+        if (!token) return null;
+        console.log("Otp Return Data :", otpData);
+
+        try {
+            const response = await sendPostRequestToBackend(
+                "admin/returns/addOtp",
+                otpData,
+                token
+            );
+
+            if (response.success) {
+                showNotification("OTP sent successfully", "success");
+            } else {
+                showNotification("Failed to send OTP", "error");
+            }
+        } catch (error) {
+            showNotification("Error sending OTP", "error");
+        }
+    }, [token, showNotification]);
+
+    const getReturnOtpOnDb = useCallback(async (returnId) => {
+        if (!token) return null;
+        try {
+            const response = await sendPostRequestToBackend("admin/returns/getOtp", { returnId }, token); // Send token to backend
+            if (response.success) {
+                return response;
+            }
+            else {
+                showNotification(response.error);
+                return null;
+            }
+        } catch (error) {
+            showNotification("Error retrieving OTP", "error");
+            return null;
+        }
+
+    }, [token, showNotification]);
+
+    useEffect(() => {
+        const shouldFetch = token && allUsers.length > 0 && ordersData.length > 0;
+        if (shouldFetch) {
+            fetchReturns();
+        }
+    }, [token, allUsers, ordersData]);
+
+
+    const value = { returns, fetchReturns, setReturns, updateStatus, deleteReturn, sendReturnOtpToBackend, getReturnOtpOnDb };
 
     return (
         <ManageReturnContext.Provider value={value}>

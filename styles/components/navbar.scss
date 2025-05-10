@@ -138,13 +138,43 @@
     &:hover {
       background: $hover-color;
     }
+
+    .dot-blink {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-left: 6px;
+      background-color: #007bff;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0;
+      }
+    }
   }
+
   .user-order-link,
-  .user-notification-link {
+  .user-notification-link,
+  .user-wallet-link {
     text-decoration: none;
     color: black;
   }
-
+  .user-wallet {
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    &:hover {
+      background: $hover-color;
+    }
+  }
   .user-logout {
     padding: 10px;
     border-radius: 10px;
@@ -193,6 +223,35 @@
     .user-icon {
       width: 21px;
     }
+    .user-icon-wrapper {
+      position: relative;
+
+      .user-icon {
+        width: 21px;
+      }
+
+      .dot-blink {
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        width: 8px;
+        height: 8px;
+        background-color: #007bff;
+        border-radius: 50%;
+        animation: blink 1s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+    }
+
     @include mobile-and-tablet {
       .user-icon {
         width: 20px;

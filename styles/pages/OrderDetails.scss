@@ -163,6 +163,7 @@
   width: 100%;
   background: linear-gradient(90deg, #008eae, #00bfff);
 }
+
 .return-section {
   position: relative;
   margin-top: 12px;
@@ -178,10 +179,34 @@
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
-  
+
   &:hover {
     background: #f0f8ff;
   }
+}
+
+.return-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.already-returned-msg {
+  color: #999;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.return-info {
+  background: #eaf9f3;
+  border-left: 4px solid #28a745;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  margin-top: 10px;
+  border-radius: 4px;
+  color: #2f6f4e;
 }
 
 .return-dropdown {
@@ -201,11 +226,11 @@
   padding: 8px 12px;
   cursor: pointer;
   transition: background 0.2s;
-  
+
   &:hover {
     background: #f5f5f5;
   }
-  
+
   &:not(:last-child) {
     border-bottom: 1px solid #eee;
   }
@@ -223,7 +248,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   width: 100%;
-  
+
   &:focus {
     outline: none;
     border-color: #0586dc;
@@ -238,11 +263,11 @@
   border-radius: 4px;
   cursor: pointer;
   transition: opacity 0.2s;
-  
+
   &:hover {
     opacity: 0.9;
   }
-  
+
   &:disabled {
     background: #ccc;
     cursor: not-allowed;
@@ -254,16 +279,16 @@
   padding: 8px;
   background: #f8f8f8;
   border-radius: 4px;
-  
+
   p {
     margin-bottom: 8px;
     font-size: 0.9rem;
   }
 }
+
 /* Cancel Button Styles */
 .cancel-section {
   margin: 10px 10px;
-  //   text-align: center;
 }
 
 .cancel-btn {
@@ -320,11 +345,6 @@
   .order-card {
     padding: 12px;
   }
-  //   .order-item {
-  //     flex-direction: row;
-  //     flex-wrap: nowrap;
-  //     align-items: flex-start;
-  //   }
 
   .product-img-container {
     width: 70px;

@@ -9,7 +9,7 @@ const ManageOrder = () => {
     const [orders, setOrders] = useState([]);
     const [expandedRows, setExpandedRows] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const { ordersData, updateOrderStatus, sendOtpToBackend, getOtpOnDb } = useOrderContext();
+    const { ordersData, updateOrderStatus, sendOtpToBackend, getOtpOnDb, fetchOrders } = useOrderContext();
     const [confirmModal, setConfirmModal] = useState({ show: false, orderId: null })
     const { showNotification } = useNotification();
     const [otpModal, setOtpModal] = useState({ show: false, orderId: null, otp: "", expiresAt: null });
@@ -58,15 +58,15 @@ const ManageOrder = () => {
             otpExpiresAt: expiresAt,
         };
         sendOtpToBackend(newOTP);
-        setOtpModal({ show: true, orderId, otp: "", expiresAt });
+        setOtpModal(prev => ({ ...prev, show: true, orderId, otp: "", expiresAt }));
         setTimeLeft(60);
     };
 
     const verifyOtp = async (orderid) => {
         const otpResponse = await getOtpOnDb(orderid);
-        if (!otpResponse) return;
+        if (!otpResponse || !otpResponse.otp) return;
 
-        const otpData = otpResponse.otp[0];
+        const otpData = otpResponse.otp;
         const otpExpiryTime = new Date(otpData.otpExpiresAt).getTime();
 
         if (otpExpiryTime < Date.now()) {
@@ -77,7 +77,8 @@ const ManageOrder = () => {
 
         if (parseInt(otpData.otp) === parseInt(otpModal.otp)) {
             showNotification("OTP verified successfully!", "success");
-            updateOrderStatus(orderid, "Delivered");
+            await updateOrderStatus(orderid, "Delivered");
+            await fetchOrders();
             setOtpModal({ ...otpModal, show: false });
         } else {
             showNotification("Invalid OTP, please try again", "error");
@@ -174,6 +175,17 @@ const ManageOrder = () => {
                                                             value={otpModal.otp}
                                                             onChange={(e) => setOtpModal({ ...otpModal, otp: e.target.value })} />
                                                         <button className="verifyOtp-btn" onClick={() => verifyOtp(order.orderid)} disabled={otpModal.otp.length !== 4 || timeLeft <= 0}>verifyOtp</button>
+                                                        {timeLeft > 0 ? (
+                                                            <p className="countdown-text">OTP expires in {timeLeft} second{timeLeft !== 1 && "s"}</p>
+                                                        ) : (
+                                                            <button
+                                                                className="resend-otp-btn"
+                                                                onClick={() => sendOtpNotification(order.orderid, order.userid)}
+                                                            >
+                                                                Resend OTP
+                                                            </button>
+                                                        )
+                                                        }
                                                     </div>
                                                 )}
 

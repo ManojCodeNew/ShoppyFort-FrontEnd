@@ -11,7 +11,7 @@ import logo from '../assets/Images/logo.png';
 import heart from '../assets/Images/heart.png';
 import ShoppingBag from '../assets/Images/bag.png';
 import User from '../assets/Images/user.png';
-
+import { useUserNotifications } from '@/contexts/UserNotificationContext';
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -19,7 +19,7 @@ const Navbar = () => {
   const { totalItems: cartItems } = useCart();
   const { totalItems: wishlistItems } = useWishlist();
   const { logout, user, token } = useAuth();
-
+  const { hasUnread } = useUserNotifications();
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
   const userProfile = user ? (
@@ -29,7 +29,13 @@ const Navbar = () => {
         <p className='user-email'>{user.phoneno}</p>
       </Link>
       <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
-      <Link to='/notifications' className='user-notification-link'><p className='user-notification'>Notification</p></Link>
+      <Link to='/notifications' className='user-notification-link'><p className='user-notification'>
+        Notification
+        {hasUnread && <span className="dot-blink" />}
+      </p></Link>
+      <Link to='/wallet' className='user-wallet-link'><p className='user-wallet'>
+        Wallet
+      </p></Link>
       <p className='user-logout' onClick={logout}>Logout</p>
     </>
   ) : (
@@ -68,7 +74,10 @@ const Navbar = () => {
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <img src={User} alt="User" className='user-icon' />
+              <div className="user-icon-wrapper">
+                <img src={User} alt="User" className='user-icon' />
+                {hasUnread && <span className="dot-blink" />}
+              </div>
               <span className='profile-title'>Profile</span>
               {isHovered && (
                 <div className="popup-profile"

@@ -37,17 +37,17 @@ export function OrderProvider({ children }) {
     }, [showNotification]);
 
     const fetchOrders = useCallback(async () => {
-        if (!token) return;
+        if (!token) return [];
         try {
             const response = await sendGetRequestToBackend("admin/orders", token); // Send token to backend
             if (response?.success) {
-                console.log(response.success);
                 const enhancedOrders = enhanceOrdersWithUsernames(response.orders, allUsers);
                 setOrdersData(enhancedOrders);
                 setTotalOrders(response.orders.length)
 
             } else {
                 handleError(new Error(response?.error || "Failed to fetch orders"));
+                return [];
             }
         } catch (error) {
             handleError(error, "Error fetching orders");
