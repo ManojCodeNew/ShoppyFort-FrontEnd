@@ -5,7 +5,7 @@ import Loader from "../Load/Loader.jsx";
 import './styles/ManageReturn.css';
 
 const ManageReturn = () => {
-    const { returns, fetchReturns, updateStatus, deleteReturn, sendReturnOtpToBackend, getReturnOtpOnDb } = useManageReturnContext();
+    const { returns, fetchReturns, updateStatus, deleteReturn, sendReturnOtpToBackend, getReturnOtpOnDb, creditMoneyToWallet } = useManageReturnContext();
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
@@ -61,7 +61,7 @@ const ManageReturn = () => {
 
     const handleConfirmOtpSend = () => {
         const returnData = returns.find(ret => ret._id === confirmModal.returnId);
-        console.log("User Id in handle confirm otp :", returnData.userDetails.userid);
+        console.log("User Id in handle confirm otp :", returnData);
 
         if (returnData) {
             const otp = Math.floor(1000 + Math.random() * 9000);
@@ -73,6 +73,8 @@ const ManageReturn = () => {
                 otp,
                 otpExpiresAt: expiresAt
             };
+
+
             sendReturnOtpToBackend(otpPayload);
             setOtpModal({ show: true, returnId: returnData._id, otp: "", expiresAt });
             setTimeLeft(60);
@@ -82,6 +84,7 @@ const ManageReturn = () => {
     };
 
     const verifyOtp = async (returnId) => {
+
         const otpResponse = await getReturnOtpOnDb(returnId);
         if (!otpResponse || !otpResponse.otp) return;
         const otpData = otpResponse.otp;
@@ -96,6 +99,20 @@ const ManageReturn = () => {
         if (parseInt(otpData.otp) === parseInt(otpModal.otp)) {
             showNotification("OTP verified successfully", "success");
             await updateStatus(returnId, "picked_up");
+
+            const returnData = returns.find(ret => ret._id === returnId);
+            console.log("Return Data in verify Otp:", returnData);
+
+            if (returnData?.returntype === "save_to_wallet") {
+                console.log("Yes This is save to wallet");
+
+                const price = returnData.productDetails?.price || 0;
+                const quantity = returnData.productDetails?.quantity || 1;
+                const totalAmount = price * quantity;
+
+                // Call wallet credit function
+                await creditMoneyToWallet(returnId, totalAmount);
+            }
             await fetchReturns();
             setOtpModal({ ...otpModal, show: false });
         } else {
@@ -105,8 +122,10 @@ const ManageReturn = () => {
 
 
     const renderActions = (item) => {
+        const isReplacement = item.returntype === "replacement";
+
         switch (item.status) {
-            case "Return Requested":
+            case "return_requested":
                 return (
                     <>
                         <button className="btn primary" onClick={() => handleAccept(item._id)}>Accept</button>
@@ -116,7 +135,6 @@ const ManageReturn = () => {
             case "approved_by_shop_owner":
             case "pickup_scheduled":
             case "picked_up":
-            case "replacement_shipped":
                 return (
                     <select
                         value=""
@@ -136,14 +154,29 @@ const ManageReturn = () => {
                         {item.status === "pickup_scheduled" && (
                             <option value="picked_up">✔ Picked Up</option>
                         )}
-                        {item.status === "picked_up" && (
+
+                        {isReplacement && item.status === "picked_up" && (
                             <option value="replacement_shipped">🚚 Replacement Shipped</option>
                         )}
-                        {item.status === "replacement_shipped" && (
+                        {isReplacement && item.status === "replacement_shipped" && (
                             <option value="delivered">📬 Delivered</option>
                         )}
                     </select>
                 );
+            case "replacement_shipped":
+                return isReplacement ? (
+                    <select
+                        value=""
+                        onChange={(e) => {
+                            if (e.target.value) {
+                                handleStatusChange(item._id, e.target.value);
+                            }
+                        }}
+                    >
+                        <option value="">Select Status</option>
+                        <option value="delivered">📬 Delivered</option>
+                    </select>
+                ) : null;
             case "rejected":
                 return <button className="btn danger" onClick={() => handleDelete(item._id)}>Delete</button>;
             default:
@@ -200,6 +233,7 @@ const ManageReturn = () => {
                                                         maxLength="4"
                                                         value={otpModal.otp}
                                                         onChange={(e) => setOtpModal({ ...otpModal, otp: e.target.value })}
+                                                        placeholder={item._id}
                                                     />
                                                     <button
                                                         className="verifyOtp-btn"

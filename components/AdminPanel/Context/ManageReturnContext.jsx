@@ -66,14 +66,11 @@ export function ManageReturnProvider({ children }) {
     const updateStatus = useCallback(
         async (id, status) => {
             try {
-                // if () {
-
-                // }
                 const response = await sendPostRequestToBackend(`admin/returns/updateReturnStatus`, { return_id: id, status }, token);
                 if (response.success) {
                     setReturns((prev) =>
                         prev.map((item) =>
-                            item.id === id ? { ...item, status } : item
+                            item._id === id ? { ...item, status } : item
                         )
                     );
                     showNotification(`Status updated to ${status}`, "success");
@@ -94,7 +91,7 @@ export function ManageReturnProvider({ children }) {
             try {
                 const response = await sendPostRequestToBackend(`admin/returns/deleteReturn`, { return_id: id }, token);
                 if (response.success) {
-                    setReturns((prev) => prev.filter((item) => item.id !== id));
+                    setReturns((prev) => prev.filter((item) => item._id !== id));
                     showNotification("Return request deleted", "success");
                 } else if (response.error || response.msg) {
                     showNotification(response.msg || response.error, "error");
@@ -130,10 +127,10 @@ export function ManageReturnProvider({ children }) {
         }
     }, [token, showNotification]);
 
-    const getReturnOtpOnDb = useCallback(async (returnId) => {
+    const getReturnOtpOnDb = useCallback(async (returnid) => {
         if (!token) return null;
         try {
-            const response = await sendPostRequestToBackend("admin/returns/getOtp", { returnId }, token); // Send token to backend
+            const response = await sendPostRequestToBackend("admin/returns/getOtp", { returnid }, token); // Send token to backend
             if (response.success) {
                 return response;
             }
@@ -148,6 +145,27 @@ export function ManageReturnProvider({ children }) {
 
     }, [token, showNotification]);
 
+    const creditMoneyToWallet = useCallback(async (returnid, amount) => {
+        console.log("creditMoneyWallet");
+
+        try {
+            const response = await sendPostRequestToBackend("admin/wallet/credit", { returnid, amount }, token);
+            console.log("Response of Wallet :", response);
+
+            if (response?.success) {
+                showNotification("Wallet credited successfully", "success");
+                console.log("Updated Wallet:", response.wallet);
+
+            } else {
+                showNotification(response?.error || "Failed to credit wallet", "error");
+            }
+        } catch (error) {
+            showNotification("An error occurred while crediting the wallet", "error");
+            console.error("Credit Wallet Error:", error);
+
+        }
+    }, [token, showNotification]);
+
     useEffect(() => {
         const shouldFetch = token && allUsers.length > 0 && ordersData.length > 0;
         if (shouldFetch) {
@@ -156,7 +174,7 @@ export function ManageReturnProvider({ children }) {
     }, [token, allUsers, ordersData]);
 
 
-    const value = { returns, fetchReturns, setReturns, updateStatus, deleteReturn, sendReturnOtpToBackend, getReturnOtpOnDb };
+    const value = { returns, fetchReturns, setReturns, updateStatus, deleteReturn, sendReturnOtpToBackend, getReturnOtpOnDb, creditMoneyToWallet };
 
     return (
         <ManageReturnContext.Provider value={value}>

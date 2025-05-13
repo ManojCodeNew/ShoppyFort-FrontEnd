@@ -105,7 +105,7 @@ function OrderDetails() {
                     : returnData.reason,
                 returnType: returnData.returnType,
                 quantity: returnData.quantity,
-                status: "Return Requested",
+                status: "return_requested",
             };
             const success = await submitReturnRequest(returnRequest);
             if (success) {
@@ -224,7 +224,7 @@ function OrderDetails() {
                                                             >
                                                                 <option value="">Select</option>
                                                                 <option value="replacement">Replacement</option>
-                                                                <option value="Save to Wallet">Save to Wallet</option>
+                                                                <option value="save_to_wallet">Save to Wallet</option>
                                                             </select>
                                                         </div>
 

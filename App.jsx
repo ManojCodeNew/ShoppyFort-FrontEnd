@@ -30,6 +30,7 @@ import './index.css'; // Adjust based on your file structure
 import ManageReturn from './components/AdminPanel/ManageReturn.jsx';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import Wallet from './pages/Wallet.jsx';
 const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEYYnDOqG6JTw68x8JjiuSluNPb5iemtpiLdOcxqp1irCCddXp6p3U001PeLWXNf'); // Replace with your actual publishable key
 const App = () => {
 
@@ -75,6 +76,7 @@ const App = () => {
                 <Route path="orders" element={<OrderDetails />} />
                 <Route path="wishlist" element={<WishlistPage />} />
                 <Route path="cart" element={<CartPage />} />
+                <Route path='wallet' element={<Wallet />} />
                 <Route path="category/:gender" element={<CategoryPage />} />
                 <Route path="category/:gender/:category" element={<CategoryPage />} />
                 <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
@@ -84,12 +86,12 @@ const App = () => {
                   <Elements stripe={stripePromise}>
                     <Address />
                   </Elements>
-                  } />
+                } />
                 <Route path="successToOrder" element={<OrderPlaced />} />
                 <Route path="offers" element={<Offers />} />
-                <Route path="notifications" element={<UserNotification/>} />
+                <Route path="notifications" element={<UserNotification />} />
 
-                
+
               </Routes>
             </main>
             <Footer />

@@ -56,7 +56,20 @@ export default function UserNotificationsProvider({ children }) {
             showNotification("Failed to mark notification as read.", "error");
         }
     }, [token, showNotification]);
-    
+
+    const getWallet = useCallback(async () => {
+        try {
+            const response = await sendGetRequestToBackend('auth/wallet/getWallet', token);
+            console.log("wallet response", response);
+            return response;
+        } catch (error) {
+            console.error("Error fetching wallet:", error);
+            return { success: false, error: "Network error" };
+
+        }
+
+    }, [token])
+
     useEffect(() => {
         getNotifications();
     }, [getNotifications]);
@@ -68,7 +81,8 @@ export default function UserNotificationsProvider({ children }) {
         notifications,
         setNotifications,
         markAsRead,
-        hasUnread
+        hasUnread,
+        getWallet
     }
     return (
         <UserNotificationsContext.Provider value={value}>
