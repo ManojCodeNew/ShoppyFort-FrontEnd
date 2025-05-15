@@ -49,10 +49,10 @@ const Sidebar = () => {
         </NavLink> */}
 
         {/* Add Offers */}
-        {/* <NavLink to="/admin/offers" className="sidebar-menu-item">
+        <NavLink to="/admin/offers" className="sidebar-menu-item">
           <Gift className="sidebar-menu-icon" />
           <span>Add Offers</span>
-        </NavLink> */}
+        </NavLink>
 
         {/* Products (with Submenu) */}
         <div className="sidebar-menu-group">

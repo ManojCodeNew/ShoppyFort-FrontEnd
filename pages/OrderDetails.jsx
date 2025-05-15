@@ -248,6 +248,23 @@ function OrderDetails() {
                                     </div>
                                 </div>
                             ))}
+                            {/* Order Summary */}
+                            <div className="order-summary">
+                                <p>Order ID: {order.orderid}</p>
+                                <p>Total Price: <small className="currency-label">AED</small>{order.totalprice}</p>
+                                {order.paymentMethod === "wallet" && order.amountPaidFromWallet > 0 && (
+                                    <p className="wallet-payment">Amount Paid from Wallet: <small className="currency-label">AED</small>{order.amountPaidFromWallet}</p>
+                                )}
+                                {order.paymentMethod === "wallet_partial" && order.totalprice > order.amountPaidFromWallet && (
+                                    <p className="remaining-payment">Remaining Amount to Pay: <small className="currency-label">AED</small>{(order.totalprice - order.amountPaidFromWallet).toFixed(2)}</p>
+                                )}
+                                {order.paymentMethod === "COD" && (
+                                    <p>Payment Method: Cash on Delivery</p>
+
+                                )}
+                                <p>Payment Method: {order.paymentMethod}</p>
+                                <p>Order Status: {order.status}</p>
+                            </div>
 
                             {/* Simple Order Tracker */}
                             <div className="order-tracker">

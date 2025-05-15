@@ -13,6 +13,8 @@ import Loader from '../Load/Loader.jsx';
 import PaymentForm from './PaymentForm';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useProducts } from '@/contexts/ProductsContext.jsx';
+import { useWallet } from '@/contexts/WalletContext.jsx';
+
 export default function Address() {
   const [address, setAddress] = useState({
     userid: '',
@@ -46,6 +48,15 @@ export default function Address() {
   const totalMRP = cartItems.reduce((total, item) => total + item.originalPrice * (item.quantity || 1), 0);
   const discountMRP = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
+  const [remainingAmount, setRemainingAmount] = useState(0);
+  const [walletUsed, setWalletUsed] = useState(0);
+  const [useWalletMoney, setUseWalletMoney] = useState(false);
+  const [orderPlacementInitiated, setOrderPlacementInitiated] = useState(false);
+
+  const { wallet, processWalletPayment, loading: walletLoading } = useWallet();
+  console.log("Wallet :", wallet);
+
+
 
   useEffect(() => {
     if (user) {
@@ -60,7 +71,11 @@ export default function Address() {
         return;
       }
     }
-  }, [orderDetails, paymentMethod])
+    if (wallet.balance > 0) {
+      setWalletUsed(Math.min(wallet.balance, totalCost));
+      setRemainingAmount(Math.max(0, totalCost - wallet.balance));
+    }
+  }, [orderDetails, paymentMethod, wallet, totalCost])
 
   const fetchAddress = async () => {
     setLoading(true);
@@ -149,38 +164,63 @@ export default function Address() {
   }
 
   const placeOrder = async () => {
-    if (!paymentMethod) {
+    if (!paymentMethod && !useWalletMoney) {
       showNotification("Please select Payment option", "error");
       return;
     }
+    if (orderPlacementInitiated) {
+      showNotification("Order placement is already in progress.", "warning");
+      return;
+    }
+
+    setOrderPlacementInitiated(true);
+    setLoading(true);
+
+    let paymentResult = { success: true, remainingAmount: 0 };
+
+    if (useWalletMoney) {
+      paymentResult = await processWalletPayment(
+        totalCost,
+        orderDetails.orderid,
+        'wallet'
+      );
+      if (!paymentResult.success) {
+        setLoading(false);
+        setOrderPlacementInitiated(false);
+        return;
+      }
+      console.log("paymentResult", paymentResult);
+    }
+
+
     const orderData = {
       ...orderDetails,
-      paymentMethod,
-      isPaid: false
+      paymentMethod: useWalletMoney ?
+        (paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet') :
+        paymentMethod,
+      isPaid: paymentMethod === 'Online' || (useWalletMoney && paymentResult.remainingAmount === 0)
     }
     console.log("Final Order Data", orderData);
 
     setOrderDetails(orderData);
+    setLoading(true);
 
-    if (paymentMethod === 'COD') {
-      setLoading(true);
 
-      try {
-        const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
-        if (response.success) {
-          // orderid
-          clearCart(); // Clear cart after successful order
-          await fetchProducts();
-          navigate('/successToOrder');
-        } else {
-          showNotification(response.error || "Error placing order", "error");
-        }
-      } catch (error) {
-        showNotification("Failed to place order", "error");
-      } finally {
-        setLoading(false);
+    try {
+      const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
+      if (response.success) {
+        clearCart(); // Clear cart after successful order
+        await fetchProducts();
+        navigate('/successToOrder');
+      } else {
+        showNotification(response.error || "Error placing order", "error");
       }
+    } catch (error) {
+      showNotification("Failed to place order", "error");
+    } finally {
+      setLoading(false);
     }
+    // }
 
   }
 
@@ -285,24 +325,56 @@ export default function Address() {
                     type="radio"
                     className="radio-btn"
                     checked={paymentMethod === 'Online'}
-                    onChange={() => setPaymentMethod('Online')}
+                    onChange={() => {
+                      setPaymentMethod('Online');
+                      setUseWalletMoney(false)
+                    }}
                   />
                   <label>Card Payment</label>
-                  {paymentMethod === 'Online' && <PaymentForm />}
+                  {paymentMethod === 'Online' && !useWalletMoney && < PaymentForm />}
                 </div>
 
                 <div className="COD_method">
                   <input
                     type="radio"
                     className="radio-btn"
-                    onClick={() => setPaymentMethod('COD')}
                     checked={paymentMethod === 'COD'}
+                    onClick={() => {
+                      setPaymentMethod('COD');
+                      setUseWalletMoney(false);
+                    }}
                   />
                   <label>Cash on Delivery</label>
                 </div>
+
+                {wallet.balance > 0 && (
+                  <div className="wallet_method">
+                    <input
+                      type="radio"
+                      className="radio-btn"
+                      checked={useWalletMoney}
+                      onChange={() => {
+                        setUseWalletMoney(true);
+                        setPaymentMethod(null);
+                      }}
+                    />
+                    <label>Pay with Wallet (₹{wallet.balance.toFixed(2)} available)</label>
+                    {useWalletMoney && (
+                      <div className="wallet-payment-info">
+                        <p>Using ₹{walletUsed.toFixed(2)} from wallet</p>
+                        {remainingAmount > 0 && (
+                          <p>Remaining: ₹{remainingAmount.toFixed(2)}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
-              {paymentMethod === 'COD' && (
-                <button className="place-order-btn" onClick={placeOrder}>Place Order</button>
+              {(paymentMethod === 'COD' || useWalletMoney) && (
+                <button className="place-order-btn" onClick={placeOrder} disabled={walletLoading || orderPlacementInitiated}>
+                  {walletLoading ? 'Processing...' : orderPlacementInitiated ? 'Placing Order...' : 'Place Order'}
+                </button>
               )}
             </>
           )}
