@@ -189,26 +189,39 @@
   }
 
   .logo {
-    display: block;
-    justify-content: center;
-    align-items: center;
-    flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-shrink: 0; /* Prevent shrinking */
+      max-width: 120px; /* Adjusted max width for better fit */
+      height: auto;
+      padding: 5px 10px; /* Adjusted padding */
 
-    img {
-      width: 170px;
-      margin-top: 8%;
-      margin-left: 10px;
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 0;
+        padding: 10px;
+      }
+
+      @include tablet-and-up {
+        max-width: 150px;
+        padding: 8px 15px;
+      }
+
+      @include mobile-only {
+        margin-left: -10px;
+      }
     }
-    @include mobile-only {
-      margin-left: -50px;
-      // width: 100%;
+     .search-container {
+      flex-grow: 1; /* Allow search bar to take available space */
+      max-width: 400px; /* Limit max width */
+
+      @include mobile-only {
+        display: none !important; /* Hide on mobile, will use SearchBarMobile */
+      }
     }
-  }
-  // .search-bar-container{
-  //   @include mobile-only{
-  //     display: none;
-  //   }
-  // }
   .nav-action-profile {
     display: flex;
     flex-direction: column;

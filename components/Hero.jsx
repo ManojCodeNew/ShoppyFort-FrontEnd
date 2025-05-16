@@ -25,12 +25,12 @@ const Hero = () => {
     } else if (errorOffers) {
       setIsLoading(false);
       setFilteredOffersForBanner([
-        { _id: 'error', title: 'Error loading!', imageUrl: '...', link: '/', discountText: null, productIds: [] },
+        { _id: 'error', title: 'Error loading!', imageUrl: 'https://t3.ftcdn.net/jpg/05/47/69/58/240_F_547695839_IujiLmCh7AgbYd2Eyk5hgQcCYftTqQxV.jpg', link: '/', discountText: null, productIds: [] },
       ]);
     } else {
       setIsLoading(false);
       setFilteredOffersForBanner([
-        { _id: 'default', title: 'Explore!', imageUrl: '...', link: '/offers', discountText: null, productIds: [] },
+        { _id: 'default', title: 'Explore!', imageUrl: 'https://t3.ftcdn.net/jpg/05/47/69/58/240_F_547695839_IujiLmCh7AgbYd2Eyk5hgQcCYftTqQxV.jpg', link: '/offers', discountText: null, productIds: [] },
       ]);
     }
   }, [offers, loadingOffers, errorOffers]);

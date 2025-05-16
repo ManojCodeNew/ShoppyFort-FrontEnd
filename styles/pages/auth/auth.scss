@@ -7,6 +7,7 @@
   justify-content: center;
   background: $gray-light;
   padding: 32px 16px;
+  margin-top: 0;
 
   .auth-container {
     background: $white;
@@ -15,41 +16,39 @@
     width: 100%;
     max-width: 400px;
     box-shadow: $box-shadow;
+    margin-top: 0;
 
-      .or-divider {
-        text-align: center;
-        margin: 16px 0;
-        position: relative;
-        font-weight: 500;
-        color: $gray-dark;
-    
-        &::before,
-        &::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          width: 40%;
-          height: 1px;
-          background: $gray-light;
-        }
-    
-        &::before {
-          left: 0;
-        }
-    
-        &::after {
-          right: 0;
-        }
+    .or-divider {
+      text-align: center;
+      margin: 16px 0;
+      position: relative;
+      font-weight: 500;
+      color: $gray-dark;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 40%;
+        height: 1px;
+        background: $gray-light;
       }
-    
-      .loginwithgoogle {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 16px;
-    
+
+      &::before {
+        left: 0;
       }
-    
-    
+
+      &::after {
+        right: 0;
+      }
+    }
+
+    .loginwithgoogle {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
 
     h1 {
       font-size: 24px;
@@ -66,7 +65,6 @@
       margin-bottom: 16px;
       font-size: 14px;
     }
-
 
     .form-group {
       margin-bottom: 16px;
@@ -139,6 +137,5 @@
         }
       }
     }
-    
   }
 }

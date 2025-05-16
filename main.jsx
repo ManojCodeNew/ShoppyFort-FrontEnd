@@ -1,10 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
+import App from './App.jsx';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
-// import './styles/main.scss';
 import ProductProvider from './contexts/ProductsContext';
 import { AddressProvider } from './contexts/AddressContext';
 import { OrderDetailsProvider } from './contexts/OrderDetailsContext';

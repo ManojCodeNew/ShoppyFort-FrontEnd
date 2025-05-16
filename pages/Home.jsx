@@ -2,17 +2,17 @@ import React from 'react';
 import '../styles/pages/home.scss';
 import Hero from '../components/Hero';
 import Add from '@/components/Add';
-import { useAuth } from '@/contexts/AuthContext';
+// import { useAuth } from '@/contexts/AuthContext';
 import AllProductShow from '@/components/AllProductShow';
 import SearchBarMobile from '@/components/SearchBarMobile';
 
 const Home = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   return (
     <div className="home">
       {/* Mobile-only SearchBar */}
-      <div className="mobile-only-search">
+      <div className="mobile-only-search"> {/* Render mobile search bar */}
         <SearchBarMobile />
       </div>
       <Hero />

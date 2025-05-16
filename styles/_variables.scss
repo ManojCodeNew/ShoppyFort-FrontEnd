@@ -15,6 +15,16 @@ $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
 
+$gray-darker: #1a202c;
+$gray-dark: #4a5568;
+$gray-medium: #718096;
+$gray: #cbd5e0;
+$gray-lighter: #f7fafc;
+
+$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+$box-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.05); // Add this line
+
+
 // FIXED mobile-only mixin - use a more realistic mobile breakpoint
 @mixin mobile-only {
   @media (max-width: #{$breakpoint-sm - 1px}) {  // Screen size below 740px

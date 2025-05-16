@@ -7,12 +7,12 @@ import { useWishlist } from '../contexts/WishlistContext';
 import MobileSidebar from './MobileSidebar.jsx';
 import SearchBar from './SearchBar.jsx';
 import '../styles/components/navbar.scss';
-import logo from '../assets/Images/logo.png';
+import logo from '../assets/Images/shoppyfort_logo.png';
 import heart from '../assets/Images/heart.png';
 import ShoppingBag from '../assets/Images/bag.png';
 import User from '../assets/Images/user.png';
 import { useUserNotifications } from '@/contexts/UserNotificationContext';
-
+import SearchBarMobile from './SearchBarMobile.jsx';
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -28,16 +28,20 @@ const Navbar = () => {
         <p className='user-name'>{user.fullname}</p>
         <p className='user-email'>{user.phoneno}</p>
       </Link>
+
       <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
       <Link to='/notifications' className='user-notification-link'><p className='user-notification'>
         Notification
         {hasUnread && <span className="dot-blink" />}
       </p></Link>
-      <Link to='/wallet' className='user-wallet-link'><p className='user-wallet'>
-        Wallet
-      </p></Link>
+
+      <Link to='/wallet' className='user-wallet-link'>
+        <p className='user-wallet'>
+          Wallet
+        </p></Link>
       <p className='user-logout' onClick={logout}>Logout</p>
     </>
+
   ) : (
     <>
       <div className="Guest-container">
@@ -66,7 +70,7 @@ const Navbar = () => {
             <Link to="/" className="logo">
               <img src={logo} alt="" />
             </Link>
-            {/* <SearchBar /> */}
+            <SearchBar />
           </div>
 
           <div className="nav-actions">
@@ -117,7 +121,7 @@ const Navbar = () => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-
+ 
     </header>
   );
 };

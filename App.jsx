@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import './index.css';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
@@ -26,7 +27,6 @@ import ProductAddForm from './components/AdminPanel/ProductAddForm.jsx';
 import ManageOrder from './components/AdminPanel/ManageOrder.jsx';
 import ProductDetails from './components/AdminPanel/ProductDetails.jsx';
 import UserNotification from './components/UserNotification.jsx'
-import './index.css'; // Adjust based on your file structure
 import ManageReturn from './components/AdminPanel/ManageReturn.jsx';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -36,7 +36,7 @@ const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEY
 const App = () => {
 
   return (
-    <div className="app">
+    <>
 
       <Routes>
         {/* Admin Routes */}
@@ -68,7 +68,7 @@ const App = () => {
         <Route path="*" element={
           <>
             <Navbar />
-            <main className="main-content">
+            <main >
               <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -99,7 +99,7 @@ const App = () => {
           </>
         } />
       </Routes>
-    </div>
+    </>
   );
 };
 

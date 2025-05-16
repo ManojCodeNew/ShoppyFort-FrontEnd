@@ -1,19 +1,151 @@
-.category-sidebar{
-    // padding: 10px;
-}
-.filters-container{
-    margin-top: 20px;
+@import '../variables';
 
-    h5{
-        margin-top: 18px;
+.category-sidebar {
+  padding: 20px;
+  background-color: $white;
+  box-shadow: $box-shadow-light; /* Use a lighter box shadow */
+  border-radius: 8px;
+  margin-bottom: 20px; /* Add some space below the filter */
+
+  @include tablet-and-up {
+    position: sticky;
+    top: 100px; /* Adjust based on your header height */
+    align-self: start;
+  }
+
+  .filter-title {
+    color: $gray-dark;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-bottom: 2px solid $gray-light;
+    padding-bottom: 10px;
+  }
+
+  .filters-container {
+    margin-top: 10px;
+
+    h5 {
+      color: $secondary-color;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-top: 20px;
+      margin-bottom: 10px;
     }
-}
-.color-show{
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 1px solid black;
-    border-radius: 50%; // Makes it circular
-    margin-right: 8px;
-    margin-left: 8px;
+
+    .items {
+      margin-left: 10px;
+      p {
+        margin-bottom: 8px;
+        span {
+          display: flex;
+          align-items: center;
+          input[type='checkbox'] {
+            margin-right: 8px;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid gray;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            transition: background-color 0.2s ease;
+
+            &:checked {
+              background-color: $primary-color;
+              border-color: $primary-color;
+            }
+
+            &:checked::before {
+              content: '\2713'; /* Checkmark */
+              color: $white;
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+
+    .price-title {
+      margin-top: 25px;
+    }
+
+    span {
+      font-size: 0.9rem;
+      color: $gray-medium;
+    }
+
+    .slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: $gray-light;
+      border-radius: 4px;
+      outline: none;
+      margin-top: 10px;
+      margin-bottom: 15px;
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: $primary-color;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      &::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: $primary-color;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+      }
+
+      &:disabled {
+        background: $gray-light;
+        &::-webkit-slider-thumb,
+        &::-moz-range-thumb {
+          background: $gray-medium;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .price-values {
+      font-size: 0.9rem;
+      color: $gray-medium;
+      .current-price {
+        margin-top: 5px;
+        span {
+          font-weight: 500;
+          color: $secondary-color;
+        }
+      }
+    }
+
+    .color-title {
+      margin-top: 25px;
+    }
+
+    .color-show {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 1px solid $gray-light;
+      border-radius: 50%;
+      margin-right: 8px;
+      margin-left: 4px;
+    }
+
+    .discount-title {
+      margin-top: 25px;
+    }
+  }
 }
