@@ -54,7 +54,7 @@ const App = () => {
           <Route path="products/view" element={<ProductDetails />} />
           <Route path="customers/view" element={<ProductDetails />} />
 
-          <Route path='offers' element={<AddOffers />} />
+          <Route path='add-offer' element={<AddOffers />} />
           <Route path="attributes" element={<AdminAttributes />} />
           <Route path="manage-order" element={<ManageOrder />} />
           <Route path="manage-return" element={<ManageReturn />} />
@@ -89,7 +89,7 @@ const App = () => {
                   </Elements>
                 } />
                 <Route path="successToOrder" element={<OrderPlaced />} />
-                <Route path="offers" element={<Offers />} />
+                <Route path="/offers/:offerId" element={<Offers />} />
                 <Route path="notifications" element={<UserNotification />} />
 
 

@@ -1,67 +1,286 @@
 .ad-offers-container {
-    padding: 20px;
+  padding: 20px;
 }
 
 .ad-offers-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    max-width: 600px;
-    margin-left: 20%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 600px;
+  margin-left: 20%;
 }
 
 .form-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
-.form-group input[type="text"],
+.form-group input[type='text'],
 .form-group textarea,
-.form-group input[type="file"] {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+.form-group input[type='file'] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
 .form-group textarea {
-    resize: vertical;
+  resize: vertical;
 }
 
 .image-preview {
-    margin-top: 10px;
-    border: 1px solid #eee;
-    padding: 5px;
-    border-radius: 4px;
+  margin-top: 10px;
+  border: 1px solid #eee;
+  padding: 5px;
+  border-radius: 4px;
 }
 
 .optional {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 .form-text {
-    font-size: 0.8em;
-    color: #777;
-    margin-top: 3px;
+  font-size: 0.8em;
+  color: #777;
+  margin-top: 3px;
 }
 
 .submit-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
 }
 
 .submit-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+.ad-offers-container {
+  padding: 30px;
+  background-color: #f8f9fa; /* Light background */
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.offer-creation-section,
+.available-offers-section {
+  margin-bottom: 30px;
+}
+
+.offer-creation-section h2,
+.available-offers-section h2 {
+  color: #343a40; /* Dark heading */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.ad-offers-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  color: #495057; /* Medium dark label */
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.form-input,
+.form-textarea,
+.form-file-input {
+  padding: 10px;
+  border: 1px solid #ced4da; /* Light border */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.image-preview-container {
+  margin-top: 15px;
+  border: 1px dashed #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-text {
+  font-size: 0.875rem;
+  color: #6c757d; /* Light text */
+  margin-top: 5px;
+}
+
+.submit-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button.primary {
+  background-color: #007bff; /* Primary blue */
+  color: white;
+}
+
+.submit-button.primary:hover {
+  background-color: #0056b3;
+}
+
+.submit-button.secondary {
+  background-color: #dc3545; /* Danger red */
+  color: white;
+}
+
+.submit-button.secondary:hover {
+  background-color: #c82333;
+}
+
+.submit-button:disabled {
+  background-color: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.section-divider {
+  border: 0;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 30px 0;
+}
+.offers-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust min-width as needed */
+    gap: 20px;
+}
+
+.offer-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    transition: transform 0.2s ease-in-out;
+}
+
+.offer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.offer-image-wrapper {
+    width: auto; /* Let the width be determined by content */
+    max-width: 150px; /* But don't let it get too wide */
+    height: auto;
+    overflow: hidden;
+    border-right: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Prevent the image wrapper from shrinking */
+}
+
+.offer-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Scale down the image to fit within the wrapper */
+    border-radius: 8px 0 0 8px;
+}
+
+.offer-details {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.offer-title {
+    color: #282c3f;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.offer-description {
+    color: #5c6379;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.offer-discount {
+    color: #2ecc71;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.offer-product-id {
+    color: #64b5f6;
+    font-size: 0.9rem;
+}
+
+.offer-details button.delete-button {
+    margin-top: auto; /* Push the delete button to the bottom */
+    align-self: flex-start;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.offer-details button.delete-button:hover {
+    background-color: #c0392b;
+}
+
+.empty-offers {
+    color: #6c757d;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
 }

@@ -49,7 +49,7 @@ const Sidebar = () => {
         </NavLink> */}
 
         {/* Add Offers */}
-        <NavLink to="/admin/offers" className="sidebar-menu-item">
+        <NavLink to="/admin/add-offer" className="sidebar-menu-item">
           <Gift className="sidebar-menu-icon" />
           <span>Add Offers</span>
         </NavLink>

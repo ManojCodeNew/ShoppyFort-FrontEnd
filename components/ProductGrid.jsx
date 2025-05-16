@@ -36,7 +36,7 @@ console.log("Filtered DATA",filteredProducts);
         <div className="product-grid">
           {filteredProducts.length>0?(
           filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product._id} product={product} />
           ))
           ):(
             <p>No products available in this category.</p>

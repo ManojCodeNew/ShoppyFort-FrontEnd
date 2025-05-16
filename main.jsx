@@ -18,7 +18,9 @@ const root = createRoot(document.getElementById('root'));
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import "bootstrap/dist/css/bootstrap.min.css";
 import UserNotificationsProvider from './contexts/UserNotificationContext.jsx';
-import WalletProvider from './contexts/WalletContext';
+import WalletProvider from './contexts/WalletContext.jsx';
+import AdminOffersProvider from './components/AdminPanel/Context/AdminOffersContext.jsx';
+import { OffersProvider } from './contexts/OffersContext';
 root.render(
   <React.StrictMode>
     <BrowserRouter>
@@ -32,17 +34,19 @@ root.render(
                     <OrderProvider>
                       <AddressProvider>
                         <WishlistProvider>
-                          <OrderDetailsProvider>
-                            <AdminProductsProvider>
-                              <UserNotificationsProvider>
-                                <ManageReturnProvider>
-
-                                  <App />
-
-                                </ManageReturnProvider>
-                              </UserNotificationsProvider>
-                            </AdminProductsProvider>
-                          </OrderDetailsProvider>
+                          <AdminOffersProvider>
+                            <OrderDetailsProvider>
+                              <AdminProductsProvider>
+                                <UserNotificationsProvider>
+                                  <ManageReturnProvider>
+                                    <OffersProvider>
+                                      <App />
+                                    </OffersProvider>
+                                  </ManageReturnProvider>
+                                </UserNotificationsProvider>
+                              </AdminProductsProvider>
+                            </OrderDetailsProvider>
+                          </AdminOffersProvider>
                         </WishlistProvider>
                       </AddressProvider>
                     </OrderProvider>

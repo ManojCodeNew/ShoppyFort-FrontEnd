@@ -13,6 +13,7 @@ const ProductCard = ({ product }) => {
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
+console.log("products:",product);
 
   const {
     _id,
