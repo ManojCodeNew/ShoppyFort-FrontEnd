@@ -29,6 +29,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import Wallet from './pages/Wallet.jsx';
 import AddOffers from './components/AdminPanel/AddOffers.jsx';
+import AboutUs from './pages/AboutUs';
 const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEYYnDOqG6JTw68x8JjiuSluNPb5iemtpiLdOcxqp1irCCddXp6p3U001PeLWXNf'); // Replace with your actual publishable key
 const App = () => {
 
@@ -65,6 +66,8 @@ const App = () => {
             <main >
               <Routes>
                 <Route path='/' element={<Home />} />
+                <Route path='/about-us' element={<AboutUs />} />
+
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="register" element={<RegisterPage />} />
                 <Route path="profile" element={<ProfilePage />} />

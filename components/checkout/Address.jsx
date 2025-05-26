@@ -203,7 +203,7 @@ export default function Address() {
           status: 'succeeded'
         },
         amountPaidFromWallet: paymentResult?.amountPaid || 0,
-        isPaid: paymentResult.remainingAmount === 0
+        isPaid: !useWalletMoney ? false : (remainingAmount === 0)
       };
 
     } else if (paymentMethod === 'COD') {
@@ -216,15 +216,14 @@ export default function Address() {
           amount: totalCost,
           currency: 'aed'
         },
-        isPaid: false, // COD orders aren't paid upfront
+        isPaid: false, 
         amountPaidFromWallet: 0
       };
 
     } else {
-      // Online payment handled by PaymentForm component
       return;
     }
-    console.log("Final Order Data in Address.jsx", orderData);
+    console.log("Final Order Data in Address.jsx", orderData, "Remaining Amt:", remainingAmount);
 
 
 
@@ -235,7 +234,7 @@ export default function Address() {
     try {
       const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
       if (response.success) {
-        clearCart(); // Clear cart after successful order
+        clearCart(); 
         await fetchProducts();
         navigate('/successToOrder');
       } else {

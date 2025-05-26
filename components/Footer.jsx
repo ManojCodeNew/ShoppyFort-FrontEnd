@@ -1,15 +1,26 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Mail } from 'lucide-react';
 import '../styles/components/footer.scss';
 import Sign from '../assets/Images/sign.jpg';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleAboutUsClick = () => {
+    navigate('/about-us');
+  };
+
   return (
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h3>About Us</h3>
+          <button 
+            onClick={handleAboutUsClick}
+            className="about-us-btn"
+          >
+            About Us
+          </button>
           <p>
             We are a premium fashion destination offering the latest trends in clothing,
             accessories, and lifestyle products. Our mission is to make fashion accessible
@@ -58,12 +69,12 @@ const Footer = () => {
           <div className="contact-info">
             <p>
               <MapPin className="icon" />
-              Fashion store
-              <br />Mangalore, DK 00000
+              Fashion Store
+              <br />Mangalore, DK 575001
             </p>
             <p>
               <Phone className="icon" />
-              +91 0000000000
+              +91 9876543210
             </p>
             <p>
               <Mail className="icon" />
@@ -72,12 +83,27 @@ const Footer = () => {
           </div>
         </div>
       </div>
-<div className="signature-of-ragavendraswami">
-  <img src={Sign} alt="" className='sign'/>
-</div>
+
+      <div className="signature-of-ragavendraswami">
+        <img src={Sign} alt="Signature" className="sign" />
+      </div>
+
       <div className="footer-bottom">
         <div className="footer-bottom-content">
-          <p>&copy; {new Date().getFullYear()} Fashion Store. All rights reserved. <span>Developed by <a href="https://vinyasatech.com/" className='company-link'>VINYASA</a></span></p>
+          <p>
+            &copy; {new Date().getFullYear()} Fashion Store. All rights reserved.{' '}
+            <span>
+              Developed by{' '}
+              <a 
+                href="https://vinyasatech.com/" 
+                className="company-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                VINYASA
+              </a>
+            </span>
+          </p>
           <div className="footer-links">
             <Link to="/privacy">Privacy Policy</Link>
             <Link to="/terms">Terms of Service</Link>

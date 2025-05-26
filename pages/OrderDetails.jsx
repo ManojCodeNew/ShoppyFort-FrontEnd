@@ -160,24 +160,24 @@ function OrderDetails() {
                         <div className="order-card" key={order._id || orderIndex}>
                             {order.items.map((product, productIndex) => (
                                 <div className="order-item" key={product.id || productIndex}>
-                                    <div className="product-img-container">
-                                        <img src={product.defaultImg} alt={product.name || "Product"} className="product-img" />
+                                    <div className="order-product-img-container">
+                                        <img src={product.defaultImg} alt={product.name || "Product"} className="order-product-img" />
                                     </div>
-                                    <div className="product-details">
-                                        <h3 className="product-name">{product.name || "Unknown Product"}</h3>
-                                        <p className="product-meta">
-                                            <span className="product-color">Color: {product.selections?.color || "N/A"}</span> |
-                                            <span className="product-size"> Size: {product.quantity || "N/A"}</span>
+                                    <div className="order-product-details">
+                                        <h3 className="order-product-name">{product.name || "Unknown Product"}</h3>
+                                        <p className="order-product-meta">
+                                            <span className="order-product-color">Color: {product.selections?.color || "N/A"}</span> |
+                                            <span className="order-product-size"> Size: {product.quantity || "N/A"}</span>
                                         </p>
-                                        <p className="product-price"> <small className="currency-label">AED</small>{product.price || 0}</p>
+                                        <p className="order-product-price"> <small className="order-currency-label">AED</small>{product.price || 0}</p>
 
                                         {/* Return Section */}
                                         {/* Return button - only show if within return window */}
                                         {order.status.toLowerCase() === "delivered" && isWithinReturnWindow(order) && (
 
-                                            <div className='return-section' key={product._id}>
+                                            <div className='order-return-section' key={product._id}>
                                                 <div
-                                                    className={`return-btn ${getReturnStatus(product._id, order._id) ? 'disabled' : ''}`}
+                                                    className={`order-return-btn ${getReturnStatus(product._id, order._id) ? 'disabled' : ''}`}
                                                     onClick={() => toggleReturnDropdown(product._id, order._id)}
                                                 >
                                                     {(() => {
@@ -192,9 +192,9 @@ function OrderDetails() {
                                                     })()}
                                                 </div>
                                                 {activeReturnReasons === `${product._id}-${order._id}` && (
-                                                    <div className="return-dropdown" >
+                                                    <div className="order-return-dropdown" >
                                                         {returnReasons.map((reason, index) => (
-                                                            <div className="return-reason" key={index}
+                                                            <div className="order-return-reason" key={index}
                                                                 onClick={() => handleReasonSelect(reason, product._id)}
                                                             >
                                                                 {reason}
@@ -204,23 +204,23 @@ function OrderDetails() {
                                                 )}
 
                                                 {returnData.orderId === order._id && returnData.productId === product._id && returnData.reason && (
-                                                    <div className="other-reason-container">
+                                                    <div className="order-other-reason-container">
                                                         {returnData.reason === "Other reason" && (
                                                             <input
                                                                 type="text"
                                                                 placeholder="Please specify your reason"
                                                                 value={returnData.otherReason}
                                                                 onChange={handleOtherReasonChange}
-                                                                className="other-reason-input"
+                                                                className="order-other-reason-input"
                                                             />
                                                         )}
 
-                                                        <div className="return-type-section">
+                                                        <div className="order-return-type-section">
                                                             <label>Select Return Type:</label>
                                                             <select
                                                                 value={returnData.returnType}
                                                                 onChange={handleReturnTypeChange}
-                                                                className="return-type-dropdown"
+                                                                className="order-return-type-dropdown"
                                                             >
                                                                 <option value="">Select</option>
                                                                 <option value="replacement">Replacement</option>
@@ -234,12 +234,12 @@ function OrderDetails() {
                                             </div>
                                         )}
                                         {(returnData.orderId === order._id && returnData.productId === product._id && returnData.reason) && (
-                                            <div className="selected-reason">
+                                            <div className="order-selected-reason">
                                                 <p>Selected: {returnData.reason === "Other reason" ? returnData.otherReason : returnData.reason}</p>
                                                 <button
                                                     onClick={handleSubmitReturn}
                                                     disabled={returnData.isSubmitting}
-                                                    className="submit-reason-btn"
+                                                    className="order-submit-reason-btn"
                                                 >
                                                     {returnData.isSubmitting ? 'Submitting...' : 'Confirm Return'}
                                                 </button>
@@ -268,25 +268,25 @@ function OrderDetails() {
 
                             {/* Simple Order Tracker */}
                             <div className="order-tracker">
-                                <div className="tracker-steps">
-                                    <div className={`step ${order.status.toLowerCase() === "placed" ? "active" : ""}`}>
-                                        <span className="circle">✔</span>
-                                        <p className="step-label">Order Placed</p>
-                                        <p className="step-action">Processing</p>
+                                <div className="order-tracker-steps">
+                                    <div className={`order-step ${order.status.toLowerCase() === "placed" ? "active" : ""}`}>
+                                        <span className="order-circle">✔</span>
+                                        <p className="order-step-label">Order Placed</p>
+                                        <p className="order-step-action">Processing</p>
                                     </div>
-                                    <div className={`step ${order.status.toLowerCase() === "shipped" ? "active" : ""}`}>
-                                        <span className="circle">🚚</span>
-                                        <p className="step-label">Shipped</p>
-                                        <p className="step-action">On the way</p>
+                                    <div className={`order-step ${order.status.toLowerCase() === "shipped" ? "active" : ""}`}>
+                                        <span className="order-circle">🚚</span>
+                                        <p className="order-step-label">Shipped</p>
+                                        <p className="order-step-action">On the way</p>
                                     </div>
-                                    <div className={`step ${order.status.toLowerCase() === "delivered" ? "active" : ""}`}>
-                                        <span className="circle">🏠</span>
-                                        <p className="step-label">Delivered</p>
-                                        <p className="step-action">Arrived</p>
+                                    <div className={`order-step ${order.status.toLowerCase() === "delivered" ? "active" : ""}`}>
+                                        <span className="order-circle">🏠</span>
+                                        <p className="order-step-label">Delivered</p>
+                                        <p className="order-step-action">Arrived</p>
                                     </div>
                                 </div>
-                                <div className="tracker-bar">
-                                    <div className={`progress ${order.status.toLowerCase()}`}></div>
+                                <div className="order-tracker-bar">
+                                    <div className={`order-progress ${order.status.toLowerCase()}`}></div>
                                 </div>
                             </div>
 

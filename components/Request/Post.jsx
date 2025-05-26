@@ -18,6 +18,14 @@ async function sendPostRequestToBackend(path, data, token) {
     const result = await response.json();
     if (result) {
         console.log("RESULT", result);
+        // Handle token expiration globally
+        if (result.error === 'TokenExpired') {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminAuth');
+            window.alert('Session expired, please log in again.');
+            window.location.href = '/admin/login';
+            return null; // Prevent further processing
+        }
     }
     return result;
 }

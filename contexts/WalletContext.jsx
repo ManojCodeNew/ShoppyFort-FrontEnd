@@ -53,8 +53,10 @@ export default function WalletProvider({ children }) {
                     amountPaid: response.amountPaidFromWallet,
                     remaining: response.paymentRequired
                 };
+            } else {
+                showNotification(response.error || "Payment processing failed", "error");
+                return { success: false };
             }
-            return { success: false };
         } catch (error) {
             console.error("Payment error:", error);
             showNotification("Payment processing failed", "error");

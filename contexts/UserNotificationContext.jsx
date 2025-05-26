@@ -13,37 +13,62 @@ export default function UserNotificationsProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const { token, user } = useAuth(); // Get user and token from AuthContext
     const [lastOtpId, setLastOtpId] = useState(null);
+    const [pollingInterval, setPollingInterval] = useState(null);
 
     const getNotifications = useCallback(async () => {
-        // console.log("auth/notifications/ :",token);
-        
-        const notificationResponse = await sendGetRequestToBackend('auth/notifications/', token);
-        if (notificationResponse.success) {
-            const updatedNotifications = notificationResponse.otp.map((notif) => ({
-                ...notif,
-                read: notif.read,
-                timeAgo: moment(notif.updatedAt).fromNow(),
-            }))
+        try {
+            setLoading(true);
+            const notificationResponse = await sendGetRequestToBackend('auth/notifications/', token);
+            if (notificationResponse.success) {
+                const updatedNotifications = notificationResponse.otp.map((notif) => ({
+                    ...notif,
+                    read: notif.read,
+                    timeAgo: moment(notif.updatedAt).fromNow(),
+                }))
 
-            const newest = updatedNotifications[0];
-            if (newest && newest._id !== lastOtpId) {
-                const isOrder = !!newest.orderid;
-                const entityId = isOrder ? newest.orderid : newest.returnid;
-                const message = isOrder
-                    ? `Use OTP ${newest.otp} to confirm delivery of order ${entityId}. Don't share it with anyone! 🔐`
-                    : `Use OTP ${newest.otp} to confirm pickup of return. Don't share it with anyone! 🔐`;
+                const newest = updatedNotifications[0];
+                if (newest && newest._id !== lastOtpId) {
+                    const isOrder = !!newest.orderid;
+                    const entityId = isOrder ? newest.orderid : newest.returnid;
+                    const message = isOrder
+                        ? `Use OTP ${newest.otp} to confirm delivery of order ${entityId}. Don't share it with anyone! 🔐`
+                        : `Use OTP ${newest.otp} to confirm pickup of return. Don't share it with anyone! 🔐`;
 
 
-                showNotification(message, "info");
-                setLastOtpId(newest._id); // update last shown OTP
+                    showNotification(message, "info");
+                    setLastOtpId(newest._id); // update last shown OTP
+                }
+                setNotifications(updatedNotifications);
             }
-            setNotifications(updatedNotifications);
-        } else {
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+            showNotification("Failed to fetch notifications", "error");
             setNotifications([]);
+        } finally {
+            setLoading(false);
         }
-    }, [token, lastOtpId, showNotification]);
-    console.log("Notifi :", notifications);
 
+    }, [token, lastOtpId, showNotification]);
+
+    // Polling to fetch notifications every 30 seconds
+    useEffect(() => {
+        getNotifications();
+
+        // Set up interval for polling (every 30 seconds)
+        const interval = setInterval(() => {
+            getNotifications();
+        }, 30000); // 30 seconds
+
+        // Store interval ID for cleanup
+        setPollingInterval(interval);
+
+        // Clean up interval on unmount
+        return () => {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+        };
+    }, [getNotifications]);
 
     const markAsRead = useCallback(async (id) => {
         const response = await sendPostRequestToBackend('auth/notifications/mark_as_read', { id }, token);
@@ -71,9 +96,6 @@ export default function UserNotificationsProvider({ children }) {
 
     }, [token])
 
-    useEffect(() => {
-        getNotifications();
-    }, [getNotifications]);
     const hasUnread = notifications.some((notif) => !notif.read);
 
 
