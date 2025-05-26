@@ -10,16 +10,13 @@ import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import WishlistPage from './pages/WishlistPage.jsx';
-import AdminLogin from './pages/admin/AdminLogin.jsx';
-import AdminAttributes from './pages/admin/Attributes.jsx';
+import AdminPanelLogin from './components/AdminPanel/AdminPanelLogin';
 import Address from './components/checkout/Address.jsx';
-import ProtectedAdminRoute from './components/admin/ProtectedAdminRoute.jsx';
 import CartPage from './pages/CartPage.jsx';
 import OrderPlaced from './pages/OrdePlaced.jsx';
 import OrderDetails from './pages/OrderDetails.jsx';
 import Offers from './components/Offers.jsx';
 import Dashboard from './components/AdminPanel/Dashboard.jsx';
-import Sidebar from './components/AdminPanel/Sidebar.jsx';
 import MainAdminLayout from './components/AdminPanel/MainAdminLayout.jsx';
 import ProductViewPage from './pages/ProductViewPage.jsx';
 import ManageProduct from './components/AdminPanel/ManageProduct.jsx';
@@ -40,11 +37,9 @@ const App = () => {
 
       <Routes>
         {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminPanelLogin />} />
         <Route path="/admin" element={
-          <ProtectedAdminRoute>
-            <MainAdminLayout />
-          </ProtectedAdminRoute>
+          <MainAdminLayout />
         }>
 
           <Route index element={<Dashboard />} />
@@ -55,7 +50,6 @@ const App = () => {
           <Route path="customers/view" element={<ProductDetails />} />
 
           <Route path='add-offer' element={<AddOffers />} />
-          <Route path="attributes" element={<AdminAttributes />} />
           <Route path="manage-order" element={<ManageOrder />} />
           <Route path="manage-return" element={<ManageReturn />} />
 

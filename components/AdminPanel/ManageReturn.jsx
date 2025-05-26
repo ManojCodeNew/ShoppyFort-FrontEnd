@@ -10,9 +10,12 @@ const ManageReturn = () => {
     const [loading, setLoading] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState(null);
     const [expandedRowId, setExpandedRowId] = useState(null);
-    const [confirmModal, setConfirmModal] = useState({ show: false, returnId: null });
-    const [otpModal, setOtpModal] = useState({ show: false, returnId: null, otp: "", expiresAt: null });
+    const [confirmModal, setConfirmModal] = useState({ show: false, returnId: null, statusToUpdate: null });
+    const [otpModal, setOtpModal] = useState({ show: false, returnId: null, otp: "", expiresAt: null, statusToUpdate: null });
     const [timeLeft, setTimeLeft] = useState(0);
+    // const [walletCreditedItems, setWalletCreditedItems] = useState(new Set());
+    const [walletCreditAttempts, setWalletCreditAttempts] = useState(new Map());
+    const [processingCredits, setProcessingCredits] = useState(new Set());
 
     const hasFetched = useRef(false);
 
@@ -31,6 +34,11 @@ const ManageReturn = () => {
         };
         fetchData();
 
+
+        // // Initialize wallet credited items from returns data
+        // const creditedItems = new Set();
+        // const creditAttempts = new Map();
+
         let interval;
         if (otpModal.show && otpModal.expiresAt) {
             interval = setInterval(() => {
@@ -40,7 +48,6 @@ const ManageReturn = () => {
         }
         return () => clearInterval(interval);
     }, [fetchReturns, otpModal]);
-    console.log("fetched Returns Data :", returns);
 
     const handleAccept = useCallback((id) => {
         updateStatus(id, "approved_by_shop_owner");
@@ -52,8 +59,8 @@ const ManageReturn = () => {
     const toggleDetails = (id) => setExpandedRowId(prev => (prev === id ? null : id));
 
     const handleStatusChange = (id, status) => {
-        if (status === "picked_up") {
-            setConfirmModal({ show: true, returnId: id });
+        if (status === "picked_up" || status === "delivered") {
+            setConfirmModal({ show: true, returnId: id, statusToUpdate: status });
         } else {
             updateStatus(id, status);
         }
@@ -61,7 +68,7 @@ const ManageReturn = () => {
 
     const handleConfirmOtpSend = () => {
         const returnData = returns.find(ret => ret._id === confirmModal.returnId);
-        console.log("User Id in handle confirm otp :", returnData);
+        const statusToUpdate = confirmModal.statusToUpdate;
 
         if (returnData) {
             const otp = Math.floor(1000 + Math.random() * 9000);
@@ -69,22 +76,23 @@ const ManageReturn = () => {
             const otpPayload = {
                 returnid: returnData._id,
                 userid: returnData.userDetails._id,
-                status: "picked_up",
+                status: statusToUpdate,
                 otp,
                 otpExpiresAt: expiresAt
             };
 
-
             sendReturnOtpToBackend(otpPayload);
-            setOtpModal({ show: true, returnId: returnData._id, otp: "", expiresAt });
+            setOtpModal({ show: true, returnId: returnData._id, otp: "", expiresAt, statusToUpdate });
             setTimeLeft(60);
-            showNotification("OTP sent to customer", "success");
+            const messageText = statusToUpdate === "picked_up" ?
+                "OTP sent to customer for pickup confirmation" :
+                "OTP sent to customer for delivery confirmation";
+            showNotification(messageText, "success");
         }
-        setConfirmModal({ show: false, returnId: null });
+        setConfirmModal({ show: false, returnId: null, statusToUpdate: null });
     };
 
     const verifyOtp = async (returnId) => {
-
         const otpResponse = await getReturnOtpOnDb(returnId);
         if (!otpResponse || !otpResponse.otp) return;
         const otpData = otpResponse.otp;
@@ -92,34 +100,50 @@ const ManageReturn = () => {
 
         if (otpExpiryTime < Date.now()) {
             showNotification("OTP has expired, request a new one", "error");
-            setOtpModal({ ...otpModal, show: false });
+            setOtpModal(prev => ({ ...prev, show: false }));
             return;
         }
 
         if (parseInt(otpData.otp) === parseInt(otpModal.otp)) {
-            showNotification("OTP verified successfully", "success");
-            await updateStatus(returnId, "picked_up");
-
+            const statusToUpdate = otpModal.statusToUpdate;
             const returnData = returns.find(ret => ret._id === returnId);
-            console.log("Return Data in verify Otp:", returnData);
 
-            if (returnData?.returntype === "save_to_wallet") {
-                console.log("Yes This is save to wallet");
+            // First update the status
+            await updateStatus(returnId, statusToUpdate);
 
+            // Handle wallet credit for save_to_wallet returns
+            if (statusToUpdate === "picked_up" && returnData?.returntype === "save_to_wallet") {
                 const price = returnData.productDetails?.price || 0;
                 const quantity = returnData.productDetails?.quantity || 1;
                 const totalAmount = price * quantity;
 
-                // Call wallet credit function
-                await creditMoneyToWallet(returnId, totalAmount);
+                const walletCreditSuccess = await creditMoneyToWallet(returnId, totalAmount);
+
+                if (walletCreditSuccess) {
+                    await updateStatus(returnId, "wallet_credited");
+                    const successMessage = "OTP verified successfully - Product picked up and amount credited to wallet";
+                    showNotification(successMessage, "success");
+
+                    setOtpModal(prev => ({ ...prev, show: false }));
+                    await fetchReturns();
+                } else {
+                    showNotification("OTP verified but wallet credit failed. Please try again.", "error");
+                    return;
+                }
+            } else {
+                const successMessage = statusToUpdate === "picked_up" ?
+                    "OTP verified successfully - Product picked up" :
+                    "OTP verified successfully - Delivery confirmed";
+
+                showNotification(successMessage, "success");
+
+                setOtpModal(prev => ({ ...prev, show: false }));
+                await fetchReturns();
             }
-            await fetchReturns();
-            setOtpModal({ ...otpModal, show: false });
         } else {
             showNotification("Invalid OTP", "error");
         }
     };
-
 
     const renderActions = (item) => {
         const isReplacement = item.returntype === "replacement";
@@ -134,7 +158,6 @@ const ManageReturn = () => {
                 );
             case "approved_by_shop_owner":
             case "pickup_scheduled":
-            case "picked_up":
                 return (
                     <select
                         value=""
@@ -154,15 +177,32 @@ const ManageReturn = () => {
                         {item.status === "pickup_scheduled" && (
                             <option value="picked_up">✔ Picked Up</option>
                         )}
-
-                        {isReplacement && item.status === "picked_up" && (
-                            <option value="replacement_shipped">🚚 Replacement Shipped</option>
-                        )}
-                        {isReplacement && item.status === "replacement_shipped" && (
-                            <option value="delivered">📬 Delivered</option>
-                        )}
                     </select>
                 );
+            case "picked_up":
+                if (item.status === "wallet_credited") {
+                    <span className="status-completed">
+                        Completed - Amount Credited to Wallet
+                    </span>
+                }
+
+                if (isReplacement) {
+                    return (
+                        <select
+                            value=""
+                            onChange={(e) => {
+                                const selectedStatus = e.target.value;
+                                if (selectedStatus) {
+                                    handleStatusChange(item._id, selectedStatus);
+                                }
+                            }}
+                        >
+                            <option value="">Select Status</option>
+                            <option value="replacement_shipped">🚚 Replacement Shipped</option>
+                        </select>
+                    );
+                }
+                return null;
             case "replacement_shipped":
                 return isReplacement ? (
                     <select
@@ -177,8 +217,14 @@ const ManageReturn = () => {
                         <option value="delivered">📬 Delivered</option>
                     </select>
                 ) : null;
+            case "delivered":
+                return isReplacement ? (
+                    <span className="status-completed">
+                        Completed
+                    </span>
+                ) : null;
             case "rejected":
-                return <button className="btn danger" onClick={() => handleDelete(item._id)}>Delete</button>;
+                return <span className="status-rejected">Rejected</span>;
             default:
                 return null;
         }
@@ -208,7 +254,6 @@ const ManageReturn = () => {
                     <tbody>
                         {[...returns].reverse().map((item, index) => {
                             const isExpanded = expandedRowId === item._id;
-                            // const isProductView = showProductDetails[item._id];
                             return (
                                 <React.Fragment key={item._id}>
                                     <tr>
@@ -232,8 +277,8 @@ const ManageReturn = () => {
                                                         type="text"
                                                         maxLength="4"
                                                         value={otpModal.otp}
-                                                        onChange={(e) => setOtpModal({ ...otpModal, otp: e.target.value })}
-                                                        placeholder={item._id}
+                                                        onChange={(e) => setOtpModal(prev => ({ ...prev, otp: e.target.value }))}
+                                                        placeholder="Enter OTP"
                                                     />
                                                     <button
                                                         className="verifyOtp-btn"
@@ -266,7 +311,6 @@ const ManageReturn = () => {
                                                         />
                                                         <div className="product-details-meta">
                                                             <span><strong>Product:</strong> {item.productDetails?.name || "Unknown"}</span>
-                                                            <span><strong>SKU:</strong> {item.productDetails?.productid || "N/A"}</span>
                                                             <span><strong>Qty:</strong> {item.productDetails?.quantity || "N/A"}</span>
                                                             <span><strong>Price:</strong> ₹{item.productDetails?.price || "N/A"}</span>
                                                             <span><strong>Color:</strong> {item.productDetails?.selections?.color || "N/A"}</span>
@@ -276,16 +320,13 @@ const ManageReturn = () => {
                                                 </div>
                                             </td>
                                         </tr>
-
                                     )}
-
                                 </React.Fragment>
                             );
                         })}
                     </tbody>
-                </table >
+                </table>
             )}
-
 
             {/* Confirm Modal */}
             {confirmModal.show && (
@@ -300,8 +341,7 @@ const ManageReturn = () => {
                     </div>
                 </div>
             )}
-
-        </div >
+        </div>
     );
 };
 

@@ -40,10 +40,13 @@ export default function ProductProvider({ children }) {
             });
 
             setProducts(modifiedProducts);
+
         } catch (error) {
             showNotification("Error fetching products", "error");
         }
     };
+    console.log("all peoduct data :", products);
+
 
     useEffect(() => {
         fetchProducts();

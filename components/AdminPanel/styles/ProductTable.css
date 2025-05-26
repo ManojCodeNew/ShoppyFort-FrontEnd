@@ -1,92 +1,288 @@
-.table-container {
-  margin: 0 auto;
-  max-width: 1200px;
-  overflow-x: auto;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+/* General Body and Container Styles */
+body {
+  font-family: 'Inter', sans-serif; /* Modern, professional font */
+  background-color: #f8f9fa; /* A very soft, almost off-white background */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: #344767; /* A deep, elegant blue-gray for general text */
 }
 
+/* Main Table Container */
+.table-container {
+  margin: 40px auto; /* Centered with generous top/bottom margin */
+  max-width: 1200px;
+  background: #ffffff; /* Pure white for the table card */
+  border-radius: 15px; /* Slightly more rounded for a softer feel */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Deeper, more diffused shadow */
+  padding: 30px; /* Internal padding */
+  overflow-x: auto; /* Ensures horizontal scrolling for small screens */
+  animation: fadeInScale 0.5s ease-out; /* Subtle entrance animation */
+}
+.manage-product-title {
+  font-size:24px;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Product Table Styling */
 .product-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate; /* Allows for rounded corners */
+  border-spacing: 0; /* Removes space between cells */
+  min-width: 800px; /* Ensures minimum width for better layout on smaller screens before scroll */
 }
 
 .product-table th,
 .product-table td {
-  padding: 15px;
+  padding: 20px 25px; /* Even more padding for a premium feel */
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #e9ecef; /* Lighter, more subtle border */
+  font-size: 15px;
+  vertical-align: middle; /* Aligns content vertically in the middle */
 }
 
 .product-table th {
-  background-color: #f4f4f4;
+  background-color: #f4f6f9; /* A soft, very light gray for headers */
+  color: #6c757d; /* Muted gray for header text */
+  font-weight: 600; /* Semi-bold */
+  text-transform: uppercase; /* Professional look */
+  font-size: 13px;
+  letter-spacing: 0.8px; /* Slightly increased letter spacing */
 }
 
+/* Rounded corners for the table header */
+.product-table thead tr:first-child th:first-child {
+  border-top-left-radius: 12px; /* Match container radius */
+}
+.product-table thead tr:first-child th:last-child {
+  border-top-right-radius: 12px; /* Match container radius */
+}
+
+/* No border for the last row */
+.product-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hover effect for table rows */
+.product-table tbody tr:hover {
+  background-color: #fbfbfb; /* Very gentle, almost imperceptible hover effect */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* Subtle lift on hover */
+  transform: translateY(-1px);
+  transition: all 0.15s ease-out;
+}
+
+/* Product Info Section (Image + Name/Category) */
 .product-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px; /* More space between image and text */
 }
 
 .product-info img {
-  width: 50px;
-  height: 50px;
-  border-radius: 5px;
+  width: 70px; /* Slightly larger image size */
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px; /* Softer rounded corners for images */
+  border: 1px solid #e0e0e0; /* Subtle border around image */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); /* Soft shadow for image */
+  flex-shrink: 0; /* Prevent image from shrinking */
 }
 
 .product-info div {
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .product-info p {
   margin: 0;
-  font-weight: bold;
+  font-weight: 600; /* Semi-bold product name */
+  color: #495057; /* Darker, slightly blueish gray for name */
+  font-size: 16px;
 }
 
 .product-info span {
-  font-size: 0.9em;
-  color: gray;
+  font-size: 0.9em; /* Slightly smaller category text */
+  color: #8d99ae; /* Muted, cool gray for category */
+  margin-top: 4px; /* Small space below product name */
+}
+
+/* Stock Column Specifics */
+.stock-column {
+  min-width: 140px; /* Ensure stock column has enough space */
+  text-align: center; /* Center align stock text */
 }
 
 .stock {
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: rgb(3, 3, 3);
-  font-size: 0.9em;
-}
-.stock-column {
-  width: 200px;
-  
+  padding: 8px 16px; /* More generous padding */
+  border-radius: 25px; /* More pronounced pill-shaped badge */
+  font-size: 13px;
+  font-weight: 700; /* Bolder stock status text */
+  text-transform: uppercase; /* Uppercase for stock status */
+  display: inline-block; /* Ensures padding and border-radius work */
+  min-width: 100px; /* Consistent width for badges */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Subtle shadow for badges */
 }
 
 .stock.out {
-  background-color: #ff7675;
-  font-weight: bold;
+  background-color: #ffebee; /* Very light red */
+  color: #d32f2f; /* Stronger red text */
+  border: 1px solid #ffcdd2; /* Matching, slightly lighter border */
 }
 
 .stock.in {
-  background-color: #55efc4;
+  background-color: #e8f5e9; /* Very light green */
+  color: #388e3c; /* Stronger green text */
+  border: 1px solid #c8e6c9;
 }
 
 .stock.low {
-  background-color: #fdcb6e;
+  background-color: #fff3e0; /* Very light orange */
+  color: #f57c00; /* Stronger orange text */
+  border: 1px solid #ffe0b2;
 }
 
-.status {
-  padding: 5px 10px;
-  border-radius: 5px;
+/* Action Buttons */
+.view-btn,
+.edit-btn,
+.delete-btn {
+  padding: 10px 20px; /* Increased padding */
+  margin: 0 8px; /* More space between buttons */
+  border: none;
+  border-radius: 8px; /* Softly rounded buttons */
+  cursor: pointer;
+  font-weight: 600; /* Bolder text */
+  font-size: 14px;
+  transition: all 0.3s ease-in-out; /* Smoother, longer transition */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* More pronounced default shadow */
+}
+
+.view-btn {
+  background-color: #4c7dff; /* A vibrant, modern blue */
   color: white;
-  font-size: 0.9em;
 }
 
-.status.draft {
-  background-color: #dfe6e9;
-  color: #636e72;
+.view-btn:hover {
+  background-color: #3a6ce0; /* Darker blue on hover */
+  box-shadow: 0 6px 15px rgba(76, 125, 255, 0.4); /* More pronounced shadow */
+  transform: translateY(-2px); /* Stronger lift effect */
 }
 
-.status.published {
-  background-color: #74b9ff;
+.edit-btn {
+  background-color: #ffb300; /* A rich, golden yellow */
+  color: #4a4a4a; /* Dark text for contrast */
+}
+
+.edit-btn:hover {
+  background-color: #e0a000; /* Darker yellow on hover */
+  box-shadow: 0 6px 15px rgba(255, 179, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.delete-btn {
+  background-color: #ef5350; /* A soft, appealing red */
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+  box-shadow: 0 6px 15px rgba(239, 83, 80, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Loader Styling */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px; /* Ensure loader is visible in its row */
+}
+
+/* Placeholder for "No record found!" */
+.product-table td[colspan='7'] {
+  text-align: center;
+  padding: 40px;
+  color: #a0aec0; /* Muted gray for the message */
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-container {
+    margin: 20px; /* Reduced margin on smaller screens */
+    padding: 15px;
+    border-radius: 10px; /* Slightly less rounded */
+  }
+
+  .product-table th,
+  .product-table td {
+    padding: 15px 18px; /* Adjusted padding */
+    font-size: 14px;
+  }
+
+  .product-table th {
+    letter-spacing: 0.5px;
+  }
+
+  .product-info {
+    flex-direction: column; /* Stack image and text on small screens */
+    align-items: flex-start; /* Align to the left */
+    gap: 8px; /* Smaller gap when stacked */
+  }
+
+  .product-info img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+  }
+
+  .product-info p {
+    font-size: 15px;
+  }
+
+  .product-info span {
+    font-size: 0.8em;
+  }
+
+  .stock-column {
+    text-align: left; /* Align stock text left on mobile */
+    min-width: 120px;
+  }
+
+  .stock {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: 80px;
+  }
+
+  .view-btn,
+  .edit-btn,
+  .delete-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    margin: 0 5px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Lighter shadow on mobile */
+  }
+
+  .view-btn:hover,
+  .edit-btn:hover,
+  .delete-btn:hover {
+    transform: translateY(-1px); /* Less pronounced lift */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
 }

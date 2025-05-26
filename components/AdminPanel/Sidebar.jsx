@@ -8,13 +8,15 @@ import {
   Settings,
   Tag,
   Gift,
-  LogOut
+  LogOut,
+  PackageX
 } from 'lucide-react';
+import { useUserContext } from './Context/ManageUsersContext.jsx';
 import './styles/sidebar.css';
 
 const Sidebar = () => {
   const [expandedMenu, setExpandedMenu] = useState(null);
-
+  const { logout } = useUserContext();
   const toggleSubMenu = (menuName) => {
     setExpandedMenu(expandedMenu === menuName ? null : menuName);
   };
@@ -39,7 +41,7 @@ const Sidebar = () => {
           <span>Orders</span>
         </NavLink>
         <NavLink to="/admin/manage-return" className="sidebar-menu-item">
-          <Gift className="sidebar-menu-icon" />
+          <PackageX className="sidebar-menu-icon" />
           <span>Returns</span>
         </NavLink>
         {/* Customers */}
@@ -69,23 +71,14 @@ const Sidebar = () => {
               <NavLink to="/admin/products/manage" className="sidebar-submenu-item">
                 <span>Manage Product</span>
               </NavLink>
-              <NavLink to="/admin/categories/manage" className="sidebar-submenu-item">
-                <span>Manage Categories</span>
-              </NavLink>
             </div>
           )}
         </div>
-
-        {/* Settings */}
-        {/* <NavLink to="/admin/settings" className="sidebar-menu-item">
-          <Settings className="sidebar-menu-icon" />
-          <span>Settings</span>
-        </NavLink> */}
       </nav>
 
       {/* Logout */}
       <div className="sidebar-footer">
-        <button className="sidebar-logout-button">
+        <button className="sidebar-logout-button" onClick={logout}>
           <LogOut className="sidebar-logout-icon" />
           <span>Logout</span>
         </button>

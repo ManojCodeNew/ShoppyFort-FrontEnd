@@ -2,7 +2,7 @@
 
 /* Order Section - More compact */
 .order-section {
-  background: $hover-color;
+  background: $white;
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -24,7 +24,8 @@
 
 /* Order Card - More compact with better spacing */
 .order-card {
-  background: white;
+    background: linear-gradient(145deg, #f8fffa, #c3c3c3c2); /* Subtle gradient */
+
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

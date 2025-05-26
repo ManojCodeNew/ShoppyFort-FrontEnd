@@ -1,38 +1,43 @@
+/* Main container styles */
 .admin-container {
   min-height: 100vh;
   background-color: #f9fafb;
   display: flex;
 }
+
 .admin-main-content {
   flex: 1;
-  width: 20rem;
+  width: 100%;
   margin: 1rem;
   padding: 1rem;
 }
 
+/* Dashboard header styles */
 .dashboard-header {
   margin-bottom: 2rem;
-  background-color: #00000000;
 }
 
 .header-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #000000;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
 }
 
 .header-subtitle {
-  color: #000000;
-  margin-top: 0.25rem;
+  color: #6b7280;
+  font-size: 1rem;
 }
 
+/* Stats grid layout */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 1rem;
+  gap: 1.25rem;
   margin-bottom: 2rem;
 }
 
+/* Responsive grid layouts */
 @media (min-width: 768px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -45,8 +50,190 @@
   }
 }
 
+/* Stat card styles */
+.stat-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-title {
+  color: #4b5563;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.stat-icon-container {
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-container.positive {
+  background-color: #d1fae5;
+}
+
+.stat-icon-container.negative {
+  background-color: #fee2e2;
+}
+
+.stat-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.stat-icon-container.positive .stat-icon {
+  color: #10b981;
+}
+
+.stat-icon-container.negative .stat-icon {
+  color: #ef4444;
+}
+.stat-icon-container .custom-icon-text {
+    font-size: 1.2rem; 
+    font-weight: bold;
+    color: inherit;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    width: 100%; 
+    height: 100%;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.change-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.change-value.positive {
+  color: #10b981;
+}
+
+.change-value.negative {
+  color: #ef4444;
+}
+
+.change-label {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: 0.25rem;
+}
+
+/* Recent orders section */
+.recent-orders-container {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.section-header {
+  margin-bottom: 1.25rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.orders-table-container {
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.orders-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+}
+
+.orders-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge.delivered {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.processing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.no-orders-message {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 2rem 0;
+}
+
+/* Orders grid layout */
 .orders-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }

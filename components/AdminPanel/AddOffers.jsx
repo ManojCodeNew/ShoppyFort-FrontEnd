@@ -3,6 +3,7 @@ import { useNotification } from '../Notify/NotificationProvider.jsx';
 import Loader from '../Load/Loader.jsx';
 import './styles/AddOffers.css';
 import { useAdminOffers } from './Context/AdminOffersContext.jsx';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const AddOffers = () => {
     const [title, setTitle] = useState('');
@@ -40,7 +41,7 @@ const AddOffers = () => {
         formData.append('productIds', JSON.stringify(productIds)); // Send productIds as a JSON string
 
         try {
-            const response = await fetch('http://localhost:3000/admin/upload/offer', {
+            const response = await fetch(`${API_BASE_URL}/admin/upload/offer`, {
                 method: 'POST',
                 body: formData,
             });

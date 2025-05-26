@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import '../../styles/components/Address.scss';
 import sendPostRequestToBackend from '../Request/Post.jsx';
 import sendGetRequestToBackend from '../Request/Get.jsx';
@@ -54,30 +54,9 @@ export default function Address() {
   const [orderPlacementInitiated, setOrderPlacementInitiated] = useState(false);
 
   const { wallet, processWalletPayment, loading: walletLoading } = useWallet();
-  console.log("Wallet :", wallet);
+  // console.log("Wallet :", wallet);
 
-
-
-  useEffect(() => {
-    if (user) {
-      fetchAddress();
-      fetchCartItems();
-      if (paymentMethod === 'Online') {
-        document.querySelector('.payment-form')?.scrollIntoView({ behavior: 'smooth' });
-      }
-      if (!cartItems.length) {
-        showNotification("Your cart is empty", "error")
-        navigate("/");
-        return;
-      }
-    }
-    if (wallet.balance > 0) {
-      setWalletUsed(Math.min(wallet.balance, totalCost));
-      setRemainingAmount(Math.max(0, totalCost - wallet.balance));
-    }
-  }, [orderDetails, paymentMethod, wallet, totalCost])
-
-  const fetchAddress = async () => {
+  const fetchAddress = useCallback(async () => {
     setLoading(true);
     try {
       const response = await sendGetRequestToBackend(`checkout/Address`, token);
@@ -93,9 +72,31 @@ export default function Address() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, showNotification]);
 
+  useEffect(() => {
+    if (user) {
+      fetchAddress();
+      fetchCartItems();
+      if (paymentMethod === 'Online') {
+        document.querySelector('.payment-form')?.scrollIntoView({ behavior: 'smooth' });
+      }
+      if (!cartItems.length) {
+        showNotification("Your cart is empty", "error")
+        navigate("/");
+        return;
+      }
+    }
 
+  }, [orderDetails, paymentMethod, user, cartItems.length, navigate, showNotification]);
+
+  useEffect(() => {
+    if (wallet && wallet.balance > 0) {
+      const usableAmount = Math.min(wallet?.balance, totalCost);
+      setWalletUsed(parseFloat(usableAmount.toFixed(2)));
+      setRemainingAmount(parseFloat(Math.max(0, totalCost - usableAmount).toFixed(2)));
+    }
+  }, [wallet, totalCost]);
 
   // store form data to the state
   const handleChange = (e) => {
@@ -176,31 +177,56 @@ export default function Address() {
     setOrderPlacementInitiated(true);
     setLoading(true);
 
-    let paymentResult = { success: true, remainingAmount: 0 };
-
+    let orderData;
     if (useWalletMoney) {
-      paymentResult = await processWalletPayment(
+      let paymentResult = await processWalletPayment(
         totalCost,
         orderDetails.orderid,
         'wallet'
       );
+
       if (!paymentResult.success) {
         setLoading(false);
         setOrderPlacementInitiated(false);
         return;
       }
       console.log("paymentResult", paymentResult);
+      orderData = {
+        ...orderDetails,
+        paymentMethod: useWalletMoney ?
+          (paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet') :
+          paymentMethod,
+        paymentDetails: {
+          amount: totalCost,
+          currency: 'aed',
+          method: 'wallet',
+          status: 'succeeded'
+        },
+        amountPaidFromWallet: paymentResult?.amountPaid || 0,
+        isPaid: paymentResult.remainingAmount === 0
+      };
+
+    } else if (paymentMethod === 'COD') {
+      orderData = {
+        ...orderDetails,
+        paymentMethod: 'COD',
+        paymentDetails: {
+          method: 'cash',
+          status: 'pending',
+          amount: totalCost,
+          currency: 'aed'
+        },
+        isPaid: false, // COD orders aren't paid upfront
+        amountPaidFromWallet: 0
+      };
+
+    } else {
+      // Online payment handled by PaymentForm component
+      return;
     }
+    console.log("Final Order Data in Address.jsx", orderData);
 
 
-    const orderData = {
-      ...orderDetails,
-      paymentMethod: useWalletMoney ?
-        (paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet') :
-        paymentMethod,
-      isPaid: paymentMethod === 'Online' || (useWalletMoney && paymentResult.remainingAmount === 0)
-    }
-    console.log("Final Order Data", orderData);
 
     setOrderDetails(orderData);
     setLoading(true);
@@ -220,7 +246,6 @@ export default function Address() {
     } finally {
       setLoading(false);
     }
-    // }
 
   }
 
@@ -347,7 +372,7 @@ export default function Address() {
                   <label>Cash on Delivery</label>
                 </div>
 
-                {wallet.balance > 0 && (
+                {wallet?.balance > 0 && (
                   <div className="wallet_method">
                     <input
                       type="radio"
@@ -358,12 +383,12 @@ export default function Address() {
                         setPaymentMethod(null);
                       }}
                     />
-                    <label>Pay with Wallet (₹{wallet.balance.toFixed(2)} available)</label>
+                    <label>Pay with Wallet (AED {wallet.balance.toFixed(2)} available)</label>
                     {useWalletMoney && (
                       <div className="wallet-payment-info">
-                        <p>Using ₹{walletUsed.toFixed(2)} from wallet</p>
+                        <p>Using AED {walletUsed.toFixed(2)} from wallet</p>
                         {remainingAmount > 0 && (
-                          <p>Remaining: ₹{remainingAmount.toFixed(2)}</p>
+                          <p>Remaining: AED {remainingAmount.toFixed(2)}</p>
                         )}
                       </div>
                     )}

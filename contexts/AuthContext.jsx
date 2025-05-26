@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const fetchUser = async () => {
       const storedToken = localStorage.getItem(TOKEN_TYPE);
-      console.log("Stored token:", storedToken);
+      // console.log("Stored token:", localStorage.getItem("token"));
 
       if (storedToken) {
         try {

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import "./Loader.css"
 const Loader = () => {
     return (
-        <div className="loader-container">
+        <div className="loader-overlay">
             <motion.div
                 className="loader"
                 animate={{ rotate: 360 }}

@@ -9,7 +9,7 @@ import { AddressProvider } from './contexts/AddressContext';
 import { OrderDetailsProvider } from './contexts/OrderDetailsContext';
 import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext';
 import { BrowserRouter } from 'react-router-dom';
-import AdminProductsProvider from './components/AdminPanel/Context/AdminProductsContext.jsx';
+import { AdminProductsProvider } from './components/AdminPanel/Context/AdminProductsContext.jsx';
 import { NotificationProvider } from './components/Notify/NotificationProvider.jsx';
 import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext.jsx';
 import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturnContext.jsx';
@@ -33,9 +33,9 @@ root.render(
                     <OrderProvider>
                       <AddressProvider>
                         <WishlistProvider>
-                          <AdminOffersProvider>
-                            <OrderDetailsProvider>
-                              <AdminProductsProvider>
+                          <AdminProductsProvider>
+                            <AdminOffersProvider>
+                              <OrderDetailsProvider>
                                 <UserNotificationsProvider>
                                   <ManageReturnProvider>
                                     <OffersProvider>
@@ -43,9 +43,9 @@ root.render(
                                     </OffersProvider>
                                   </ManageReturnProvider>
                                 </UserNotificationsProvider>
-                              </AdminProductsProvider>
-                            </OrderDetailsProvider>
-                          </AdminOffersProvider>
+                              </OrderDetailsProvider>
+                            </AdminOffersProvider>
+                          </AdminProductsProvider>
                         </WishlistProvider>
                       </AddressProvider>
                     </OrderProvider>

@@ -1,156 +1,411 @@
+/* General Body and Container Styles */
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; /* Modern, widely available fonts */
+    background-color: #f8f9fa; /* Very light gray background */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #343a40; /* Dark gray for general text */
+}
+
 .returns-container {
-  margin: 10px;
-  padding: 20px;
-  background-color: #f9f9f9;
+    max-width: 1100px; /* Slightly wider for better table display */
+    margin: 40px auto; /* Centering with good vertical spacing */
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 8px; /* Standard rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft, professional shadow */
 }
 
 .returns-container h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  color: #333;
+    font-size: 28px;
+    color: #212529; /* Darker heading for strong presence */
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 600; /* Medium-bold for headings */
+    border-bottom: 2px solid #e9ecef; /* Subtle underline */
+    padding-bottom: 15px;
 }
 
+/* Table Styles */
 .returns-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  overflow: hidden;
+    width: 100%;
+    border-collapse: collapse; /* Standard collapse for tables */
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners are applied */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow for the table itself */
 }
 
 .returns-table th,
 .returns-table td {
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+    padding: 14px 18px; /* Good padding for comfortable reading */
+    text-align: left;
+    border-bottom: 1px solid #dee2e6; /* Light border for separation */
+    font-size: 15px;
+    vertical-align: middle; /* Align content nicely */
 }
 
 .returns-table th {
-  background-color: #f1f1f1;
-  font-weight: 600;
-  color: #444;
+    background-color: #e9edf2; /* Very light blue-gray header background */
+    font-weight: 600;
+    color: #495057; /* Slightly darker gray for headers */
+    text-transform: uppercase; /* Professional look */
+    font-size: 13px;
+    letter-spacing: 0.5px;
 }
 
+.returns-table tbody tr:last-child td {
+    border-bottom: none; /* No border for the last row */
+}
+
+.returns-table tbody tr:hover {
+    background-color: #f0f4f7; /* Gentle hover effect */
+}
+
+/* Status Badges (Improved) */
+.returns-table td .status-completed,
+.returns-table td .status-rejected {
+    display: inline-block; /* Allows padding and margin */
+    padding: 6px 12px;
+    border-radius: 20px; /* Pill shape */
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize; /* Neater display */
+    min-width: 80px; /* Ensures consistent width */
+    text-align: center;
+}
+
+.status-completed {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green text */
+}
+
+.status-rejected {
+    background-color: #f8d7da; /* Light red */
+    color: #721c24; /* Dark red text */
+}
+
+
+/* Action Buttons and Selects */
 .expand-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  margin-right: 10px;
-  color: #007bff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 12px;
+    color: #6c757d;
+    transition: color 0.2s ease-in-out;
 }
 
 .expand-btn:hover {
-  color: #0056b3;
+    color: #007bff;
 }
 
 .btn {
-  padding: 6px 12px;
-  margin-left: 5px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
+    padding: 8px 15px;
+    margin-left: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn.primary {
-  background-color: #28a745;
-  color: white;
+    background-color: #28a745; /* Bootstrap success green */
+    color: white;
 }
 
 .btn.primary:hover {
-  background-color: #218838;
+    background-color: #218838;
+    box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
 }
 
 .btn.secondary {
-  background-color: #ffc107;
-  color: #212529;
+    background-color: #6c757d; /* Bootstrap secondary gray */
+    color: white; /* Changed to white for better contrast */
 }
 
 .btn.secondary:hover {
-  background-color: #e0a800;
+    background-color: #5a6268;
+    box-shadow: 0 2px 5px rgba(108, 117, 125, 0.2);
 }
 
 .btn.danger {
-  background-color: #dc3545;
-  color: white;
+    background-color: #dc3545; /* Bootstrap danger red */
+    color: white;
 }
 
 .btn.danger:hover {
-  background-color: #c82333;
+    background-color: #c82333;
+    box-shadow: 0 2px 5px rgba(220, 53, 69, 0.2);
 }
 
 select {
-  padding: 5px;
-  font-size: 14px;
-  margin-left: 5px;
+    padding: 7px 10px;
+    font-size: 14px;
+    margin-left: 8px;
+    border: 1px solid #ced4da; /* Light gray border */
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+select:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Focus ring effect */
+}
+
+/* Product Details Section */
 .product-details-row td {
-  background-color: #fefefe;
-  padding: 16px;
-  border-top: 1px solid #ccc;
+    background-color: #fcfdfe; /* Slightly different background for expanded row */
+    padding: 20px;
+    border-top: 1px solid #e9ecef; /* Matches main table border */
 }
 
-.details-toggle-bar {
-  margin-bottom: 10px;
-  text-align: right;
-}
-
-.toggle-mode-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.toggle-mode-btn:hover {
-  background-color: #0056b3;
-}
 .product-details-section {
-  background-color: #d6d6d679;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 8px;
-}
-
-.product-details-content {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap; /* Optional: wrap on small screens */
+    background-color: #f8f9fa; /* Lightest gray for inner section */
+    border: 1px solid #e0e6ed; /* Soft border */
+    border-radius: 8px;
+    padding: 18px;
+    margin-top: 10px;
+    display: flex; /* Flexbox for alignment */
+    align-items: center;
+    gap: 20px;
 }
 
 .product-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+    width: 60px; /* Slightly larger image */
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px; /* Slightly less rounded than container */
+    border: 1px solid #c5c9d4; /* Subtle image border */
 }
 
 .product-details-meta {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  font-size: 14px;
-  color: #333;
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    gap: 15px 30px; /* Good spacing between items */
+    font-size: 14px;
+    color: #495057;
 }
 
 .product-details-meta span {
-  white-space: nowrap;
-  display: flex;
-  gap: 4px;
-  align-items: center;
+    white-space: nowrap; /* Keep label and value on one line */
 }
 
 .product-details-meta strong {
-  color: #000;
-  font-weight: 600;
+    color: #343a40;
+    font-weight: 600;
+}
+
+/* OTP Verification Container */
+.otp-verification-container {
+    background-color: #f1f4f8; /* Light blueish background */
+    border: 1px solid #d3d9e0; /* Matching border */
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap */
+    align-items: center;
+    gap: 10px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); /* Subtle inner shadow */
+}
+
+.otp-verification-container p {
+    margin: 0;
+    font-size: 14px;
+    color: #343a40;
+    flex-shrink: 0; /* Don't shrink the label */
+}
+
+.otp-verification-container input[type="text"] {
+    padding: 8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100px; /* Consistent width */
+    text-align: center;
+    letter-spacing: 1.5px; /* Slightly spaced letters */
+    flex-grow: 0; /* Don't let it grow */
+}
+
+.verifyOtp-btn, .otp-verification-container button {
+    background-color: #007bff; /* Standard blue */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.verifyOtp-btn:hover:not(:disabled), .otp-verification-container button:hover:not(:disabled) {
+    background-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+.verifyOtp-btn:disabled {
+    background-color: #a0c9f1;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.countdown-text {
+    font-size: 12px;
+    color: #6c757d;
+    margin-left: 10px;
+    flex-basis: 100%; /* Take full width on small screens */
+    text-align: center; /* Center on its own line */
+}
+
+
+/* Confirm Modal Overlay */
+.confirm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4); /* Softer overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.confirm-modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Clearer shadow for modal */
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    transform: translateY(-20px); /* Slight lift effect */
+    opacity: 0;
+    animation: modalFadeIn 0.3s forwards ease-out;
+}
+
+@keyframes modalFadeIn {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.confirm-modal-content h3 {
+    margin-top: 0;
+    color: #212529;
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.confirm-modal-content p {
+    font-size: 16px;
+    color: #495057;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.confirm-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirm-btn,
+.confirm-cancel-btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.confirm-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background-color: #218838;
+    box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2);
+}
+
+.confirm-cancel-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.confirm-cancel-btn:hover {
+    background-color: #5a6268;
+    box-shadow: 0 2px 5px rgba(108, 117, 125, 0.2);
+}
+
+/* Loader */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px; /* Ensure loader is visible */
+}
+
+/* No specific mobile table adjustments as per request, it will scroll horizontally */
+@media (max-width: 768px) {
+    .returns-container {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .returns-table {
+        /* Enable horizontal scrolling for smaller screens if content overflows */
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap; /* Prevent content from wrapping inside cells */
+    }
+
+    .returns-table thead, .returns-table tbody, .returns-table th, .returns-table td, .returns-table tr {
+        /* Reset any previous block display that might be inherited */
+        display: table-row; /* Revert to default table display */
+    }
+     .returns-table th,
+    .returns-table td {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .product-details-section {
+        flex-direction: column; /* Stack image and details */
+        align-items: flex-start;
+    }
+
+    .product-details-meta {
+        flex-direction: column; /* Stack product meta info */
+        gap: 10px;
+    }
+
+    .otp-verification-container {
+        flex-direction: column;
+        align-items: stretch; /* Stretch items to fill container */
+    }
+    .otp-verification-container input[type="text"] {
+        width: 100%; /* Make input full width */
+        max-width: 150px; /* Keep it reasonable */
+        margin: auto; /* Center it */
+    }
+    .countdown-text {
+        text-align: left; /* Align left if it wraps to new line */
+        margin-left: 0;
+    }
 }

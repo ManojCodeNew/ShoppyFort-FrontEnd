@@ -1,8 +1,8 @@
 import React from "react";
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import sendGetRequestToBackend from "@/components/Request/Get";
-import sendPostRequestToBackend from "@/components/Request/Post";
-import { useNotification } from "@/components/Notify/NotificationProvider";
+import sendGetRequestToBackend from "@/components/Request/Get.jsx";
+import sendPostRequestToBackend from "@/components/Request/Post.jsx";
+import { useNotification } from "@/components/Notify/NotificationProvider.jsx";
 import { useUserContext } from "./ManageUsersContext.jsx";
 // Create Context
 const OrderContext = createContext();
@@ -12,7 +12,7 @@ export function OrderProvider({ children }) {
     const [ordersData, setOrdersData] = useState([]);
     const { showNotification } = useNotification();
     const [totalOrders, setTotalOrders] = useState(null);
-    const { allUsers,token } = useUserContext();
+    const { allUsers, token } = useUserContext();
 
     // Add username to each order
     const enhanceOrdersWithUsernames = useCallback((orders, users) => {
@@ -39,6 +39,7 @@ export function OrderProvider({ children }) {
     const fetchOrders = useCallback(async () => {
         if (!token) return [];
         try {
+
             const response = await sendGetRequestToBackend("admin/orders", token); // Send token to backend
             if (response?.success) {
                 const enhancedOrders = enhanceOrdersWithUsernames(response.orders, allUsers);
@@ -55,38 +56,45 @@ export function OrderProvider({ children }) {
     }, [token, allUsers, enhanceOrdersWithUsernames, handleError]);
 
 
-       // ✅ Function to Update Order Status (Shipped, Delivered, etc.)
-       const updateOrderStatus = useCallback(async (orderId, newStatus) => {
+    // ✅ Function to Update Order Status (Shipped, Delivered, etc.)
+    const updateOrderStatus = useCallback(async (orderId, newStatus) => {
         if (!token) return;
         try {
             // Create the payload object
-            const payload = { 
-                orderid: orderId, 
-                status: newStatus 
+            const payload = {
+                orderid: orderId,
+                status: newStatus
             };
-            
+
             // Add deliveredAt timestamp if status is "delivered"
+            const now = new Date().toISOString();
             if (newStatus.toLowerCase() === "delivered") {
-                payload.deliveredAt = new Date().toISOString();
+                payload.deliveredAt = now;
+            } else if (newStatus.toLowerCase() === "shipped") {
+                payload.shippedAt = now;
+            } else if (newStatus.toLowerCase() === "cancelled") {
+                payload.cancelledAt = now;
             }
-            
+
             // Optimistic update for UI
             setOrdersData(prevOrders =>
                 prevOrders.map(order =>
-                    order.orderid === orderId ? 
-                    { 
-                        ...order, 
-                        status: newStatus,
-                        // Also update deliveredAt in local state if status is delivered
-                        ...(newStatus.toLowerCase() === "delivered" && { deliveredAt: payload.deliveredAt })
-                    } : order
+                    order.orderid === orderId ?
+                        {
+                            ...order,
+                            status: newStatus,
+                            ...(newStatus.toLowerCase() === "delivered" && { deliveredAt: payload.deliveredAt }),
+                            ...(newStatus.toLowerCase() === "shipped" && { shippedAt: payload.shippedAt }),
+                            ...(newStatus.toLowerCase() === "cancelled" && { cancelledAt: payload.cancelledAt }),
+
+                        } : order
                 )
             );
-            
+
             // Send request to backend
             const response = await sendPostRequestToBackend(
                 "admin/orders/updateStatus",
-                payload, // Send status update with deliveredAt if applicable
+                payload,
                 token
             );
 
@@ -95,10 +103,10 @@ export function OrderProvider({ children }) {
                 fetchOrders();
                 throw new Error(response?.error || "Failed to update status");
             }
-            
+
             // Show success notification
             if (newStatus.toLowerCase() === "delivered") {
-                showNotification("Order marked as delivered. Return window is now active for 3 days.", "success");
+                showNotification("Order marked as delivered. Return window is now active for 2 days.", "success");
             } else {
                 showNotification("Status updated successfully", "success");
             }
@@ -107,7 +115,7 @@ export function OrderProvider({ children }) {
             handleError(error);
         }
     }, [token, showNotification, fetchOrders, handleError]);
-    
+
     // ✅ Send OTP Notification
     const sendOtpToBackend = useCallback(async (otpData) => {
         if (!token) return null;
@@ -155,7 +163,6 @@ export function OrderProvider({ children }) {
             return () => controller.abort();
         }
     }, [token, fetchOrders]);
-console.log("ordersData", ordersData);
 
     const value = { ordersData, fetchOrders, updateOrderStatus, sendOtpToBackend, getOtpOnDb, totalOrders }
     return (

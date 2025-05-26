@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext.jsx';
 import sendPostRequestToBackend from '../Request/Post.jsx';
 import "@/styles/checkout/PaymentForm.scss";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const CARD_ELEMENT_OPTIONS = {
     style: {
         base: {
@@ -53,12 +55,13 @@ const PaymentForm = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/payments/create-payment-intent`, {
+            const response = await fetch(`${API_BASE_URL}/payments/create-payment-intent`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: Math.round(totalCost * 100) }), // Replace with actual amount and currency
+                body: JSON.stringify({ amount: Math.round(totalCost * 100) }),
             });
             const data = await response.json();
+            console.log("Payment Response:", data);
             if (!response.ok) {
                 showNotification(`HTTP error! status: ${response.status}`, "error");
                 setLoading(false);
@@ -79,23 +82,44 @@ const PaymentForm = () => {
                         },
                     },
                 });
-
+            console.log("Stripe Payment Intent:", paymentIntent);
             if (stripeError) {
                 setError(stripeError.message);
                 showNotification(stripeError.message, 'error');
                 setLoading(false);
                 return;
             } else if (paymentIntent.status === 'succeeded') {
-                // Payment successful! Now place the order
-                const orderData = { ...orderDetails, paymentMethod: 'Online', isPaid: true, paymentIntentId: paymentIntent.id, zipCode };
-                const orderResponse = await sendPostRequestToBackend('order/addOrder', orderData, token);
+                try {
+                    // Payment successful! Now place the order
+                    const orderData = {
+                        ...orderDetails,
+                        paymentMethod: 'Online',
+                        isPaid: true,
+                        paymentDetails: {
+                            paymentIntentId: paymentIntent.id,
+                            amount: paymentIntent.amount / 100, // Convert to base unit
+                            currency: paymentIntent.currency,
+                            method: 'card',
+                            cardLast4: paymentIntent.payment_method?.card?.last4 || '',
+                            status: paymentIntent.status
+                        },
+                        zipCode,
+                    };
+                    console.log("Final Order Data:", orderData);
 
-                if (orderResponse.success) {
-                    clearCart();
-                    navigate('/successToOrder');
-                } else {
-                    showNotification(orderResponse.error || "Order placement failed.", "error");
+                    const orderResponse = await sendPostRequestToBackend('order/addOrder', orderData, token);
+
+                    if (orderResponse.success) {
+                        clearCart();
+                        navigate('/successToOrder');
+                    } else {
+                        showNotification(orderResponse.error || "Order placement failed.", "error");
+                    }
+                } catch (error) {
+                    console.error("Order placement error:", err);
+                    showNotification(err.message, "error");
                 }
+
             } else if (paymentIntent.status === 'requires_action' || paymentIntent.status === 'requires_payment_method') {
                 setError('Authentication required or payment method declined. Please try another card.');
                 showNotification('Payment failed: Authentication required or card was declined.', 'error');

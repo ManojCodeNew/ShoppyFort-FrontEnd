@@ -14,6 +14,7 @@ const ProductTable = () => {
 
     return (
         <div className="table-container">
+            <h1 className="manage-product-title">Manage Product</h1>
             <table className="product-table">
                 <thead>
                     <tr>

@@ -13,7 +13,7 @@ export function ManageReturnProvider({ children }) {
     const { showNotification } = useNotification();
     const { ordersData, fetchOrders } = useOrderContext();
     const { allUsers, token } = useUserContext();
-    console.log("Order Data :", ordersData);
+
     // Fetch Returns (Authenticated Request)
     const fetchReturns = useCallback(async () => {
         if (!token) return;
@@ -29,8 +29,6 @@ export function ManageReturnProvider({ children }) {
             const returnsResult = await sendGetRequestToBackend('admin/returns', token);
 
             if (returnsResult.success) {
-                console.log("Return Data :", returnsResult.returns);
-
                 const enhancedReturns = returnsResult.returns?.map((returnItem) => {
 
                     // Find the corresponding order using orderid
@@ -40,7 +38,6 @@ export function ManageReturnProvider({ children }) {
                     const product = order?.items?.find(p => p._id === returnItem.productid);
 
                     const user = allUsers?.find(u => u._id === returnItem.userid);
-                    console.log("Return user Result  :", user);
 
                     return {
                         ...returnItem,
@@ -60,7 +57,6 @@ export function ManageReturnProvider({ children }) {
             console.error("Error fetching returns:", error);
         }
     }, [token, showNotification, fetchOrders, ordersData]);
-    console.log("returns :", returns);
 
     // Update Return Status
     const updateStatus = useCallback(
@@ -74,12 +70,17 @@ export function ManageReturnProvider({ children }) {
                         )
                     );
                     showNotification(`Status updated to ${status}`, "success");
+                    return true;
                 } else {
                     showNotification(response.error || "Failed to update status", "error");
+                    return false;
+
                 }
             } catch (error) {
                 showNotification("Failed to update status", "error");
                 console.error("Error updating status:", error);
+                return false;
+
             }
         },
         [showNotification]
@@ -93,22 +94,26 @@ export function ManageReturnProvider({ children }) {
                 if (response.success) {
                     setReturns((prev) => prev.filter((item) => item._id !== id));
                     showNotification("Return request deleted", "success");
+                    return true;
                 } else if (response.error || response.msg) {
                     showNotification(response.msg || response.error, "error");
+                    return false;
+
                 }
             }
             catch (error) {
                 showNotification("Failed to delete return request", "error");
                 console.error("Error deleting return request:", error);
+                return false;
+
             }
         },
-        [showNotification]
+        [showNotification, token]
     );
 
     // ✅ Send OTP Notification
     const sendReturnOtpToBackend = useCallback(async (otpData) => {
         if (!token) return null;
-        console.log("Otp Return Data :", otpData);
 
         try {
             const response = await sendPostRequestToBackend(
@@ -119,11 +124,16 @@ export function ManageReturnProvider({ children }) {
 
             if (response.success) {
                 showNotification("OTP sent successfully", "success");
+                return true;
             } else {
                 showNotification("Failed to send OTP", "error");
+                return false;
+
             }
         } catch (error) {
             showNotification("Error sending OTP", "error");
+            return false;
+
         }
     }, [token, showNotification]);
 
@@ -146,22 +156,21 @@ export function ManageReturnProvider({ children }) {
     }, [token, showNotification]);
 
     const creditMoneyToWallet = useCallback(async (returnid, amount) => {
-        console.log("creditMoneyWallet");
 
         try {
             const response = await sendPostRequestToBackend("admin/wallet/credit", { returnid, amount }, token);
-            console.log("Response of Wallet :", response);
 
-            if (response?.success) {
-                showNotification("Wallet credited successfully", "success");
-                console.log("Updated Wallet:", response.wallet);
-
+            if (response?.success || response?.alreadyWalletCredited) {
+                showNotification("Wallet credited successfully" || response.error, "success");
+                return true;
             } else {
                 showNotification(response?.error || "Failed to credit wallet", "error");
+                return false;
             }
         } catch (error) {
             showNotification("An error occurred while crediting the wallet", "error");
             console.error("Credit Wallet Error:", error);
+            return false;
 
         }
     }, [token, showNotification]);
@@ -171,7 +180,7 @@ export function ManageReturnProvider({ children }) {
         if (shouldFetch) {
             fetchReturns();
         }
-    }, [token, allUsers, ordersData]);
+    }, [token, allUsers, ordersData, fetchReturns]);
 
 
     const value = { returns, fetchReturns, setReturns, updateStatus, deleteReturn, sendReturnOtpToBackend, getReturnOtpOnDb, creditMoneyToWallet };

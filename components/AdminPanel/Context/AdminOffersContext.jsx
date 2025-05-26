@@ -15,8 +15,6 @@ function AdminOffersProvider({ children }) {
         try {
             const response = await sendGetRequestToBackend("admin/offers", token);
             if (response.offers) {
-                console.log("Offers :",response.offers);
-                
                 setOffers(response.offers);
             } else if (response.error) {
                 showNotification(response.error, "error");

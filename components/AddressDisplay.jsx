@@ -26,7 +26,9 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     const setOrderDetailsDataToContext = () => {
         if (token) {
             const generateOrderId = () => {
-                return `SH-${Math.floor(1000 + Math.random() * 9000)}`; // Generates SH-XXXX (4-digit number)
+                const timestamp = Date.now().toString(36);
+                const randomStr = Math.random().toString(36).substring(2, 6);
+                return `SH-${timestamp}-${randomStr}`.toUpperCase();
             };
 
             const shippingAddress = addressData.find(address => address._id === selectedAddress);

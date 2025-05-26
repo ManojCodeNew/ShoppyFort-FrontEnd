@@ -127,7 +127,7 @@ export const OrderDetailsProvider = ({ children }) => {
         user,
         allReturns,
         cancelOrder
-    }), [orderDetails, allOrder, user, allReturns, token])
+    }), [orderDetails, allOrder, user, allReturns, token,submitReturnRequest,cancelOrder,fetchOrders])
 
     return (
         <OrderDetailsContext.Provider value={value}>

@@ -4,25 +4,44 @@ import { useWallet } from '@/contexts/WalletContext.jsx';
 import walletIcon from '../assets/Images/wallet.png';
 import { FiArrowUpRight, FiArrowDownLeft, FiClock } from 'react-icons/fi';
 import { format } from 'date-fns';
-
+import { useProducts } from '@/contexts/ProductsContext';
+import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 export default function Wallet() {
     const { getWallet, wallet } = useWallet();
     const [balance, setBalance] = useState(0);
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { allOrder, fetchOrders } = useOrderDetails();
+    const { products, fetchProducts } = useProducts();
+    console.log("All data", allOrder, products);
 
     useEffect(() => {
-        getWallet(); // fetch once
-    }, [getWallet]);
+        const fetchData = async () => {
+            getWallet();
+            await fetchProducts();
+            await fetchOrders();
+        };
+        fetchData();
+    }, [getWallet, fetchProducts, fetchOrders]);
 
     useEffect(() => {
         if (wallet !== null) {
             setBalance(wallet.balance);
-            setTransactions(wallet.transactions || [])
+            setTransactions(wallet.transactions || []);
         }
         setLoading(false);
     }, [wallet]);
 
+    const getOrderId = (orderid) => {
+        return allOrder.find(order => order._id === orderid);
+    }
+
+    const getProductId = (productObj) => {
+        if (!productObj || !productObj._id) return 'N/A';
+
+        const matchedItem = products.find(item => item._id === productObj._id);
+        return matchedItem?.productid || 'N/A';
+    };
 
     const formatDate = (dateString) => {
         return format(new Date(dateString), 'MMM dd, yyyy • hh:mm a');
@@ -79,7 +98,9 @@ export default function Wallet() {
                                         <div className="transaction-info">
                                             <span className="description">{txn.note}</span>
                                             <span className="date">{formatDate(txn.date)}</span>
-                                            {txn.orderid && <span className="order-id">Order: {txn.orderid}</span>}
+                                            {txn.orderid && <span className="order-id">Order: {getOrderId(txn.orderid)?.orderid || 'N/A'}</span>}
+
+                                            {txn.productid && <span className="order-id">Product Id: {getProductId(txn.productid)}</span>}
                                         </div>
                                         <div className="transaction-amount">
                                             <span className={`amount ${txn.type}`}>
