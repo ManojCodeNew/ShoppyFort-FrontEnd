@@ -38,7 +38,6 @@ const SearchBar = ({ onSearch }) => {
       product.category.toLowerCase().includes(searchQuery.toLowerCase())||
       product.gender.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    console.log("SEARH RESULT", searchResults);
 
     setResults(searchResults);
     setIsOpen(true);

@@ -120,6 +120,42 @@ export default function Address() {
       savedaddressas: buttonType,
     }));
   };
+  const validateAddressFields = (address, showNotification) => {
+    const requiredFields = [
+      { key: 'username', label: 'Name' },
+      { key: 'mobileno', label: 'Mobile Number' },
+      { key: 'pincode', label: 'Pin Code' },
+      { key: 'deliveryaddress', label: 'Address' },
+      { key: 'locality', label: 'Locality/Town' },
+      { key: 'city', label: 'City/District' },
+      { key: 'state', label: 'State' },
+      { key: 'savedaddressas', label: 'Home or Work (Save As)' },
+    ];
+
+    for (const field of requiredFields) {
+      if (!address[field.key] || address[field.key].trim() === '') {
+        showNotification(`Please fill out the ${field.label}`, 'error');
+
+        // Try to scroll to the missing field
+        const inputElement = document.querySelector(`[name="${field.key}"]`);
+        if (inputElement) inputElement.scrollIntoView({ behavior: 'smooth' });
+        return false;
+      }
+    }
+
+    // Optional format checks
+    if (!/^\d{6}$/.test(address.pincode)) {
+      showNotification('Please enter a valid 6-digit pin code', 'error');
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(address.mobileno)) {
+      showNotification('Please enter a valid 10-digit mobile number', 'error');
+      return false;
+    }
+
+    return true;
+  }
 
   const addAddress = async (e) => {
     e.preventDefault();
@@ -127,11 +163,11 @@ export default function Address() {
     if (!user) {
       showNotification('Please login first', 'error');
       navigate('/login');
+      return; // Prevent further execution
     }
 
     const isValid = validateAddressFields(address, showNotification);
-    if (!isValid) return;
-
+    if (!isValid) return; // Prevent further execution
 
     if (!address.savedaddressas) {
       showNotification('Please select Home or Work', 'error');
@@ -216,7 +252,7 @@ export default function Address() {
           amount: totalCost,
           currency: 'aed'
         },
-        isPaid: false, 
+        isPaid: false,
         amountPaidFromWallet: 0
       };
 
@@ -234,7 +270,7 @@ export default function Address() {
     try {
       const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
       if (response.success) {
-        clearCart(); 
+        clearCart();
         await fetchProducts();
         navigate('/successToOrder');
       } else {
@@ -249,42 +285,7 @@ export default function Address() {
   }
 
 
-  const validateAddressFields = (address, showNotification) => {
-    const requiredFields = [
-      { key: 'username', label: 'Name' },
-      { key: 'mobileno', label: 'Mobile Number' },
-      { key: 'pincode', label: 'Pin Code' },
-      { key: 'deliveryaddress', label: 'Address' },
-      { key: 'locality', label: 'Locality/Town' },
-      { key: 'city', label: 'City/District' },
-      { key: 'state', label: 'State' },
-      { key: 'savedaddressas', label: 'Home or Work (Save As)' },
-    ];
 
-    for (const field of requiredFields) {
-      if (!address[field.key] || address[field.key].trim() === '') {
-        showNotification(`Please fill out the ${field.label}`, 'error');
-
-        // Try to scroll to the missing field
-        const inputElement = document.querySelector(`[name="${field.key}"]`);
-        if (inputElement) inputElement.scrollIntoView({ behavior: 'smooth' });
-        return false;
-      }
-    }
-
-    // Optional format checks
-    if (!/^\d{6}$/.test(address.pincode)) {
-      showNotification('Please enter a valid 6-digit pin code', 'error');
-      return false;
-    }
-
-    if (!/^\d{10}$/.test(address.mobileno)) {
-      showNotification('Please enter a valid 10-digit mobile number', 'error');
-      return false;
-    }
-
-    return true;
-  }
 
 
   return (
@@ -295,7 +296,7 @@ export default function Address() {
       <div className='Address-page'>
         {showAddressForm ? (
           <div className='Address-container'>
-            <form action="" className='contact-details'>
+            <form action="" className='contact-details' onSubmit={addAddress}>
               <label htmlFor="contact-details">CONTACT DETAILS</label>
 
               <input type="text" name="username" value={address.username} className='name' placeholder='Name*' onChange={handleChange} required />
@@ -325,11 +326,10 @@ export default function Address() {
               </div>
 
               <div className="checkbox-container">
-
                 <input type="checkbox" name="defaultaddress" className='default-Address-checkbox' onChange={handleChange} checked={address.defaultaddress} /><p>Make this address default  </p>
               </div>
 
-              <button className='add-address-btn' onClick={addAddress}>ADD ADDRESS</button>
+              <button className='add-address-btn' type="submit" disabled={loading}>{loading ? 'Saving...' : 'ADD ADDRESS'}</button>
             </form>
 
           </div>
@@ -408,4 +408,3 @@ export default function Address() {
     </>
   )
 }
-

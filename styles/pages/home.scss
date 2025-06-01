@@ -1,5 +1,6 @@
-@import '../main.scss';
-@import '../variables';
+@use '../main.scss' ;
+@use '../_variables' as *;
+
 .home {
   .trending-section {
     padding: 48px 0;

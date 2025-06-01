@@ -1,10 +1,37 @@
 import React, { useEffect, useState } from 'react';
-
 import '../styles/components/category-sidebar.scss';
 
 const CategorySidebar = ({ filters, onFilterChange }) => {
   const [currentPrice, setCurrentPrice] = useState(filters.priceRange.max);
 
+  // Color mapping for proper color display
+  const colorMap = {
+    'red': '#FF0000',
+    'blue': '#0000FF',
+    'green': '#008000',
+    'yellow': '#FFFF00',
+    'black': '#000000',
+    'white': '#FFFFFF',
+    'pink': '#FFC0CB',
+    'purple': '#800080',
+    'orange': '#FFA500',
+    'brown': '#A52A2A',
+    'gray': '#808080',
+    'grey': '#808080',
+    'navy': '#000080',
+    'maroon': '#800000',
+    'olive': '#808000',
+    'lime': '#00FF00',
+    'aqua': '#00FFFF',
+    'teal': '#008080',
+    'silver': '#C0C0C0',
+    'fuchsia': '#FF00FF',
+  };
+
+  const getColorValue = (colorName) => {
+    const lowerColor = colorName.toLowerCase();
+    return colorMap[lowerColor] || colorName;
+  };
 
   const handlePriceChange = (e) => {
     const price = parseInt(e.target.value, 10);
@@ -17,106 +44,127 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
     onFilterChange(filterType, value);
   };
 
-  
+  // Update current price when filters change
+  useEffect(() => {
+    setCurrentPrice(filters.priceRange.max);
+  }, [filters.priceRange.max]);
+
   return (
     <div className="category-sidebar">
       <h4 className='filter-title'>FILTERS</h4>
       <div className="filters-container">
         {filters.categories.length > 1 && (
-          <>
-            <h5 className='categories-title'>CATEGORIES</h5>
-            <div className="items">
+          <div className="filter-section">
+            <h5 className='section-title'>CATEGORIES</h5>
+            <div className="filter-items">
               {filters.categories.map((item, i) => (
-                <p key={i}>
-                  <span><input
+                <label key={i} className="filter-item">
+                  <input
                     type="checkbox"
                     name={item}
                     value={item}
                     onChange={(e) => handleCheckboxChange(e, 'categories')}
-                  /> {item}</span>
-                </p>
+                  />
+                  <span className="checkmark"></span>
+                  <span className="item-label">{item}</span>
+                </label>
               ))}
-
             </div>
-          </>
+          </div>
         )}
+
         {filters.brands.length > 1 && (
-          <>
-            <h5 className='brand-title'>BRAND</h5>
-            <div className="items">
+          <div className="filter-section">
+            <h5 className='section-title'>BRAND</h5>
+            <div className="filter-items">
               {filters.brands.map((item, i) => (
-                <p key={i}>
-                  <span><input
+                <label key={i} className="filter-item">
+                  <input
                     type="checkbox"
                     name={item}
                     value={item}
                     onChange={(e) => handleCheckboxChange(e, 'brands')}
-                  /> {item}</span>
-                </p>
+                  />
+                  <span className="checkmark"></span>
+                  <span className="item-label">{item}</span>
+                </label>
               ))}
             </div>
-          </>
-
+          </div>
         )}
 
-        <h5 className='price-title'>PRICE</h5>
-        <span>&#8377; {filters.priceRange.min} - </span>
-        <span>&#8377; {filters.priceRange.max}</span>
-        <input
-          type="range"
-          min={filters.priceRange.min}
-          max={filters.priceRange.max}
-          value={currentPrice}
-          onChange={handlePriceChange}
-          className="slider"
-          disabled={filters.priceRange.min === filters.priceRange.max}
-        />
-        <div className="price-values">
-          <p className="current-price">
-            current price : <span>{currentPrice}</span>
-          </p>
+        <div className="filter-section">
+          <h5 className='section-title'>PRICE</h5>
+          <div className="price-range-display">
+            <span>₹{filters.priceRange.min}</span>
+            <span>-</span>
+            <span>₹{filters.priceRange.max}</span>
+          </div>
+          <input
+            type="range"
+            min={filters.priceRange.min}
+            max={filters.priceRange.max}
+            value={currentPrice}
+            onChange={handlePriceChange}
+            className="price-slider"
+            disabled={filters.priceRange.min === filters.priceRange.max}
+          />
+          <div className="current-price-display">
+            <span>Current: ₹{currentPrice}</span>
+          </div>
         </div>
 
-        {filters.colors.length > 1 && (<>
-          <h5 className='color-title'>COLOR</h5>
-          <div className="items">
-            {filters.colors.map((item, i) => (
-              <p key={i}>
-                <span>
+        {filters.colors.length > 1 && (
+          <div className="filter-section">
+            <h5 className='section-title'>COLOR</h5>
+            <div className="filter-items color-items">
+              {filters.colors.map((item, i) => (
+                <label key={i} className="color-filter-item filter-item">
                   <input
                     type="checkbox"
                     name={item}
                     value={item}
                     onChange={(e) => handleCheckboxChange(e, 'colors')}
                   />
-                  <span className="color-show" style={{ background: item }}></span>
-                  {item}</span>
-              </p>
-            ))}
+                  <span className="checkmark"></span>
+                  <div className="color-display">
+                    <span 
+                      className="color-swatch" 
+                      style={{ 
+                        backgroundColor: getColorValue(item),
+                        border: item.toLowerCase() === 'white' ? '1px solid #ddd' : 'none'
+                      }}
+                    ></span>
+                    <span className="color-name">{item}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
           </div>
-        </>)}
+        )}
 
         {filters.discount.length > 1 && (
-          <>
-            <h5 className='discount-title'>DISCOUNT RANGE</h5>
-            <div className="items">
+          <div className="filter-section">
+            <h5 className='section-title'>DISCOUNT RANGE</h5>
+            <div className="filter-items">
               {filters.discount.map((item, i) => (
-                <p key={i}>
-                  <span><input
+                <label key={i} className="filter-item">
+                  <input
                     type="checkbox"
                     name={item}
                     value={item}
                     onChange={(e) => handleCheckboxChange(e, 'discount')}
-                  /> {item} % Discount</span>
-                </p>
+                  />
+                  <span className="checkmark"></span>
+                  <span className="item-label">{item}% Discount</span>
+                </label>
               ))}
             </div>
-          </>
+          </div>
         )}
-
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default CategorySidebar;

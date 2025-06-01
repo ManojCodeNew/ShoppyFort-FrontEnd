@@ -4,7 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
 
 const RegisterPage = () => {
-
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -14,23 +13,62 @@ const RegisterPage = () => {
     confirmpassword: ''
   });
   const [errors, setErrors] = useState({});
-  const { register, error, isLoading, user, token } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    error,
+    isLoading,
+    isAuthenticated,
+    userDataLoaded
+  } = useAuth();
+
   const navigate = useNavigate();
-  // Checking if user is exist or not 
+
+
+  // Redirect if already logged in AND user data is loaded
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated && userDataLoaded) {
+      console.log('User is authenticated and data is loaded, redirecting to profile');
       navigate('/profile');
     }
-  }, [])
+  }, [isAuthenticated, userDataLoaded, navigate]);
+
+
   const validateForm = () => {
     const newErrors = {};
 
-    if (formData.password !== formData.confirmpassword) {
-      newErrors.confirmpassword = 'Passwords do not match';
+    // Required field validation
+    if (!formData.fullname.trim()) {
+      newErrors.fullname = 'Full name is required';
     }
 
-    if (formData.phoneno.length !== 10) {
-      newErrors.phoneno = 'Phone number must be 10 digits';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email format is invalid';
+    }
+
+    if (!formData.phoneno.trim()) {
+      newErrors.phoneno = 'Phone number is required';
+    } else if (formData.phoneno.replace(/\D/g, '').length !== 10) {
+      newErrors.phoneno = 'Phone number must be exactly 10 digits';
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!formData.confirmpassword) {
+      newErrors.confirmpassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmpassword) {
+      newErrors.confirmpassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -38,27 +76,56 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isSubmitting || isLoading) return;
+
     console.log("RegisterPage data", formData);
 
-    e.preventDefault();
-    if (validateForm()) {
-      const userRegisterResponse = await register(formData);
-      console.log(userRegisterResponse);
+    if (!validateForm()) {
+      return;
+    }
 
-      if (userRegisterResponse.success) {
-        // localStorage.setItem('user',userRegisterResponse.token);
-        navigate('/profile');
+    setIsSubmitting(true);
+
+    try {
+      // Create registration data (exclude confirmpassword)
+      const { confirmpassword, ...registrationData } = formData;
+
+      const result = await register(registrationData);
+
+      if (result.success) {
+        // Navigation will be handled by useEffect when user state updates
+        console.log('Registration successful, user will be redirected');
+      } else {
+        // Error handling is already done in the register function
+        console.log('Registration failed:', result.error);
       }
+    } catch (err) {
+      console.error('Registration submission error:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+
+    // Clear specific field error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
+
+  const isFormDisabled = isLoading || isSubmitting;
 
   return (
     <div className="auth-page">
@@ -79,8 +146,11 @@ const RegisterPage = () => {
               name="fullname"
               value={formData.fullname}
               onChange={handleChange}
+              disabled={isFormDisabled}
               required
+              placeholder="Enter your full name"
             />
+            {errors.fullname && <span className="error">{errors.fullname}</span>}
           </div>
 
           <div className="form-group">
@@ -90,8 +160,12 @@ const RegisterPage = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              disabled={isFormDisabled}
               required
+              autoComplete="email"
+              placeholder="Enter your email"
             />
+            {errors.email && <span className="error">{errors.email}</span>}
           </div>
 
           <div className="form-group">
@@ -101,8 +175,11 @@ const RegisterPage = () => {
               name="phoneno"
               value={formData.phoneno}
               onChange={handleChange}
+              disabled={isFormDisabled}
               required
               maxLength="10"
+              placeholder="Enter 10-digit phone number"
+              pattern="[0-9]{10}"
             />
             {errors.phoneno && <span className="error">{errors.phoneno}</span>}
           </div>
@@ -113,9 +190,12 @@ const RegisterPage = () => {
               name="address"
               value={formData.address}
               onChange={handleChange}
+              disabled={isFormDisabled}
               required
               rows="3"
+              placeholder="Enter your address"
             />
+            {errors.address && <span className="error">{errors.address}</span>}
           </div>
 
           <div className="form-group">
@@ -125,9 +205,13 @@ const RegisterPage = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
+              disabled={isFormDisabled}
               required
               minLength="6"
+              autoComplete="new-password"
+              placeholder="Enter password (min 6 characters)"
             />
+            {errors.password && <span className="error">{errors.password}</span>}
           </div>
 
           <div className="form-group">
@@ -137,7 +221,10 @@ const RegisterPage = () => {
               name="confirmpassword"
               value={formData.confirmpassword}
               onChange={handleChange}
+              disabled={isFormDisabled}
               required
+              autoComplete="new-password"
+              placeholder="Confirm your password"
             />
             {errors.confirmpassword && (
               <span className="error">{errors.confirmpassword}</span>
@@ -147,9 +234,9 @@ const RegisterPage = () => {
           <button
             type="submit"
             className="btn-primary"
-            disabled={isLoading}
+            disabled={isFormDisabled}
           >
-            {isLoading ? 'Loading...' : 'Register'}
+            {isSubmitting || isLoading ? 'Creating Account...' : 'Register'}
           </button>
         </form>
 

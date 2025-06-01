@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// import {  ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext.jsx';
 import { useWishlist } from '../contexts/WishlistContext.jsx';
 import sendGetRequestToBackend from '../components/Request/Get.jsx';
@@ -14,18 +13,22 @@ import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 const ProductViewPage = () => {
   const { id } = useParams();
   const { products } = useProducts();
-
   const navigate = useNavigate();
+
   const [product, setProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState();
   const { showNotification } = useNotification();
   // Product Image displaying state
   const [productImage, setProductImage] = useState();
-
   const { addItem: addToCart } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
+  const imageContainerRef = useRef(null);
+  const zoomLensRef = useRef(null);
+  const zoomResultRef = useRef(null);
+  const productImageRef = useRef(null);
+  const fallbackImage = 'https://via.placeholder.com/500x500?text=Image+Not+Available';
 
   const stock_availability = () => {
     const current_product = products.find(p => p._id === id);
@@ -39,6 +42,66 @@ const ProductViewPage = () => {
       return <span className="stock-in">{stock} In stock</span>;
     }
   };
+  // Magnifier Logic
+  useEffect(() => {
+    if (!imageContainerRef.current || !zoomLensRef.current || !zoomResultRef.current || !productImageRef.current) return;
+
+    const container = imageContainerRef.current;
+    const productImage = productImageRef.current;
+    const zoomLens = zoomLensRef.current;
+    const zoomResult = zoomResultRef.current;
+
+    const handleMouseEnter = () => {
+      if (window.innerWidth > 1200) {
+        zoomLens.style.display = "block";
+        zoomResult.style.display = "block";
+        zoomResult.style.backgroundImage = `url(${productImage.src})`;
+      }
+    };
+
+    const handleMouseLeave = () => {
+      zoomLens.style.display = "none";
+      zoomResult.style.display = "none";
+    };
+
+    const handleMouseMove = (e) => {
+      if (window.innerWidth <= 1200) return;
+
+      const imageRect = productImage.getBoundingClientRect();
+      const x = e.clientX - imageRect.left;
+      const y = e.clientY - imageRect.top;
+
+      const lensWidth = zoomLens.offsetWidth;
+      const lensHeight = zoomLens.offsetHeight;
+
+      let lensX = x - lensWidth / 2;
+      let lensY = y - lensHeight / 2;
+
+      const maxLensX = imageRect.width - lensWidth;
+      const maxLensY = imageRect.height - lensHeight;
+
+      lensX = Math.max(0, Math.min(lensX, maxLensX));
+      lensY = Math.max(0, Math.min(lensY, maxLensY));
+
+      zoomLens.style.left = `${lensX}px`;
+      zoomLens.style.top = `${lensY}px`;
+
+      const bgX = (lensX / maxLensX) * 100;
+      const bgY = (lensY / maxLensY) * 100;
+
+      zoomResult.style.backgroundPosition = `${bgX}% ${bgY}%`;
+    };
+
+    container.addEventListener('mouseenter', handleMouseEnter);
+    container.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      container.removeEventListener('mouseenter', handleMouseEnter);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [productImage]);
 
 
   useEffect(() => {
@@ -50,8 +113,8 @@ const ProductViewPage = () => {
         if (filteredProduct) {
           setProduct(filteredProduct);
           const defaultColor = filteredProduct.colors[0];
-          setProductImage(filteredProduct.colorImages[defaultColor][0]);
           setSelectedColor(defaultColor);
+          setProductImage(filteredProduct.colorImages[defaultColor][0]);
         } else {
           navigate('/');
         }
@@ -72,16 +135,8 @@ const ProductViewPage = () => {
   }
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
-      showNotification('Please select a size', "error");
-      return;
-    }
-    if (!selectedColor) {
-      showNotification('Please select a color', "error");
-      return;
-    }
-    console.log("Selected color in ProductViewPage :", selectedColor);
-
+    if (!selectedSize) return showNotification('Please select a size', "error");
+    if (!selectedColor) return showNotification('Please select a color', "error");
 
     const selections = {};
 
@@ -102,7 +157,7 @@ const ProductViewPage = () => {
     }
 
   };
-  const fallbackImage = 'https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-6f08-51f7-b6ec-c58003fd17aa/raw?se=2025-03-30T15%3A23%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=944cb68e-fe60-5752-a04c-4ff2474237ed&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-03-30T13%3A34%3A20Z&ske=2025-03-31T13%3A34%3A20Z&sks=b&skv=2024-08-04&sig=5eof3pHpGOQfYNahuDmm0nPDVOqE2iXplkSjrOXwz0I%3D';
+  // const fallbackImage = 'https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-6f08-51f7-b6ec-c58003fd17aa/raw?se=2025-03-30T15%3A23%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=944cb68e-fe60-5752-a04c-4ff2474237ed&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-03-30T13%3A34%3A20Z&ske=2025-03-31T13%3A34%3A20Z&sks=b&skv=2024-08-04&sig=5eof3pHpGOQfYNahuDmm0nPDVOqE2iXplkSjrOXwz0I%3D';
 
 
 
@@ -111,13 +166,25 @@ const ProductViewPage = () => {
       <div className="product-view-page-container">
         <div className="product-view-page-layout">
 
-          <div className="product-view-page-image">
-            <img src={productImage || fallbackImage} alt="Product Image" className='product-view-page-image-img' />
+          <div className="product-view-page-image" ref={imageContainerRef}>
+            <img
+              src={productImage || fallbackImage}
+              alt="Product"
+              className="product-view-page-image-img"
+              ref={productImageRef}
+            />
+            <div className="zoom-lens" ref={zoomLensRef}></div>
+            <div className="zoom-result" ref={zoomResultRef}></div>
 
             <div className="product-view-page-gallery">
-
               {product.colorImages[selectedColor]?.map((image, index) => (
-                <img key={index} src={image || fallbackImage} alt={`${product.name} - View ${index + 1} `} className={productImage === image ? 'active' : ''} onClick={() => setProductImage(image)} />
+                <img
+                  key={index}
+                  src={image || fallbackImage}
+                  alt={`View ${index + 1}`}
+                  className={productImage === image ? 'active' : ''}
+                  onClick={() => setProductImage(image)}
+                />
               ))}
             </div>
           </div>
@@ -131,11 +198,10 @@ const ProductViewPage = () => {
               <span className="product-view-page-original-price"> <small className="currency-label">AED</small>{product.originalPrice}</span>
               <span className="product-view-page-discount">({product.discount}% OFF)</span>
             </div>
-            {/* {product.stock <= 10 && ( */}
+
             <div className="product-stock">
-              <span className="product-stock-availability">Availability :   {stock_availability()}</span>
+              <span className="product-stock-availability">Availability : {stock_availability()}</span>
             </div>
-            {/*  )} */}
 
             <div className="product-view-page-options">
               <div className="product-view-page-size-selector">
@@ -178,7 +244,6 @@ const ProductViewPage = () => {
                 onClick={handleAddToCart}
               >
                 <img src={ShoppingBag} alt="shopping bag" className='product-view-page-shoppingbag-icon' />
-                {/* <ShoppingBag /> */}
                 Add to Bag
               </button>
               <button

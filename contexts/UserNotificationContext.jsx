@@ -18,7 +18,7 @@ export default function UserNotificationsProvider({ children }) {
     const getNotifications = useCallback(async () => {
         try {
             setLoading(true);
-            const notificationResponse = await sendGetRequestToBackend('auth/notifications/', token);
+            const notificationResponse = await sendGetRequestToBackend('auth/notifications', token);
             if (notificationResponse.success) {
                 const updatedNotifications = notificationResponse.otp.map((notif) => ({
                     ...notif,

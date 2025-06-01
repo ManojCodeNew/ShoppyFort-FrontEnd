@@ -1,55 +1,87 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 import { GoogleLogin } from '@react-oauth/google';
-import sendGetRequestToBackend from '@/components/Request/Get';
-import sendPostRequestToBackend from '@/components/Request/Post';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error, isLoading, user, setUser } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { login, googleLogin, error, isLoading, isAuthenticated, userDataLoaded } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Get the page user was trying to access
+  const from = location.state?.from?.pathname || '/profile';
+
+  // Redirect if already logged in
   useEffect(() => {
-    if (user) {
-      navigate('/profile');
+    if (isAuthenticated && userDataLoaded) {
+      console.log('User is authenticated and data is loaded, redirecting to:', from);
+      navigate(from, { replace: true });
     }
-  }, [user, navigate])
+  }, [isAuthenticated, userDataLoaded, navigate, from]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userLoginResponse = await login(email, password);
 
-    if (userLoginResponse.success) {
-      showNotification('Login successful! 🎉', 'success');
-      navigate('/profile');
-    } else {
-      showNotification('Invalid email or password!', 'error');
+    if (isSubmitting || isLoading) return;
+
+    if (!email.trim() || !password.trim()) {
+      showNotification('Please fill in all fields', 'error');
+      return;
     }
-  };
 
-  const handleGoogleLogin = async (token) => {
+    setIsSubmitting(true);
+
     try {
-      const response = await sendPostRequestToBackend('auth/google-login', { token });
-      if (response.success) {
-        localStorage.setItem('token', response.token);
-        const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
-        if (!accessUserData.er) {
-          setUser(accessUserData?.user);
-          showNotification('Google login successful! 🎉', 'success');
-          navigate('/profile');
-        }
+      const result = await login(email.trim(), password);
+
+      if (result.success) {
+        console.log('Login successful, navigation will be handled by useEffect');
+        // navigate(from, { replace: true });
+
       } else {
-        showNotification('Google login failed!', 'error');
+        console.log('Login failed:', result.error);
       }
     } catch (err) {
-      showNotification('Google login error', 'error');
+      console.error('Login submission error:', err);
+      showNotification('An unexpected error occurred', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  const handleGoogleLogin = async (credentialResponse) => {
+    if (!credentialResponse.credential) {
+      showNotification('Google login failed - no credential received', 'error');
+      return;
+    }
+
+    try {
+      const result = await googleLogin(credentialResponse.credential);
+
+      if (result.success) {
+        console.log('Google login successful, user will be redirected to:', from);
+        // navigate(from, { replace: true });
+      } else {
+        console.log('Google login failed:', result.error);
+      }
+    } catch (err) {
+      console.error('Google login error:', err);
+      showNotification('Google login error occurred', 'error');
+    }
+  };
+
+  const handleGoogleLoginError = () => {
+    showNotification('Google login failed!', 'error');
+  };
+
+  const isFormDisabled = isLoading || isSubmitting;
 
   return (
     <div className="auth-page">
@@ -69,7 +101,10 @@ const LoginPage = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isFormDisabled}
               required
+              autoComplete="email"
+              placeholder="Enter your email"
             />
           </div>
 
@@ -79,31 +114,35 @@ const LoginPage = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isFormDisabled}
               required
+              autoComplete="current-password"
+              placeholder="Enter your password"
+              minLength="6"
             />
           </div>
 
           <button
             type="submit"
             className="btn-primary"
-            disabled={isLoading || !email || !password}
+            disabled={isFormDisabled || !email.trim() || !password.trim()}
           >
-            {isLoading ? 'Loading...' : 'Login'}
+            {isSubmitting || isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        <p className='or-divider'>OR</p>
+
+        <p className='or-divider'></p>
+
         <div className="loginwithgoogle">
           <GoogleLogin
-            onSuccess={(credentialResponse) => {
-              // Send credentialResponse.credential (JWT) to your backend
-              console.log(credentialResponse);
-              handleGoogleLogin(credentialResponse.credential);
-              // navigate('/profile');
-            }}
-            onError={() => {
-              showNotification('Google login failed!', 'error');
-            }} />
+            onSuccess={handleGoogleLogin}
+            onError={handleGoogleLoginError}
+            disabled={isFormDisabled}
+            size="large"
+            width="100%"
+          />
         </div>
+
         <p className="auth-link">
           Don't have an account? <Link to="/register">Register</Link>
         </p>

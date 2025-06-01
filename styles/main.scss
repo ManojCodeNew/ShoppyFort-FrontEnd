@@ -1,5 +1,5 @@
-@use "sass:color";
-@import './variables';
+@use 'sass:color';
+@use './_variables' as *;
 
 // Base styles
 * {
@@ -31,7 +31,12 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, $primary-color, darken($primary-color, 15%));
+  background: linear-gradient(
+    135deg,
+    $primary-color,
+    color.adjust($primary-color, $lightness: 15%)
+  );
+
   color: $white;
   border: none;
   border-radius: 12px;
@@ -44,7 +49,11 @@ body {
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba($primary-color, 0.3);
-    background: linear-gradient(135deg, darken($primary-color, 5%), darken($primary-color, 20%));
+    background: linear-gradient(
+      135deg,
+      color.adjust($primary-color, $lightness: 5%),
+      color.adjust($primary-color,$lightness: 20%)
+    );
   }
 
   &:active {
@@ -98,4 +107,3 @@ body {
   flex: 1;
   padding: 20px 0;
 }
-

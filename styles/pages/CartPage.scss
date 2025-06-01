@@ -1,4 +1,5 @@
-@import '../variables';
+@use 'sass:color';
+@use '../variables' as *;
 // Cart Page Styles
 .cart-container {
   max-width: 900px;
@@ -59,7 +60,7 @@
   cursor: pointer;
 
   &:hover {
-    background: darken($primary-color, 10%);
+    background: color.adjust($primary-color, $lightness: 10%);
   }
 }
 
@@ -144,7 +145,7 @@
 }
 
 .cart-item-action-btn:hover:not(:disabled) {
-  background-color: darken($primary-color, 10%);
+  background-color: color.adjust($primary-color, $lightness: 10%);
 }
 
 .cart-item-action-btn:active:not(:disabled) {
@@ -164,7 +165,7 @@
 }
 
 .remove-btn:hover {
-  background-color: darken(#dc3545, 10%);
+  background-color: color.adjust(#dc3545, $lightness: 10%);
 }
 
 .empty-cart-message {

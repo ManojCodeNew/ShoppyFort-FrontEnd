@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import CategorySidebar from '../components/CategorySidebar';
@@ -22,7 +21,6 @@ function CategoryPage() {
     discount: [],
     price: null,
   });
-
 
   // Filter products based on gender, category, and selected filters
   const filteredProducts = useMemo(() => {
@@ -64,7 +62,6 @@ function CategoryPage() {
     });
   }, [products, gender, category, subcategory, selectedFilters]);
 
-
   // Extract unique values for filters and organize into an object
   const filters = useMemo(() => {
     const filterData = {
@@ -96,13 +93,16 @@ function CategoryPage() {
 
       // Collect unique colors
       if (product.colors) {
-        product.colors.forEach(color => filterData.colors.add(color));
+        product.colors.forEach(color => {
+          filterData.colors.add(color);
+        });
       }
 
       // Collect unique discount
       if (product.discount) {
         filterData.discount.add(product.discount);
       }
+
       // Update price range
       if (product.price && !isNaN(product.price)) {
         filterData.priceRange.max = Math.max(filterData.priceRange.max, product.price);
@@ -153,10 +153,9 @@ function CategoryPage() {
 
   return (
     <div className="category-page">
-
       <div className="category-content">
         <h1 className="category-title">
-          {gender.charAt(0).toUpperCase() + gender.slice(1)} {category ? `- ${category}` : ''}
+          {gender?.charAt(0).toUpperCase() + gender?.slice(1)} {category ? `- ${category}` : ''}
         </h1>
         {/* filter page for Mobile  */}
         <button className="filter-button" onClick={toggleFilterModal}>Filters</button>
@@ -165,24 +164,25 @@ function CategoryPage() {
         {showFilterModal && (
           <div className="filter-modal">
             <CategorySidebar filters={filters} onFilterChange={handleFilterChange} />
-            <img src={close} alt='X' className="close-filter" onClick={toggleFilterModal}/>
+            <img src={close} alt='X' className="close-filter" onClick={toggleFilterModal} />
           </div>
         )}
       </div>
+      
       <div className="container">
-
         <div className="filter-product-container">
           <CategorySidebar filters={filters} onFilterChange={handleFilterChange} />
         </div>
 
-
-        {filteredProducts.length != 0 ?
+        {filteredProducts.length !== 0 ? (
           <div className="category-wise-product-grid">
             {filteredProducts.map(item => (
               <ProductCard key={item._id} product={item} />
             ))}
           </div>
-          : <p className='empty-msg'>No products found based on the selected filters.</p>}
+        ) : (
+          <p className='empty-msg'>No products found based on the selected filters.</p>
+        )}
       </div>
     </div>
   );

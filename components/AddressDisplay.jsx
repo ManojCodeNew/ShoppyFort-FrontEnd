@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import "../styles/components/AddressDisplay.scss"; // Make sure to include styles
 import { useAddress } from "@/contexts/AddressContext";
@@ -51,15 +50,9 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     useEffect(() => {
         const defaultaddress = addressData.find(address => address.defaultaddress === "true");
         if (defaultaddress) {
-
             setSelectedAddress(defaultaddress._id);
-
         }
-        if (addressData.length <= 0) {
-            window.location.reload();
-            navigate('checkout/Address');
-        }
-
+        // If no addresses, do not reload. Show message instead in render.
     }, [addressData])
 
     useEffect(() => {
@@ -68,6 +61,11 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
             setOrderDetailsDataToContext();
         }
     }, [selectedAddress]);
+
+    // Keep addressData in sync with addressList prop
+    useEffect(() => {
+        setAddressData(addressList);
+    }, [addressList]);
 
     const removeAddress = async (addressid) => {
         const response = await sendPostRequestToBackend('checkout/address/remove', { addressid });
@@ -85,29 +83,36 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
         <div className="addressDisplay-page">
             <div className="addressDisplayPage-container">
                 <h2>Select Delivery Address</h2>
-                {addressData.map((address) => (
-                    <div className="addressDisplay-card" key={address._id}>
-                        <div className="addressDisplay-card-left">
-                            <input
-                                type="radio"
-                                name="selectedAddress"
-                                value={address._id}
-                                checked={selectedAddress === address._id}
-                                onChange={() => handleCheckboxChange(address._id)}
-                            />
-                            <div className="addressDisplay-details">
-                                <p>{address.username} <span className="home-tag">{address.savedaddressas}</span></p>
-                                <p>{address.deliveryaddress}</p>
-                                <p>{address.city}, {address.state} - {address.pincode}</p>
-                                <p>Mobile: {address.mobileno}</p>
+                {addressData.length === 0 ? (
+                    <div className="no-address-message">
+                        <p>No addresses found. Please add a new address to continue.</p>
+                        <button className="add-new-address" onClick={addNewAddress}>Add New Address</button>
+                    </div>
+                ) : (
+                    addressData.map((address) => (
+                        <div className="addressDisplay-card" key={address._id}>
+                            <div className="addressDisplay-card-left">
+                                <input
+                                    type="radio"
+                                    name="selectedAddress"
+                                    value={address._id}
+                                    checked={selectedAddress === address._id}
+                                    onChange={() => handleCheckboxChange(address._id)}
+                                />
+                                <div className="addressDisplay-details">
+                                    <p>{address.username} <span className="home-tag">{address.savedaddressas}</span></p>
+                                    <p>{address.deliveryaddress}</p>
+                                    <p>{address.city}, {address.state} - {address.pincode}</p>
+                                    <p>Mobile: {address.mobileno}</p>
+                                </div>
+                            </div>
+                            <div className="addressDisplay-card-right">
+                                <p onClick={() => removeAddress(address._id)} className="removeAddress-btn"> X</p>
                             </div>
                         </div>
-                        <div className="addressDisplay-card-right">
-                            <p onClick={() => removeAddress(address._id)} className="removeAddress-btn"> X</p>
-                        </div>
-                    </div>
-                ))}
-                {addressData.length < 3 && (
+                    ))
+                )}
+                {addressData.length > 0 && addressData.length < 3 && (
                     <button className="add-new-address" onClick={addNewAddress}>Add New Address</button>
                 )}
             </div>
@@ -116,4 +121,3 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
 };
 
 export default AddressDisplay;
-

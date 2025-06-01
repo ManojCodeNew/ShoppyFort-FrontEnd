@@ -1,5 +1,4 @@
-@import '../variables';
-
+@use '../_variables' as *;
 .Address-page {
   font-family: Arial, sans-serif;
   display: flex;

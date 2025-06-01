@@ -22,7 +22,7 @@ const AboutUs = () => {
         { label: 'Legal Status', value: 'Free Zone Establishment', icon: <FaShieldAlt /> },
         { label: 'Incorporation Date', value: '07/11/2024', icon: <FaCalendarAlt /> },
         { label: 'Expiry Date', value: '06/11/2025', icon: <FaCalendarAlt /> },
-        { label: 'Location', value: 'Block B - B41-065, STRIP', icon: <FaMapMarkerAlt /> }
+        { label: 'Location', value: 'Block B - B41-065', icon: <FaMapMarkerAlt /> }
     ];
 
     const activities = [

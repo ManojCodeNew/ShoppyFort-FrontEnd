@@ -35,10 +35,6 @@ const ManageReturn = () => {
         fetchData();
 
 
-        // // Initialize wallet credited items from returns data
-        // const creditedItems = new Set();
-        // const creditAttempts = new Map();
-
         let interval;
         if (otpModal.show && otpModal.expiresAt) {
             interval = setInterval(() => {
@@ -55,7 +51,7 @@ const ManageReturn = () => {
     }, [updateStatus]);
 
     const handleReject = useCallback((id) => updateStatus(id, "rejected"), [updateStatus]);
-    const handleDelete = useCallback((id) => deleteReturn(id), [deleteReturn]);
+    // const handleDelete = useCallback((id) => deleteReturn(id), [deleteReturn]);
     const toggleDetails = (id) => setExpandedRowId(prev => (prev === id ? null : id));
 
     const handleStatusChange = (id, status) => {
@@ -180,10 +176,12 @@ const ManageReturn = () => {
                     </select>
                 );
             case "picked_up":
-                if (item.status === "wallet_credited") {
-                    <span className="status-completed">
-                        Completed - Amount Credited to Wallet
-                    </span>
+                if (item.status ) {
+
+                    return <span className="status-completed">Wallet Credited</span>;
+                    // return (<span className="status-completed">
+                    //     Completed - Amount Credited to Wallet
+                    // </span>)
                 }
 
                 if (isReplacement) {

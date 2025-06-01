@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import './index.css';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
@@ -10,7 +10,7 @@ import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import WishlistPage from './pages/WishlistPage.jsx';
-import AdminPanelLogin from './components/AdminPanel/AdminPanelLogin';
+import AdminPanelLogin from './components/AdminPanel/AdminPanelLogin.jsx';
 import Address from './components/checkout/Address.jsx';
 import CartPage from './pages/CartPage.jsx';
 import OrderPlaced from './pages/OrdePlaced.jsx';
@@ -29,74 +29,82 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import Wallet from './pages/Wallet.jsx';
 import AddOffers from './components/AdminPanel/AddOffers.jsx';
-import AboutUs from './pages/AboutUs';
+import AboutUs from './pages/AboutUs.jsx';
+
+import { AdminProductsProvider } from './components/AdminPanel/Context/AdminProductsContext.jsx';
+import AdminOffersProvider from './components/AdminPanel/Context/AdminOffersContext.jsx';
+import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext.jsx';
+import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext.jsx';
+import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturnContext.jsx';
 const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEYYnDOqG6JTw68x8JjiuSluNPb5iemtpiLdOcxqp1irCCddXp6p3U001PeLWXNf'); // Replace with your actual publishable key
+const PublicLayout = () => (
+  <>
+    <Navbar />
+    <main>
+      <Outlet />
+    </main>
+    <Footer />
+  </>
+);
 const App = () => {
 
   return (
-    <>
-
-      <Routes>
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminPanelLogin />} />
-        <Route path="/admin" element={
-          <MainAdminLayout />
-        }>
-
-          <Route index element={<Dashboard />} />
-          <Route path="products/manage" element={< ManageProduct />} />
-          <Route path="products/add" element={<ProductAddForm />} />
-          <Route path="products/edit" element={<ProductAddForm />} />
-          <Route path="products/view" element={<ProductDetails />} />
-          <Route path="customers/view" element={<ProductDetails />} />
-
-          <Route path='add-offer' element={<AddOffers />} />
-          <Route path="manage-order" element={<ManageOrder />} />
-          <Route path="manage-return" element={<ManageReturn />} />
-
-
-
-        </Route>
-
-
-        {/* Public Routes */}
-        <Route path="*" element={
-          <>
-            <Navbar />
-            <main >
-              <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/about-us' element={<AboutUs />} />
-
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="register" element={<RegisterPage />} />
-                <Route path="profile" element={<ProfilePage />} />
-                <Route path="orders" element={<OrderDetails />} />
-                <Route path="wishlist" element={<WishlistPage />} />
-                <Route path="cart" element={<CartPage />} />
-                <Route path='wallet' element={<Wallet />} />
-                <Route path="category/:gender" element={<CategoryPage />} />
-                <Route path="category/:gender/:category" element={<CategoryPage />} />
-                <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
-                <Route path="product/view/:id" element={<ProductViewPage />} />
-                <Route path="product/search/:id" element={<ProductViewPage />} />
-                <Route path="checkout/address" element={
-                  <Elements stripe={stripePromise}>
-                    <Address />
-                  </Elements>
-                } />
-                <Route path="successToOrder" element={<OrderPlaced />} />
-                <Route path="/offers/:offerId" element={<Offers />} />
-                <Route path="notifications" element={<UserNotification />} />
-
-
-              </Routes>
-            </main>
-            <Footer />
-          </>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<PublicLayout />}>
+        <Route index element={<Home />} />
+        <Route path="about-us" element={<AboutUs />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="orders" element={<OrderDetails />} />
+        <Route path="wishlist" element={<WishlistPage />} />
+        <Route path="cart" element={<CartPage />} />
+        <Route path="wallet" element={<Wallet />} />
+        <Route path="category/:gender" element={<CategoryPage />} />
+        <Route path="category/:gender/:category" element={<CategoryPage />} />
+        <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
+        <Route path="product/view/:id" element={<ProductViewPage />} />
+        <Route path="product/search/:id" element={<ProductViewPage />} />
+        <Route path="offers/:offerId" element={<Offers />} />
+        <Route path="checkout/address" element={
+          <Elements stripe={stripePromise}>
+            <Address />
+          </Elements>
         } />
-      </Routes>
-    </>
+        <Route path="successToOrder" element={<OrderPlaced />} />
+        <Route path="notifications" element={<UserNotification />} />
+      </Route>
+
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminPanelLogin />} />
+      <Route path="/admin/*" element={
+        <UserProvider>
+          <AdminProductsProvider>
+            <AdminOffersProvider>
+              <OrderProvider>
+                <ManageReturnProvider>
+                  <MainAdminLayout />
+                </ManageReturnProvider>
+              </OrderProvider>
+            </AdminOffersProvider>
+          </AdminProductsProvider>
+        </UserProvider>
+      }>
+        <Route index element={<Dashboard />} />
+        <Route path="products/manage" element={<ManageProduct />} />
+        <Route path="products/add" element={<ProductAddForm />} />
+        <Route path="products/edit" element={<ProductAddForm />} />
+        <Route path="products/view" element={<ProductDetails />} />
+        <Route path="customers/view" element={<ProductDetails />} />
+        <Route path="add-offer" element={<AddOffers />} />
+        <Route path="manage-order" element={<ManageOrder />} />
+        <Route path="manage-return" element={<ManageReturn />} />
+      </Route>
+
+      {/* Optional: 404 fallback */}
+      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+    </Routes>
   );
 };
 

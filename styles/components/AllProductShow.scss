@@ -1,4 +1,4 @@
-@import '../variables';
+@use '../_variables' as *;
 
 .AllProducts {
   flex: 1;

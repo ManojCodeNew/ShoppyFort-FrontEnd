@@ -46,7 +46,7 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             showNotification(`Error fetching cart items : ${error}`, "error");
         }
-    }, [user, token, navigate, products]);
+    }, [token, products]);
 
     useEffect(() => {
         if (user && products.length > 0) {
@@ -58,7 +58,7 @@ export const CartProvider = ({ children }) => {
     const addItem = useCallback(async (product, selections = {}) => {
 
         try {
-            if (!user) navigate('/login');
+            if (!user) return navigate('/login');
             // Use product.quantity or default to 1
             const itemQuantity = product.quantity || 1;
 
@@ -111,11 +111,13 @@ export const CartProvider = ({ children }) => {
     const handleRemove = useCallback(async (itemId) => {
         try {
             const response = await sendPostRequestToBackend("cart/removeCart", { productid: itemId }, token);
-            if (response.success) {
-                setCartItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
-                showNotification("Product removed from cart", "success");
-
+            if (!response.success) {
+                showNotification("Failed to remove product", "error");
             }
+            setCartItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
+            showNotification("Product removed from cart", "success");
+
+
         } catch (error) {
             showNotification(`Error removing item: ${error}`, "error");
         }
@@ -183,7 +185,7 @@ export const CartProvider = ({ children }) => {
     }, 0) || 0;
     const VAT_Price = Number((totalCost_of_products * 0.05).toFixed(2));
     const totalCost = Number((totalCost_of_products + VAT_Price).toFixed(2));
-    const totalItems = cartItems?.length || 0;
+    const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
     console.log("VAT_Price in cartcontext", VAT_Price);
 

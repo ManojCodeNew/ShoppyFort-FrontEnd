@@ -29,27 +29,17 @@ root.render(
             <GoogleOAuthProvider clientId="994690946679-8sjellqs7o44r8b3ij4oqduasatgmc91.apps.googleusercontent.com">
               <ProductProvider>
                 <CartProvider>
-                  <UserProvider>
-                    <OrderProvider>
-                      <AddressProvider>
-                        <WishlistProvider>
-                          <AdminProductsProvider>
-                            <AdminOffersProvider>
-                              <OrderDetailsProvider>
-                                <UserNotificationsProvider>
-                                  <ManageReturnProvider>
-                                    <OffersProvider>
-                                      <App />
-                                    </OffersProvider>
-                                  </ManageReturnProvider>
-                                </UserNotificationsProvider>
-                              </OrderDetailsProvider>
-                            </AdminOffersProvider>
-                          </AdminProductsProvider>
-                        </WishlistProvider>
-                      </AddressProvider>
-                    </OrderProvider>
-                  </UserProvider>
+                  <AddressProvider>
+                    <WishlistProvider>
+                      <OrderDetailsProvider>
+                        <UserNotificationsProvider>
+                          <OffersProvider>
+                              <App />
+                          </OffersProvider>
+                        </UserNotificationsProvider>
+                      </OrderDetailsProvider>
+                    </WishlistProvider>
+                  </AddressProvider>
                 </CartProvider>
               </ProductProvider>
             </GoogleOAuthProvider>

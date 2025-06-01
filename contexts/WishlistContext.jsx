@@ -11,13 +11,13 @@ function WishlistProvider({ children }) {
   const { products } = useProducts();
   const [items, setItems] = useState([]);
   const navigate = useNavigate();
-const {token}=useAuth();
+  const { token } = useAuth();
   const fetchUserWishlist = useCallback(async () => {
     if (!token) {
       navigate("/login");
       return;
     }
-    const response = await sendGetRequestToBackend(`wishlist`, token);
+    const response = await sendGetRequestToBackend('wishlist', token);
     if (response?.wishlist) {
       const userWishlistedProducts = products.filter(product =>
         response.wishlist.some(wishlistItem => wishlistItem.productid === product._id)

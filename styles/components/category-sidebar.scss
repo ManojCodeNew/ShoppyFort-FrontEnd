@@ -1,151 +1,259 @@
-@import '../variables';
+@use '../_variables' as *;
+
 
 .category-sidebar {
-  padding: 20px;
   background-color: $white;
-  box-shadow: $box-shadow-light; /* Use a lighter box shadow */
-  border-radius: 8px;
-  margin-bottom: 20px; /* Add some space below the filter */
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: $box-shadow-light;
+  margin-bottom: 20px;
+  border: 1px solid #e9ecef;
 
   @include tablet-and-up {
     position: sticky;
-    top: 100px; /* Adjust based on your header height */
+    top: 100px;
     align-self: start;
   }
 
   .filter-title {
     color: $gray-dark;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    border-bottom: 2px solid $gray-light;
-    padding-bottom: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    border-bottom: 3px solid $primary-color;
+    padding-bottom: 12px;
   }
 
   .filters-container {
-    margin-top: 10px;
+    .filter-section {
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #f0f0f0;
 
-    h5 {
-      color: $secondary-color;
-      font-size: 1.1rem;
-      font-weight: 500;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
+      &:last-child {
+        border-bottom: none;
+      }
 
-    .items {
-      margin-left: 10px;
-      p {
-        margin-bottom: 8px;
-        span {
+      .section-title {
+        color: $secondary-color;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .filter-items {
+        .filter-item {
           display: flex;
           align-items: center;
-          input[type='checkbox'] {
-            margin-right: 8px;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border: 1px solid gray;
-            border-radius: 3px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            outline: none;
-            transition: background-color 0.2s ease;
+          margin-bottom: 12px;
+          cursor: pointer;
+          padding: 8px 0;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          position: relative;
 
-            &:checked {
+          &:hover {
+            background-color: #f8f9fa;
+            padding-left: 8px;
+            padding-right: 8px;
+          }
+
+          input[type='checkbox'] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+
+            &:checked ~ .checkmark {
               background-color: $primary-color;
               border-color: $primary-color;
-            }
 
-            &:checked::before {
-              content: '\2713'; /* Checkmark */
-              color: $white;
-              font-size: 12px;
+              &:after {
+                display: block;
+              }
+            }
+          }
+
+          .checkmark {
+            height: 18px;
+            width: 18px;
+            background-color: $white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-right: 12px;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+
+            &:after {
+              content: '';
+              position: absolute;
+              display: none;
+              left: 5px;
+              top: 2px;
+              width: 4px;
+              height: 8px;
+              border: solid white;
+              border-width: 0 2px 2px 0;
+              transform: rotate(45deg);
+            }
+          }
+
+          .item-label {
+            font-size: 0.9rem;
+            color: $gray-dark;
+            font-weight: 500;
+            line-height: 1.4;
+          }
+
+          // Color specific styles
+          &.color-filter-item {
+            .color-display {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+
+              .color-swatch {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 1px solid #ddd;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                flex-shrink: 0;
+              }
+
+              .color-name {
+                font-size: 0.9rem;
+                color: $gray-dark;
+                font-weight: 500;
+                text-transform: capitalize;
+              }
             }
           }
         }
       }
-    }
 
-    .price-title {
-      margin-top: 25px;
-    }
+      // Price section specific styles
+      .price-range-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        font-size: 0.9rem;
+        color: $gray-medium;
+        font-weight: 500;
 
-    span {
-      font-size: 0.9rem;
-      color: $gray-medium;
-    }
-
-    .slider {
-      width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 8px;
-      background: $gray-light;
-      border-radius: 4px;
-      outline: none;
-      margin-top: 10px;
-      margin-bottom: 15px;
-
-      &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        background: $primary-color;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-
-      &::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        background: $primary-color;
-        border-radius: 50%;
-        cursor: pointer;
-        border: none;
-      }
-
-      &:disabled {
-        background: $gray-light;
-        &::-webkit-slider-thumb,
-        &::-moz-range-thumb {
-          background: $gray-medium;
-          cursor: not-allowed;
-        }
-      }
-    }
-
-    .price-values {
-      font-size: 0.9rem;
-      color: $gray-medium;
-      .current-price {
-        margin-top: 5px;
         span {
-          font-weight: 500;
-          color: $secondary-color;
+          padding: 4px 8px;
+          background-color: #f8f9fa;
+          border-radius: 4px;
+          border: 1px solid #e9ecef;
+        }
+      }
+
+      .price-slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: linear-gradient(to right, #e9ecef 0%, #e9ecef 100%);
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        margin-bottom: 16px;
+        cursor: pointer;
+
+        &::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: $primary-color;
+          cursor: pointer;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: all 0.2s ease;
+
+          &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+          }
+        }
+
+        &::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: $primary-color;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        &:disabled {
+          background: #f0f0f0;
+          cursor: not-allowed;
+
+          &::-webkit-slider-thumb,
+          &::-moz-range-thumb {
+            background: $gray-medium;
+            cursor: not-allowed;
+          }
+        }
+      }
+
+      .current-price-display {
+        text-align: center;
+
+        span {
+          font-size: 0.9rem;
+          color: $primary-color;
+          font-weight: 600;
+          padding: 6px 12px;
+          background-color: rgba(0, 123, 255, 0.1);
+          border-radius: 20px;
+          border: 1px solid rgba(0, 123, 255, 0.2);
         }
       }
     }
+  }
 
-    .color-title {
-      margin-top: 25px;
+  // Mobile specific styles
+  @include mobile-only {
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    padding: 16px;
+
+    .filter-title {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
     }
 
-    .color-show {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 1px solid $gray-light;
-      border-radius: 50%;
-      margin-right: 8px;
-      margin-left: 4px;
-    }
+    .filters-container {
+      .filter-section {
+        margin-bottom: 24px;
 
-    .discount-title {
-      margin-top: 25px;
+        .section-title {
+          font-size: 0.9rem;
+          margin-bottom: 12px;
+        }
+
+        .filter-items {
+          .filter-item {
+            margin-bottom: 10px;
+            padding: 6px 0;
+
+            .item-label {
+              font-size: 0.85rem;
+            }
+          }
+        }
+      }
     }
   }
 }

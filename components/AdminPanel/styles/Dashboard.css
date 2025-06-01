@@ -208,6 +208,10 @@
   background-color: #d1fae5;
   color: #065f46;
 }
+.status-badge.placed {
+  background-color: #6366f1;
+  color: #fff;
+}
 
 .status-badge.processing {
   background-color: #dbeafe;

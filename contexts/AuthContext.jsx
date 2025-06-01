@@ -1,145 +1,433 @@
 import sendPostRequestToBackend from '@/components/Request/Post';
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 import { useNavigate } from 'react-router-dom';
 import sendGetRequestToBackend from '@/components/Request/Get';
-import { set } from 'mongoose';
+
 const AuthContext = createContext();
 const TOKEN_TYPE = "token";
+
+const token = localStorage.getItem(TOKEN_TYPE);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem(TOKEN_TYPE);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userDataLoaded, setUserDataLoaded] = useState(false); 
+  const [networkError, setNetworkError] = useState(false);
   const { showNotification } = useNotification();
   const navigate = useNavigate();
-  console.log("AuthContext user", user);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const storedToken = localStorage.getItem(TOKEN_TYPE);
-      // console.log("Stored token:", localStorage.getItem("token"));
+  // Helper function to check if token is expired
+  const isTokenExpired = (token) => {
+    if (!token) return true;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      // Add 5 minute buffer to prevent edge cases
+      return payload.exp < (currentTime + 300);
+    } catch (error) {
+      console.error('Error parsing token:', error);
+      return true;
+    }
+  };
 
-      if (storedToken) {
-        try {
-
-          const accessUserData = await sendGetRequestToBackend('auth/getUser', storedToken);
-
-          if (accessUserData.er) {
-            console.log("Error fetching user data:", accessUserData.er);
-
-            showNotification(`Failed to load user: ${accessUserData.er}`, 'error');
-            setUser(null);
-            localStorage.removeItem(TOKEN_TYPE);
-          } else {
-            setUser(accessUserData.user);
-          }
-        } catch (err) {
-          console.error('Error loading user:', err);
-          localStorage.removeItem(TOKEN_TYPE);
-          setUser(null);
-        }
-      }
-      setLoading(false);
-    };
-
-    fetchUser();
+  // Helper function to clear auth data
+  const clearAuthData = useCallback(() => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem(TOKEN_TYPE);
+    setError(null);
   }, []);
 
+  // Helper function to handle auth errors - DON'T AUTO NAVIGATE
+  const handleAuthError = useCallback((error, showToast = true) => {
+    console.error('Auth error:', error);
 
-  // Login actions
+    if (error.includes('TokenExpired') || error.includes('expired')) {
+      if (showToast) showNotification('Session expired. Please login again.', 'warning');
+      clearAuthData();
+      // DON'T auto-navigate here - let components handle it
+    } else if (error.includes('Unauthorized') || error.includes('401')) {
+      if (showToast) showNotification('Authentication required.', 'info');
+      clearAuthData();
+      // DON'T auto-navigate here - let components handle it
+    } else if (error.includes('Network') || error.includes('fetch')) {
+      setNetworkError(true);
+      if (showToast) showNotification('Network error. Please check your connection.', 'error');
+      // DON'T clear auth data on network errors - keep user logged in
+    } else {
+      if (showToast) showNotification(error, 'error');
+    }
+  }, [showNotification, clearAuthData]);
+
+  // Initialize authentication state - FIXED
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        setNetworkError(false);
+        const storedToken = localStorage.getItem(TOKEN_TYPE);
+
+        // If no token, just finish loading - DON'T redirect
+        if (!storedToken) {
+          setLoading(false);
+          return;
+        }
+
+        // Check if token is expired before making request
+        if (isTokenExpired(storedToken)) {
+          console.log("Token expired, clearing auth data");
+          clearAuthData();
+          setLoading(false);
+          return;
+        }
+
+        // Add retry logic for network issues
+        let retryCount = 0;
+        const maxRetries = 2;
+
+        while (retryCount < maxRetries) {
+          try {
+            // Fetch user data with the stored token
+            const accessUserData = await sendGetRequestToBackend('auth/getUser', storedToken);
+
+            // Handle various error responses
+            if (accessUserData.error || accessUserData.er) {
+              const errorMsg = accessUserData.error || accessUserData.er;
+
+              // If it's a network error, retry
+              if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
+                retryCount++;
+                if (retryCount < maxRetries) {
+                  console.log(`Network error, retrying... (${retryCount}/${maxRetries})`);
+                  await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                  continue;
+                }
+                // After max retries, set network error but keep existing auth
+                setNetworkError(true);
+                break;
+              }
+
+              handleAuthError(errorMsg, false); // Don't show toast on initial load
+              break;
+            } else if (accessUserData.tokenExpired) {
+              handleAuthError('TokenExpired', false);
+              break;
+            } else if (accessUserData.success && accessUserData.user) {
+              setUser(accessUserData.user);
+              setIsAuthenticated(true);
+              setNetworkError(false);
+              break;
+            } else {
+              console.log("Unexpected response format:", accessUserData);
+              // Don't clear auth data for unexpected responses
+              break;
+            }
+          } catch (err) {
+            retryCount++;
+            if (retryCount >= maxRetries) {
+              console.error('Max retries reached:', err);
+              setNetworkError(true);
+              // Keep existing auth state on network errors
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          }
+        }
+      } catch (err) {
+        console.error('Error initializing auth:', err);
+        setNetworkError(true);
+        // Don't clear auth data on initialization errors
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [clearAuthData, handleAuthError]);
+
+  // Login function - IMPROVED
   const login = useCallback(async (email, password) => {
     try {
       setError(null);
+      setLoading(true);
+      setNetworkError(false);
+
       const response = await sendPostRequestToBackend('auth/login', { email, password });
+
+      // Handle error responses
       if (response.msg) {
+        setError(response.msg);
         showNotification(response.msg, "error");
+        return { success: false, error: response.msg };
       }
 
-      // ✅ Store token & decode user info
+      if (response.er) {
+        setError(response.er);
+        showNotification(response.er, "error");
+        return { success: false, error: response.er };
+      }
+
+      if (response.error) {
+        setError(response.error);
+        showNotification(response.error, "error");
+        return { success: false, error: response.error };
+      }
+
+      // Check if we got a valid response
+      if (!response.token) {
+        const errorMsg = 'Invalid login response - no token received';
+        setError(errorMsg);
+        showNotification(errorMsg, 'error');
+        return { success: false, error: errorMsg };
+      }
+
+      // Store token first
       localStorage.setItem(TOKEN_TYPE, response.token);
+
+      // Then fetch user data
       const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
-      if (accessUserData.er) {
-        showNotification(`Failed to get user data : ${accessUserData.er}`, "error");
-        return false;
+
+      if (accessUserData.error || accessUserData.er) {
+        const errorMsg = accessUserData.error || accessUserData.er;
+        showNotification(`Failed to get user data: ${errorMsg}`, "error");
+        clearAuthData();
+        return { success: false, error: errorMsg };
       }
-      setUser(accessUserData.user);
-      console.log("LoginPage data", accessUserData.user);
 
-      showNotification('Login successful! 🎉', 'success');
-      return response;
+      if (accessUserData.success && accessUserData.user) {
+        setUser(accessUserData.user);
+        setIsAuthenticated(true);
+        setNetworkError(false);
+        showNotification('Login successful! 🎉', 'success');
+        setTimeout(() => {
+          window.location.reload(); // Reload to update UI
+          navigate('/profile'); // Redirect to profile after reload
+        }, 800);
+        return { success: true, user: accessUserData.user, token: response.token };
+      } else {
+        const errorMsg = 'Invalid user data response';
+        showNotification(errorMsg, 'error');
+        clearAuthData();
+        return { success: false, error: errorMsg };
+      }
+
     } catch (err) {
-      setError(err.message);
-      showNotification('Login failed!', 'error');
-      return false;
-    }
-  }, []);
+      const errorMsg = err.message || 'Login failed';
+      console.error('Login error:', err);
+      setError(errorMsg);
 
+      if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
+        setNetworkError(true);
+        showNotification('Network error. Please check your connection.', 'error');
+      } else {
+        showNotification('Login failed. Please try again.', 'error');
+      }
+
+      return { success: false, error: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotification, clearAuthData]);
+
+  // Register function - IMPROVED
   const register = useCallback(async (userData) => {
     try {
       setError(null);
+      setLoading(true);
+      setNetworkError(false);
+
       const response = await sendPostRequestToBackend("auth/register", userData);
+
+      // Handle error responses
       if (response.msg) {
+        setError(response.msg);
         showNotification(response.msg, "error");
-        return false;
+        return { success: false, error: response.msg };
       }
+
       if (response.er) {
-        showNotification(`Failed to register : ${response.er}`, "error");
+        setError(response.er);
+        showNotification(response.er, "error");
+        return { success: false, error: response.er };
       }
+
+      if (response.error) {
+        setError(response.error);
+        showNotification(response.error, "error");
+        return { success: false, error: response.error };
+      }
+
       if (!response.token) {
-        showNotification('Invalid registration response!', 'error');
-        return false;
+        const errorMsg = 'Invalid registration response - no token received';
+        setError(errorMsg);
+        showNotification(errorMsg, 'error');
+        return { success: false, error: errorMsg };
       }
-      // ✅ Decode the token and store it in user state
+
+      // Store token first
       localStorage.setItem(TOKEN_TYPE, response.token);
 
+      // Then fetch user data
       const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
-      if (accessUserData.er) {
-        showNotification(`Failed to get user data : ${accessUserData.er}`, "error");
-        return false;
-      }
-      setUser(accessUserData.user);
-      console.log("Register data", accessUserData.user);
 
-      showNotification("Registration successful! 🎉", "success");
-      return response;
+      if (accessUserData.error || accessUserData.er) {
+        const errorMsg = accessUserData.error || accessUserData.er;
+        showNotification(`Failed to get user data: ${errorMsg}`, "error");
+        clearAuthData();
+        return { success: false, error: errorMsg };
+      }
+
+      if (accessUserData.success && accessUserData.user) {
+        setUser(accessUserData.user);
+        setIsAuthenticated(true);
+        setNetworkError(false);
+        showNotification("Registration successful! 🎉", "success");
+        setTimeout(() => {
+          window.location.reload(); // Reload to update UI
+          navigate('/profile'); // Redirect to profile after reload
+        }, 800);
+        return { success: true, user: accessUserData.user, token: response.token };
+      } else {
+        const errorMsg = 'Invalid user data response';
+        showNotification(errorMsg, 'error');
+        clearAuthData();
+        return { success: false, error: errorMsg };
+      }
 
     } catch (err) {
-      setError(err.message);
-      showNotification('Registration failed!', 'error');
-      return false;
-    }
-  }, []);
+      const errorMsg = err.message || 'Registration failed';
+      console.error('Registration error:', err);
+      setError(errorMsg);
 
+      if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
+        setNetworkError(true);
+        showNotification('Network error. Please check your connection.', 'error');
+      } else {
+        showNotification('Registration failed. Please try again.', 'error');
+      }
+
+      return { success: false, error: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotification, clearAuthData]);
+
+  // Logout function - IMPROVED
   const logout = useCallback(() => {
     setLoading(true);
     showNotification('Logging out...', 'info');
 
     setTimeout(() => {
-      setUser(null);
-      localStorage.removeItem(TOKEN_TYPE);
-      setError(null);
+      clearAuthData();
+      setNetworkError(false);
       showNotification('Logged out successfully!', 'success');
-      navigate('/login');
+      window.location.reload();
+      navigate('/'); // Go to home instead of login
       setLoading(false);
     }, 800);
-  }, [navigate]);
+  }, [navigate, showNotification, clearAuthData]);
+
+  // Google login function - IMPROVED
+  const googleLogin = useCallback(async (credential) => {
+    try {
+      setError(null);
+      setLoading(true);
+      setNetworkError(false);
+
+      const response = await sendPostRequestToBackend('auth/google-login', { token: credential });
+
+      if (!response.success || !response.token) {
+        const errorMsg = response.msg || response.error || 'Google login failed';
+        setError(errorMsg);
+        showNotification(errorMsg, 'error');
+        return { success: false, error: errorMsg };
+      }
+
+      // Store token first
+      localStorage.setItem(TOKEN_TYPE, response.token);
+
+      // Then fetch user data
+      const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
+
+      if (accessUserData.error || accessUserData.er) {
+        const errorMsg = accessUserData.error || accessUserData.er;
+        showNotification(`Failed to get user data: ${errorMsg}`, "error");
+        clearAuthData();
+        return { success: false, error: errorMsg };
+      }
+
+      if (accessUserData.success && accessUserData.user) {
+        setUser(accessUserData.user);
+        setIsAuthenticated(true);
+        setNetworkError(false);
+        showNotification('Google login successful! 🎉', 'success');
+        setTimeout(() => {
+          window.location.reload(); // Reload to update UI
+        }, 800);
+        navigate('/profile'); // Redirect to profile after reload
+
+        return { success: true, user: accessUserData.user, token: response.token };
+      } else {
+        const errorMsg = 'Invalid user data response';
+        showNotification(errorMsg, 'error');
+        clearAuthData();
+        return { success: false, error: errorMsg };
+      }
+
+    } catch (err) {
+      const errorMsg = err.message || 'Google login failed';
+      console.error('Google login error:', err);
+      setError(errorMsg);
+
+      if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
+        setNetworkError(true);
+        showNotification('Network error. Please check your connection.', 'error');
+      } else {
+        showNotification('Google login failed. Please try again.', 'error');
+      }
+
+      return { success: false, error: errorMsg };
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotification, clearAuthData]);
+
+  // Function to check if user needs authentication
+  const requireAuth = useCallback(() => {
+    if (!isAuthenticated) {
+      showNotification('Please login to access this feature.', 'info');
+      navigate('/login');
+      return false;
+    }
+    return true;
+  }, [isAuthenticated, showNotification, navigate]);
+
+  useEffect(() => {
+    if (token && isAuthenticated) {
+      window.location.reload();
+    }
+  }, [setIsAuthenticated, token]);
 
   const value = {
     user,
     login,
     register,
     logout,
+    googleLogin,
+    requireAuth, // Add this for protected actions
     isLoading: loading,
+    isAuthenticated,
+    networkError, // Add this to show network status
     error,
     token,
-    setUser
+    setUser,
+    clearAuthData
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }

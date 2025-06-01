@@ -6,7 +6,7 @@ import sendDeleteRequestToBackend from '@/components/Request/Delete';
 import { useUserContext } from './ManageUsersContext.jsx';
 
 const AdminProductsContext = createContext();
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://1.app.api.shoppyfort.com/';
 
 export function AdminProductsProvider({ children }) {
     const [products, setProducts] = useState([]);

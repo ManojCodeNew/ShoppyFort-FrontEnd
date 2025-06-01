@@ -1,107 +1,250 @@
-@import '../variables';
+// Variables (assuming these are defined in your variables file)
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$white: #ffffff;
+$gray-light: #f8f9fa;
+$gray-medium: #6c757d;
+$gray-dark: #343a40;
+
+// Mixins
+@mixin mobile-only {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet-and-up {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
 .category-page {
   padding: 20px;
+  background-color: #fafafa;
+  min-height: 100vh;
+
+  .category-content {
+    margin-bottom: 24px;
+
+    .category-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: $gray-dark;
+      margin-bottom: 16px;
+      text-align: left;
+      letter-spacing: -0.5px;
+
+      @include mobile-only {
+        text-align: center;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+      }
+    }
+
+    .filter-button {
+      display: none;
+
+      @include mobile-only {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(135deg, $primary-color 0%, #0056b3 100%);
+        color: $white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        transition: all 0.3s ease;
+        width: 100%;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        &::before {
+          content: "⚙";
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    .filter-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      display: flex;
+      animation: fadeIn 0.3s ease;
+
+      .category-sidebar {
+        background: $white;
+        width: 280px;
+        height: 100%;
+        overflow-y: auto;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+        animation: slideInLeft 0.3s ease;
+      }
+
+      .close-filter {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: $white;
+          transform: scale(1.1);
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+    }
+  }
 
   .container {
     display: flex;
-    flex-wrap: wrap; // Allows wrapping on smaller screens
-    gap: 20px;
+    gap: 24px;
+    align-items: flex-start;
 
-    // Sidebar: Filters
+    @include mobile-only {
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .filter-product-container {
-      margin-top: 20px;
-      flex: 0 0 auto;
-      width: 250px;
-      max-width: 100%;
-      background-color: #dbdada;
-      padding: 20px;
-      border-radius: 8px;
-      box-sizing: border-box;
+      flex: 0 0 350px;
+      max-width: 350px;
 
       @include mobile-only {
-        display: none; // Hide sidebar on mobile
+        display: none;
       }
     }
 
-    // Product Grid: Right side
     .category-wise-product-grid {
-      margin-top: 20px;
       flex: 1;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); // Adjusts dynamically
-      gap: 15px;
-      height: fit-content;
-
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 0;
 
       @include mobile-only {
-        margin-left: 0;
         grid-template-columns: repeat(2, minmax(140px, 1fr));
-        gap: 10px;
+        gap: 12px;
+      }
+
+      // Ensure grid items have consistent height
+      > * {
+        height: fit-content;
+      }
+    }
+
+    .empty-msg {
+      flex: 1;
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 1.1rem;
+      color: $gray-medium;
+      background-color: $white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e9ecef;
+
+      @include mobile-only {
+        padding: 40px 16px;
+        font-size: 1rem;
+      }
+
+      &::before {
+        content: "🔍";
+        display: block;
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
       }
     }
   }
+}
 
-  .filter-button {
-    display: none;
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
-    @include mobile-only {
-      display: block;
-      margin-bottom: 10px;
-      background-color: #000;
-      color: #fff;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+// Responsive design improvements
+@media (max-width: 1200px) {
+  .category-page {
+    .container {
+      .filter-product-container {
+        flex: 0 0 300px;
+        max-width: 300px;
+      }
     }
   }
+}
 
-  .filter-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+@media (min-width: 768px) and (max-width: 1024px) {
+  .category-page {
+    .container {
+      gap: 20px;
 
-    .category-sidebar {
-      background: #fff;
-      width: 250px;
-      height: 100%;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      overflow-y: auto;
-    }
-
-    .close-filter {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(255, 255, 255, 0.724);
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      width: 40px;
-      height: 40px;
+      .category-wise-product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 16px;
+      }
     }
   }
+}
 
-  .empty-msg {
-    margin: 20px auto;
-    text-align: center;
-    font-size: 16px;
-  }
-
-  .category-title {
-    font-size: 24px;
-    font-weight: bold;
-
-    @include mobile-only {
-      text-align: center;
-      font-size: 20px;
+// High DPI display optimizations
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .category-page {
+    .category-content {
+      .filter-modal {
+        .close-filter {
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+        }
+      }
     }
   }
 }

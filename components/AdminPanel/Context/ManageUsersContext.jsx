@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 // Create Context
 const UserContext = createContext();
 const TOKEN_TYPE = "adminToken";
+const ADMIN_AUTH = "adminAuth";
 
 // Create Provider component
 export function UserProvider({ children }) {
@@ -39,7 +40,7 @@ export function UserProvider({ children }) {
         showNotification('Logging out...', 'info');
 
         setTimeout(() => {
-            localStorage.removeItem('adminAuth');
+            localStorage.removeItem(ADMIN_AUTH);
             localStorage.removeItem(TOKEN_TYPE);
             showNotification('Logged out successfully!', 'success');
             navigate('/admin/login');
@@ -47,12 +48,13 @@ export function UserProvider({ children }) {
     }, [navigate]);
 
     useEffect(() => {
+        if (!token) {
+            return navigate("/admin/login"); // Redirect if no token            
+        }
         if (token) {
             fetchUsers();
-        } else {
-            navigate("/admin/login");
         }
-    }, [token, showNotification]);
+    }, [token, showNotification, navigate]);
 
     const value = { allUsers, fetchUsers, token, logout };
 

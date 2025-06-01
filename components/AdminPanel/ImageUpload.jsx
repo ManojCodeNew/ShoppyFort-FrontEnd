@@ -248,7 +248,7 @@ function ImageUpload({ productName, colors }) {
 
             formData.append("colorImages", JSON.stringify(newImagesMap));
 
-            const response = await fetch("http://localhost:3000/upload-product-images", {
+            const response = await fetch(`${API_BASE_URL}/upload-product-images`, {
                 method: "POST",
                 body: formData,
             });

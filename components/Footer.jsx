@@ -1,113 +1,167 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, MapPin, Phone, Mail } from 'lucide-react';
+import { useProducts } from '@/contexts/ProductsContext';
 import '../styles/components/footer.scss';
 import Sign from '../assets/Images/sign.jpg';
 
 const Footer = () => {
   const navigate = useNavigate();
+  const { products } = useProducts();
 
   const handleAboutUsClick = () => {
+
     navigate('/about-us');
   };
+  const handleQuickLinkClick = (path) => {
+    navigate(path);
+    // Smooth scroll to top after navigation
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+    }, 10); // Small delay to ensure navigation completes
+  };
+  // Extract unique categories from products
+  const availableCategories = React.useMemo(() => {
+    if (!products || products.length === 0) return [];
+
+    const categorySet = new Set();
+    products.forEach(product => {
+      if (product.category) {
+        categorySet.add(product.category);
+      }
+    });
+
+    return Array.from(categorySet);
+  }, [products]);
+
+  // Generate quick links based on available categories
+  const generateQuickLinks = () => {
+    const genders = ['men', 'women', 'kids'];
+    const quickLinks = [];
+
+    genders.forEach(gender => {
+      availableCategories.forEach(category => {
+        // Check if products exist for this gender-category combination
+        const hasProducts = products.some(product =>
+          product.gender === gender && product.category === category
+        );
+
+        if (hasProducts) {
+          const linkText = `${gender.charAt(0).toUpperCase() + gender.slice(1)}'s ${category}`;
+          const linkPath = `/category/${gender}/${category.toLowerCase().replace(/\s+/g, '-')}`;
+
+          quickLinks.push({
+            text: linkText,
+            path: linkPath,
+            key: `${gender}-${category}`
+          });
+        }
+      });
+    });
+
+    return quickLinks;
+  };
+
+  const quickLinks = generateQuickLinks();
 
   return (
     <footer className="footer">
+      {/* Main Footer Content */}
       <div className="footer-content">
+
+        {/* About Us Section */}
         <div className="footer-section">
-          <button 
-            onClick={handleAboutUsClick}
+          <h3>About Us</h3>
+          <p>
+            We are a premium fashion destination bringing you the latest trends in clothing, accessories, and lifestyle products. Our mission is to make fashion accessible to everyone, while upholding the highest standards of quality and style.
+          </p>
+
+          <button
+            onClick={() => handleQuickLinkClick('/about-us')}
             className="about-us-btn"
           >
-            About Us
+            Learn More
           </button>
-          <p>
-            We are a premium fashion destination offering the latest trends in clothing,
-            accessories, and lifestyle products. Our mission is to make fashion accessible
-            to everyone while maintaining the highest quality standards.
-          </p>
+
+          {/* Social Links */}
           <div className="social-links">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+            <a href="#" aria-label="Facebook">
               <Facebook />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+            <a href="#" aria-label="Twitter">
               <Twitter />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <a href="#" aria-label="Instagram">
               <Instagram />
             </a>
-            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+            <a href="#" aria-label="YouTube">
               <Youtube />
             </a>
           </div>
         </div>
 
-        <div className="footer-section">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><Link to="/men">Men's Fashion</Link></li>
-            <li><Link to="/women">Women's Fashion</Link></li>
-            <li><Link to="/kids">Kids' Fashion</Link></li>
-            <li><Link to="/accessories">Accessories</Link></li>
-            <li><Link to="/new-arrivals">New Arrivals</Link></li>
-          </ul>
-        </div>
+        {/* Quick Links Section - Only show if categories are available */}
+        {quickLinks.length > 0 && (
+          <div className="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              {quickLinks.slice(0, 8).map(link => (
+                <li key={link.key} onClick={() => handleQuickLinkClick(link.path)}>
+                  <Link to={link.path}>{link.text}</Link>
+                </li>
+              ))}
+              {availableCategories.includes('accessories') && (
+                <li><Link to="/accessories">Accessories</Link></li>
+              )}
+            </ul>
+          </div>
+        )}
 
-        <div className="footer-section">
-          <h3>Customer Service</h3>
-          <ul>
-            <li><Link to="/contact">Contact Us</Link></li>
-            <li><Link to="/shipping">Shipping Information</Link></li>
-            <li><Link to="/returns">Returns & Exchanges</Link></li>
-            <li><Link to="/size-guide">Size Guide</Link></li>
-            <li><Link to="/faq">FAQ</Link></li>
-          </ul>
-        </div>
-
+        {/* Contact Info Section */}
         <div className="footer-section">
           <h3>Contact Info</h3>
           <div className="contact-info">
             <p>
               <MapPin className="icon" />
-              Fashion Store
-              <br />Mangalore, DK 575001
+              <span>
+                <strong>UAE</strong><br />
+                Block B - B41-065
+                <br />
+              </span>
             </p>
             <p>
               <Phone className="icon" />
-              +91 9876543210
+              <span>+971 50 870 3086</span>
             </p>
             <p>
               <Mail className="icon" />
-              support@fashionstore.com
+              <span>shoppyfort2025@gmail.com</span>
             </p>
           </div>
         </div>
       </div>
 
-      <div className="signature-of-ragavendraswami">
-        <img src={Sign} alt="Signature" className="sign" />
+      {/* Company Signature */}
+      <div className="footer-signature">
+        <img src={Sign} alt="Company Signature" className="sign" />
       </div>
 
+      {/* Footer Bottom */}
       <div className="footer-bottom">
         <div className="footer-bottom-content">
           <p>
-            &copy; {new Date().getFullYear()} Fashion Store. All rights reserved.{' '}
-            <span>
-              Developed by{' '}
-              <a 
-                href="https://vinyasatech.com/" 
-                className="company-link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                VINYASA
-              </a>
-            </span>
+            © {new Date().getFullYear()} Bhakti (F2F). All rights reserved.{' '}
+            Developed by{' '}
+            <a href="https://vinyasatech.com/" className="company-link">
+              VINYASA
+            </a>
           </p>
-          <div className="footer-links">
-            <Link to="/privacy">Privacy Policy</Link>
-            <Link to="/terms">Terms of Service</Link>
-          </div>
+
+
         </div>
       </div>
     </footer>

@@ -29,7 +29,7 @@
   justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
-  border-radius: 20px;
+  /* border-radius: 20px; */
   margin-top: 20px;
   position: relative;
   overflow: hidden;
@@ -110,6 +110,7 @@
 .stat-label {
   font-size: 0.9rem;
   opacity: 0.8;
+  color: rgb(226, 226, 226);
 }
 
 .hero-visual {
@@ -146,8 +147,13 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 /* Section Styles */
@@ -318,7 +324,11 @@ section {
   right: -50%;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
 }
 
 .license-header {
@@ -434,7 +444,7 @@ section {
   background: linear-gradient(135deg, #008353, #003250);
   color: white;
   text-align: center;
-  border-radius: 20px;
+  /* border-radius: 20px; */
 }
 
 .contact-content h2 {
@@ -452,8 +462,8 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  background: #25D366;
-  color: white;
+  background: #25d365b2;
+  color: rgb(255, 255, 255);
   padding: 15px 30px;
   border: none;
   border-radius: 50px;
@@ -465,7 +475,7 @@ section {
 }
 
 .whatsapp-btn:hover {
-  background: #128C7E;
+  background: #128c7e;
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
 }
@@ -481,7 +491,7 @@ section {
   right: 30px;
   width: 60px;
   height: 60px;
-  background: #25D366;
+  background: #25d366;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -496,15 +506,21 @@ section {
 }
 
 .floating-whatsapp:hover {
-  background: #128C7E;
+  background: #128c7e;
   transform: scale(1.1);
   box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5);
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
 }
 
 /* Responsive Design */
@@ -514,28 +530,28 @@ section {
     text-align: center;
     padding: 60px 20px;
   }
-  
+
   .hero-title {
     font-size: 2.5rem;
   }
-  
+
   .hero-stats {
     justify-content: center;
     gap: 30px;
   }
-  
+
   .license-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .section-header h2 {
     font-size: 2rem;
   }
-  
+
   section {
     padding: 60px 20px;
   }
-  
+
   .floating-whatsapp {
     bottom: 20px;
     right: 20px;
@@ -549,21 +565,21 @@ section {
   .hero-title {
     font-size: 2rem;
   }
-  
+
   .hero-subtitle {
     font-size: 1.1rem;
   }
-  
+
   .hero-stats {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .about-grid,
   .activities-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .license-note {
     flex-direction: column;
     text-align: center;
