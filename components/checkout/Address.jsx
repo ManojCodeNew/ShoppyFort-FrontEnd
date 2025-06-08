@@ -35,7 +35,7 @@ export default function Address() {
   const { showNotification } = useNotification();
 
   const navigate = useNavigate();
-  const { cartItems, fetchCartItems, totalCost, VAT_Price, clearCart } = useCart();
+  const { cartItems, fetchCartItems, totalCostwithVAT, VAT_Price, clearCart } = useCart();
   const [showAddressForm, setShowAddressForm] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('Online');
   const [loading, setLoading] = useState(false);
@@ -92,11 +92,11 @@ export default function Address() {
 
   useEffect(() => {
     if (wallet && wallet.balance > 0) {
-      const usableAmount = Math.min(wallet?.balance, totalCost);
+      const usableAmount = Math.min(wallet?.balance, totalCostwithVAT);
       setWalletUsed(parseFloat(usableAmount.toFixed(2)));
-      setRemainingAmount(parseFloat(Math.max(0, totalCost - usableAmount).toFixed(2)));
+      setRemainingAmount(parseFloat(Math.max(0, totalCostwithVAT - usableAmount).toFixed(2)));
     }
-  }, [wallet, totalCost]);
+  }, [wallet, totalCostwithVAT]);
 
   // store form data to the state
   const handleChange = (e) => {
@@ -216,7 +216,7 @@ export default function Address() {
     let orderData;
     if (useWalletMoney) {
       let paymentResult = await processWalletPayment(
-        totalCost,
+        totalCostwithVAT,
         orderDetails.orderid,
         'wallet'
       );
@@ -233,7 +233,7 @@ export default function Address() {
           (paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet') :
           paymentMethod,
         paymentDetails: {
-          amount: totalCost,
+          amount: totalCostwithVAT,
           currency: 'aed',
           method: 'wallet',
           status: 'succeeded'
@@ -249,7 +249,7 @@ export default function Address() {
         paymentDetails: {
           method: 'cash',
           status: 'pending',
-          amount: totalCost,
+          amount: totalCostwithVAT,
           currency: 'aed'
         },
         isPaid: false,
@@ -340,7 +340,7 @@ export default function Address() {
 
         )}
         <div className='cart-price-details'>
-          <PriceDetails totalMRP={totalMRP} discountMRP={discountMRP} totalCost={totalCost} VAT_Price={VAT_Price} />
+          <PriceDetails totalMRP={totalMRP} discountMRP={discountMRP} totalCost={totalCostwithVAT} VAT_Price={VAT_Price} />
           {selectedAddressPresence && (
             <>
               <div className="payment-method">

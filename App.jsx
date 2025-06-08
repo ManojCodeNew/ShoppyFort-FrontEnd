@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import './index.css';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
@@ -79,6 +79,7 @@ const App = () => {
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminPanelLogin />} />
       <Route path="/admin/*" element={
+        localStorage.getItem("adminAuth") === "true" && localStorage.getItem("adminToken") ? 
         <UserProvider>
           <AdminProductsProvider>
             <AdminOffersProvider>
@@ -90,6 +91,8 @@ const App = () => {
             </AdminOffersProvider>
           </AdminProductsProvider>
         </UserProvider>
+        :
+        <Navigate to="/admin/login" />
       }>
         <Route index element={<Dashboard />} />
         <Route path="products/manage" element={<ManageProduct />} />

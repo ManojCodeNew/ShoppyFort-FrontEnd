@@ -22,7 +22,7 @@ const OrderPlaced = () => {
           <p><strong>Customer Name:</strong> {order.shippingaddress.username}</p>
           <p><strong>Shipping Address:</strong> {order.shippingaddress.deliveryaddress}</p>
 
-          <h3 className="total-amount">Total Amount: ${order.totalprice.toFixed(2)}</h3>
+          <h3 className="total-amount">Total Amount: ${order.totalprice}</h3>
         </div>
       )}
       <div className="actions">

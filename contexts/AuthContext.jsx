@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userDataLoaded, setUserDataLoaded] = useState(false); 
+  const [userDataLoaded, setUserDataLoaded] = useState(false);
   const [networkError, setNetworkError] = useState(false);
   const { showNotification } = useNotification();
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
   const clearAuthData = useCallback(() => {
     setUser(null);
     setIsAuthenticated(false);
+    setUserDataLoaded(false);
     localStorage.removeItem(TOKEN_TYPE);
     setError(null);
   }, []);
@@ -71,6 +72,8 @@ export function AuthProvider({ children }) {
         // If no token, just finish loading - DON'T redirect
         if (!storedToken) {
           setLoading(false);
+          setUserDataLoaded(true);
+
           return;
         }
 
@@ -79,6 +82,8 @@ export function AuthProvider({ children }) {
           console.log("Token expired, clearing auth data");
           clearAuthData();
           setLoading(false);
+          setUserDataLoaded(true);
+
           return;
         }
 
@@ -88,6 +93,7 @@ export function AuthProvider({ children }) {
 
         while (retryCount < maxRetries) {
           try {
+            console.log("Fetching user data with token:", storedToken);
             // Fetch user data with the stored token
             const accessUserData = await sendGetRequestToBackend('auth/getUser', storedToken);
 
@@ -140,6 +146,8 @@ export function AuthProvider({ children }) {
         // Don't clear auth data on initialization errors
       } finally {
         setLoading(false);
+        setUserDataLoaded(true);
+
       }
     };
 
@@ -156,27 +164,16 @@ export function AuthProvider({ children }) {
       const response = await sendPostRequestToBackend('auth/login', { email, password });
 
       // Handle error responses
-      if (response.msg) {
-        setError(response.msg);
-        showNotification(response.msg, "error");
-        return { success: false, error: response.msg };
-      }
-
-      if (response.er) {
-        setError(response.er);
-        showNotification(response.er, "error");
-        return { success: false, error: response.er };
-      }
-
-      if (response.error) {
-        setError(response.error);
-        showNotification(response.error, "error");
-        return { success: false, error: response.error };
+      if (response.msg || response.er || response.error) {
+        const errorMsg = response.msg || response.er || response.error;
+        setError(errorMsg);
+        showNotification(errorMsg, "error");
+        return { success: false, error: errorMsg };
       }
 
       // Check if we got a valid response
-      if (!response.token) {
-        const errorMsg = 'Invalid login response - no token received';
+      if (!response.success || !response.token) {
+        const errorMsg = response.message || 'Invalid login response - no token received';
         setError(errorMsg);
         showNotification(errorMsg, 'error');
         return { success: false, error: errorMsg };
@@ -335,10 +332,30 @@ export function AuthProvider({ children }) {
       setLoading(true);
       setNetworkError(false);
 
+      if (!credential) {
+        throw new Error('No credential received from Google');
+      }
+
       const response = await sendPostRequestToBackend('auth/google-login', { token: credential });
+      console.log('Google login response:', response);
+
+      // Check for various error formats
+      if (response.error || response.er) {
+        const errorMsg = response.error || response.er || 'Google login failed - no error message received';
+        setError(errorMsg);
+        showNotification(errorMsg, 'error');
+        return { success: false, error: errorMsg };
+      }
+
+      if (response.msg && !response.success) {
+        const errorMsg = response.msg;
+        setError(errorMsg);
+        showNotification(errorMsg, 'error');
+        return { success: false, error: errorMsg };
+      }
 
       if (!response.success || !response.token) {
-        const errorMsg = response.msg || response.error || 'Google login failed';
+        const errorMsg = response.msg || response.error || 'Google login failed - no token received';
         setError(errorMsg);
         showNotification(errorMsg, 'error');
         return { success: false, error: errorMsg };

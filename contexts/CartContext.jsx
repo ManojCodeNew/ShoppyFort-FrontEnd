@@ -179,17 +179,22 @@ export const CartProvider = ({ children }) => {
     }, [token]);
 
     // Calculate total cost of items in the cart
-    const totalCost_of_products = cartItems?.reduce((sum, item) => {
-        const itemTotal = (item.quantity || 1) * (item.price || 0);
-        return sum + itemTotal;
+    const totalCost_of_products_in_paise = cartItems?.reduce((sum, item) => {
+        const itemTotalInPaise = (item.quantity || 1) * Math.round((item.price || 0) * 100);
+        return sum + itemTotalInPaise;
     }, 0) || 0;
-    const VAT_Price = Number((totalCost_of_products * 0.05).toFixed(2));
-    const totalCost = Number((totalCost_of_products + VAT_Price).toFixed(2));
+    const VAT_Price_in_paise = Math.round(totalCost_of_products_in_paise * 0.05);
+    const totalCost_in_paise = totalCost_of_products_in_paise + VAT_Price_in_paise;
+
+    const totalCostwithoutVAT = (totalCost_of_products_in_paise / 100).toFixed(2);
+    const VAT_Price = (VAT_Price_in_paise / 100).toFixed(2);
+    const totalCostwithVAT = (totalCost_in_paise / 100).toFixed(2);
+
     const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
     console.log("VAT_Price in cartcontext", VAT_Price);
 
-    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCost, totalItems, clearCart, VAT_Price, fetchCartItems }
+    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCostwithVAT, totalCostwithoutVAT, totalItems, clearCart, VAT_Price, fetchCartItems }
     return (
         <CartContext.Provider value={value}>
             {children}

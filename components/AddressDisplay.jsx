@@ -10,7 +10,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     const [addressData, setAddressData] = useState(addressList);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const { selectedAddressPresence, setSelectedAddressPresence } = useAddress();
-    const { cartItems, totalCost } = useCart();
+    const { cartItems, totalCostwithVAT } = useCart();
     const { user, token } = useAuth();
 
     // Access Token
@@ -38,7 +38,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
                     userid: user._id,
                     shippingaddress: shippingAddress,
                     items: cartItems,
-                    totalprice: totalCost
+                    totalprice: totalCostwithVAT
                 }
                 setOrderDetails(orderDetails);
             }

@@ -24,8 +24,9 @@ const AdminPanelLogin = () => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
+        const { username, password } = credentials;
 
-        if (!credentials.username.trim() || !credentials.password.trim()) {
+        if (!username.trim() || !password.trim()) {
             setError('Please enter both username and password.');
             setIsLoading(false);
             return;
@@ -36,8 +37,10 @@ const AdminPanelLogin = () => {
             if (response.success) {
                 localStorage.setItem('adminAuth', 'true');
                 localStorage.setItem('adminToken', response.token);
-
-                navigate('/admin');
+                setTimeout(() => {
+                    navigate('/admin');
+                    window.location.reload(); // force context to reload properly
+                }, 300);
             } else {
                 setError(response.message || 'Login failed');
             }

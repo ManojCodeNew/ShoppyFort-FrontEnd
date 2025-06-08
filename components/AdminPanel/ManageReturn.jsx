@@ -13,7 +13,6 @@ const ManageReturn = () => {
     const [confirmModal, setConfirmModal] = useState({ show: false, returnId: null, statusToUpdate: null });
     const [otpModal, setOtpModal] = useState({ show: false, returnId: null, otp: "", expiresAt: null, statusToUpdate: null });
     const [timeLeft, setTimeLeft] = useState(0);
-    // const [walletCreditedItems, setWalletCreditedItems] = useState(new Set());
     const [walletCreditAttempts, setWalletCreditAttempts] = useState(new Map());
     const [processingCredits, setProcessingCredits] = useState(new Set());
 
@@ -51,7 +50,6 @@ const ManageReturn = () => {
     }, [updateStatus]);
 
     const handleReject = useCallback((id) => updateStatus(id, "rejected"), [updateStatus]);
-    // const handleDelete = useCallback((id) => deleteReturn(id), [deleteReturn]);
     const toggleDetails = (id) => setExpandedRowId(prev => (prev === id ? null : id));
 
     const handleStatusChange = (id, status) => {
@@ -76,7 +74,6 @@ const ManageReturn = () => {
                 otp,
                 otpExpiresAt: expiresAt
             };
-
             sendReturnOtpToBackend(otpPayload);
             setOtpModal({ show: true, returnId: returnData._id, otp: "", expiresAt, statusToUpdate });
             setTimeLeft(60);
@@ -87,6 +84,12 @@ const ManageReturn = () => {
         }
         setConfirmModal({ show: false, returnId: null, statusToUpdate: null });
     };
+
+    const VAT_PERCENTAGE = 0.05;
+
+    function truncateToTwoDecimals(value) {
+        return Math.floor(value * 100) / 100;
+    }
 
     const verifyOtp = async (returnId) => {
         const otpResponse = await getReturnOtpOnDb(returnId);
@@ -109,9 +112,16 @@ const ManageReturn = () => {
 
             // Handle wallet credit for save_to_wallet returns
             if (statusToUpdate === "picked_up" && returnData?.returntype === "save_to_wallet") {
-                const price = returnData.productDetails?.price || 0;
+                const basePrice = returnData.productDetails?.price || 0;
                 const quantity = returnData.productDetails?.quantity || 1;
-                const totalAmount = price * quantity;
+                // Convert price to paise (integer)
+                const totalPriceInPaise = Math.round(basePrice * 100) * quantity;
+                // Calculate VAT in paise (5%)
+                const vatInPaise = Math.round(totalPriceInPaise * VAT_PERCENTAGE);
+                // Total amount in paise (price + VAT)
+                const totalAmountInPaise = totalPriceInPaise + vatInPaise;
+                // Convert paise back to rupees and truncate to 2 decimals
+                const totalAmount = truncateToTwoDecimals(totalAmountInPaise / 100);
 
                 const walletCreditSuccess = await creditMoneyToWallet(returnId, totalAmount);
 
@@ -143,6 +153,7 @@ const ManageReturn = () => {
 
     const renderActions = (item) => {
         const isReplacement = item.returntype === "replacement";
+        const isSaveToWallet = item.returntype === "save_to_wallet";
 
         switch (item.status) {
             case "return_requested":
@@ -176,13 +187,6 @@ const ManageReturn = () => {
                     </select>
                 );
             case "picked_up":
-                if (item.status ) {
-
-                    return <span className="status-completed">Wallet Credited</span>;
-                    // return (<span className="status-completed">
-                    //     Completed - Amount Credited to Wallet
-                    // </span>)
-                }
 
                 if (isReplacement) {
                     return (
@@ -199,8 +203,14 @@ const ManageReturn = () => {
                             <option value="replacement_shipped">🚚 Replacement Shipped</option>
                         </select>
                     );
+                } else if (isSaveToWallet) {
+                    return <span className="status-completed">Processing Wallet Credit...</span>;
                 }
                 return null;
+            case "wallet_credited":
+                return isSaveToWallet ? (
+                    <span className="status-completed">Completed - Amount Credited to Wallet</span>
+                ) : null;
             case "replacement_shipped":
                 return isReplacement ? (
                     <select
@@ -218,7 +228,7 @@ const ManageReturn = () => {
             case "delivered":
                 return isReplacement ? (
                     <span className="status-completed">
-                        Completed
+                        Completed - Replacement Delivered
                     </span>
                 ) : null;
             case "rejected":

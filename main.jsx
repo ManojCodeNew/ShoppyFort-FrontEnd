@@ -26,7 +26,11 @@ root.render(
       <NotificationProvider>
         <AuthProvider>
           <WalletProvider>
-            <GoogleOAuthProvider clientId="994690946679-8sjellqs7o44r8b3ij4oqduasatgmc91.apps.googleusercontent.com">
+            <GoogleOAuthProvider
+              clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
+              onScriptLoadError={() => console.error('Google OAuth script failed to load')}
+              onScriptLoadSuccess={() => console.log('Google OAuth script loaded successfully')}
+            >
               <ProductProvider>
                 <CartProvider>
                   <AddressProvider>
@@ -34,7 +38,7 @@ root.render(
                       <OrderDetailsProvider>
                         <UserNotificationsProvider>
                           <OffersProvider>
-                              <App />
+                            <App />
                           </OffersProvider>
                         </UserNotificationsProvider>
                       </OrderDetailsProvider>

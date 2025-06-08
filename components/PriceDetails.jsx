@@ -2,8 +2,8 @@ import React from 'react'
 import "../styles/components/ProductDetails.scss";
 import { useCart } from '../contexts/CartContext';
 export default function PriceDetails({ totalMRP, discountMRP }) {
-    const { totalCost,VAT_Price } = useCart(); // Use the context values
-console.log("PriceDetails component rendered with totalMRP:", totalMRP, "discountMRP:", discountMRP, "totalCost:", totalCost, "VAT_Price:", VAT_Price);
+    const { totalCostwithVAT, VAT_Price, totalCost_of_products } = useCart(); // Use the context values
+    console.log("PriceDetails component rendered with totalMRP:", totalMRP, "discountMRP:", discountMRP, "totalCost:", totalCostwithVAT, "VAT_Price:", VAT_Price);
 
     return (
         <>
@@ -41,7 +41,7 @@ console.log("PriceDetails component rendered with totalMRP:", totalMRP, "discoun
 
                         <tr className="Total-amt">
                             <td>Total Amount</td>
-                            <td> <small className="currency-label">AED</small>{totalCost}</td>
+                            <td> <small className="currency-label">AED</small>{totalCostwithVAT}</td>
 
                         </tr>
                     </tbody>

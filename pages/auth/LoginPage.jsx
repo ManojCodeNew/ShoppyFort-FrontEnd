@@ -21,10 +21,10 @@ const LoginPage = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated && userDataLoaded) {
-      console.log('User is authenticated and data is loaded, redirecting to:', from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, userDataLoaded, navigate, from]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,8 +61,11 @@ const LoginPage = () => {
       showNotification('Google login failed - no credential received', 'error');
       return;
     }
+    console.log('Google login credential received:', credentialResponse);
+
 
     try {
+      setIsSubmitting(true);
       const result = await googleLogin(credentialResponse.credential);
 
       if (result.success) {
@@ -74,13 +77,16 @@ const LoginPage = () => {
     } catch (err) {
       console.error('Google login error:', err);
       showNotification('Google login error occurred', 'error');
+    }finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleGoogleLoginError = () => {
     showNotification('Google login failed!', 'error');
   };
-
+  console.log('Current origin:', window.location.origin);
+  console.log('Current pathname:', window.location.pathname);
   const isFormDisabled = isLoading || isSubmitting;
 
   return (
@@ -137,9 +143,10 @@ const LoginPage = () => {
           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={handleGoogleLoginError}
-            disabled={isFormDisabled}
+            auto_select={false}
+            theme="outline"
             size="large"
-            width="100%"
+            text="signin_with"
           />
         </div>
 

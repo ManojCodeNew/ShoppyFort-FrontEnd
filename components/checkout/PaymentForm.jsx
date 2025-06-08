@@ -26,7 +26,7 @@ const CARD_ELEMENT_OPTIONS = {
 const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
-    const { totalCost, clearCart } = useCart();
+    const { totalCostwithVAT, clearCart } = useCart();
     const { orderDetails, setOrderDetails } = useOrderDetails();
     const { showNotification } = useNotification();
     const { token, user } = useAuth();
@@ -58,7 +58,7 @@ const PaymentForm = () => {
             const response = await fetch(`${API_BASE_URL}/payments/create-payment-intent`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: Math.round(totalCost * 100) }),
+                body: JSON.stringify({ amount: Math.round(totalCostwithVAT * 100) }),
             });
             const data = await response.json();
             console.log("Payment Response:", data);
