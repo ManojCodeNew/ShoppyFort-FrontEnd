@@ -14,6 +14,8 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
+        console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
     if (!user) {
       navigate('/login');
     } else {

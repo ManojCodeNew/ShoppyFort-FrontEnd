@@ -1,17 +1,19 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 async function sendPostRequestToBackend(path, data, token) {
     console.log("Sending POST request to backend:", path, data, token);
+    console.log("POST request:", { path, origin: window.location.origin });
 
     try {
         const headers = {
             'Content-Type': 'application/json',
+            'Origin': window.location.origin,
         };
 
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
         // Log the request details for debugging
         console.log('Making POST request to:', `${API_BASE_URL}/${path}`);
         console.log('Request data:', data);
@@ -44,9 +46,9 @@ async function sendPostRequestToBackend(path, data, token) {
                 if (errorData.error === 'TokenExpired') {
                     localStorage.removeItem('adminToken');
                     localStorage.removeItem('adminAuth');
-                    localStorage.removeItem('token'); // Also remove user token
+                    localStorage.removeItem('token');
                     window.alert('Session expired, please log in again.');
-                    window.location.href = '/login'; // Redirect to user login, not admin
+                    window.location.href = '/login';
                     return null;
                 }
                 return {
@@ -65,29 +67,29 @@ async function sendPostRequestToBackend(path, data, token) {
                     status: response.status
                 };
             }
- // For other error statuses
-            return { 
-                error: errorData.error || errorData.msg || 'Request failed', 
+            // For other error statuses
+            return {
+                error: errorData.error || errorData.msg || 'Request failed',
                 status: response.status,
                 details: errorData
             };
         }
-        
+
         const result = await response.json();
         console.log("Successful response:", result);
         return result;
-        
+
     } catch (error) {
         console.error('POST request error:', error);
-        
+
         if (error.name === 'AbortError') {
             return { error: 'Request timeout. Please try again.' };
         }
-        
+
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
             return { error: 'Network error. Please check your connection and server status.' };
         }
-        
+
         return { error: error.message || 'Request failed' };
     }
 }

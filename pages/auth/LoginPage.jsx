@@ -55,29 +55,58 @@ const LoginPage = () => {
       setIsSubmitting(false);
     }
   };
+  useEffect(() => {
+    console.log('=== DEBUG INFO ===');
+    console.log('Current origin:', window.location.origin);
+    console.log('Current href:', window.location.href);
+    // console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
+    console.log('API URL:', import.meta.env.VITE_API_URL);
+  }, []);
 
   const handleGoogleLogin = async (credentialResponse) => {
+    console.log('Google login initiated on domain:', window.location.origin);
+
+
+
     if (!credentialResponse.credential) {
       showNotification('Google login failed - no credential received', 'error');
       return;
     }
-    console.log('Google login credential received:', credentialResponse);
-
 
     try {
       setIsSubmitting(true);
-      const result = await googleLogin(credentialResponse.credential);
+      // Add retry logic for production
+      let retryCount = 0;
+      const maxRetries = 3;
+      let result;
 
-      if (result.success) {
-        console.log('Google login successful, user will be redirected to:', from);
-        // navigate(from, { replace: true });
+      while (retryCount < maxRetries) {
+        try {
+          result = await googleLogin(credentialResponse.credential);
+          break;
+        } catch (error) {
+          console.error(`Google login attempt ${retryCount + 1} failed:`, error);
+          retryCount++;
+
+          if (retryCount < maxRetries) {
+            // Wait before retry (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          } else {
+            throw error; // Max retries reached
+          }
+        }
+      }
+      if (result && result.success) {
+        console.log('Google login successful');
       } else {
         console.log('Google login failed:', result.error);
+        showNotification(result?.error || 'Google login failed', 'error');
+
       }
     } catch (err) {
       console.error('Google login error:', err);
       showNotification('Google login error occurred', 'error');
-    }finally {
+    } finally {
       setIsSubmitting(false);
     }
   };

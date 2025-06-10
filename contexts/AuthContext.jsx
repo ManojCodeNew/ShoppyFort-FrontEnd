@@ -328,6 +328,12 @@ export function AuthProvider({ children }) {
   // Google login function - IMPROVED
   const googleLogin = useCallback(async (credential) => {
     try {
+      // Add to your AuthContext
+      console.log('Environment:', {
+        origin: window.location.origin,
+        // apiUrl: API_BASE_URL,
+        nodeEnv: import.meta.env.MODE
+      });
       setError(null);
       setLoading(true);
       setNetworkError(false);
