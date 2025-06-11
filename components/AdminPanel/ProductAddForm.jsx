@@ -32,6 +32,12 @@ const ProductAddForm = () => {
     const navigate = useNavigate();
     const { showNotification } = useNotification();
 
+    const capitalizeWords = (str) => {
+        return str.trim().split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    };
+
     useEffect(() => {
         if (initialData) {
             setProductData(initialData);
@@ -40,7 +46,7 @@ const ProductAddForm = () => {
             // Extract unique categories
             const uniqueCategories = [
                 ...new Set(products.map((p) => p.category).filter(cat => cat && cat.trim() !== ''))
-            ];
+            ].map(cat => capitalizeWords(cat));
             setCategories(uniqueCategories);
         }
     }, [initialData, products]);
@@ -139,7 +145,7 @@ const ProductAddForm = () => {
         }
     };
 
-return (
+    return (
         <div className="product-form">
             <div className="form-header">
                 <h2>{initialData ? 'Edit Product' : 'Add Product'}</h2>

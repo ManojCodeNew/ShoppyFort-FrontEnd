@@ -9,81 +9,166 @@ import {
   Tag,
   Gift,
   LogOut,
-  PackageX
+  PackageX,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { useUserContext } from './Context/ManageUsersContext.jsx';
 import './styles/sidebar.css';
 
 const Sidebar = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedMenu, setExpandedMenu] = useState(null);
   const { logout } = useUserContext();
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+    // Close any expanded menus when collapsing
+    if (!isCollapsed) {
+      setExpandedMenu(null);
+    }
+  };
+
   const toggleSubMenu = (menuName) => {
+    if (isCollapsed) return; // Don't toggle submenu when collapsed
     setExpandedMenu(expandedMenu === menuName ? null : menuName);
   };
 
   return (
-    <div className="sidebar-container">
-      <div className="sidebar-header">
-        <ShoppingBag className="sidebar-logo-icon" />
-        <span className="sidebar-logo-text">Shopyfort Admin</span>
-      </div>
+    <>
+      <div className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
 
-      <nav className="sidebar-menu">
-        {/* Dashboard */}
-        <NavLink to="/admin" className="sidebar-menu-item">
-          <LayoutDashboard className="sidebar-menu-icon" />
-          <span>Dashboard</span>
-        </NavLink>
 
-        {/* Orders */}
-        <NavLink to="/admin/manage-order" className="sidebar-menu-item">
-          <ShoppingBag className="sidebar-menu-icon" />
-          <span>Orders</span>
-        </NavLink>
-        <NavLink to="/admin/manage-return" className="sidebar-menu-item">
-          <PackageX className="sidebar-menu-icon" />
-          <span>Returns</span>
-        </NavLink>
-        {/* Customers */}
-        {/* <NavLink to="/admin/customers" className="sidebar-menu-item">
-          <Users className="sidebar-menu-icon" />
-          <span>Customers</span>
-        </NavLink> */}
-
-        {/* Add Offers */}
-        <NavLink to="/admin/add-offer" className="sidebar-menu-item">
-          <Gift className="sidebar-menu-icon" />
-          <span>Add Offers</span>
-        </NavLink>
-
-        {/* Products (with Submenu) */}
-        <div className="sidebar-menu-group">
-          <div className="sidebar-menu-item has-submenu" onClick={() => toggleSubMenu("products")}>
-            <Package className="sidebar-menu-icon" />
-            <span>Products</span>
+        {/* Sidebar Header */}
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <ShoppingBag className="sidebar-logo-icon" />
+            {!isCollapsed && <span className="sidebar-logo-text">Shopyfort Admin</span>}
           </div>
-
-          {expandedMenu === "products" && (
-            <div className="sidebar-submenu">
-              <NavLink to="/admin/products/add" className="sidebar-submenu-item">
-                <span>Add Product</span>
-              </NavLink>
-              <NavLink to="/admin/products/manage" className="sidebar-submenu-item">
-                <span>Manage Product</span>
-              </NavLink>
-            </div>
-          )}
         </div>
-      </nav>
 
-      {/* Logout */}
-      <div className="sidebar-footer">
-        <button className="sidebar-logout-button" onClick={logout}>
-          <LogOut className="sidebar-logout-icon" />
-          <span>Logout</span>
-        </button>
+        <nav className="sidebar-menu">
+          {/* Dashboard */}
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `sidebar-menu-item ${isActive ? 'active' : ''}`
+            }
+            end
+            title={isCollapsed ? 'Dashboard' : ''}
+          >
+            <LayoutDashboard className="sidebar-menu-icon" />
+            {!isCollapsed && <span className="sidebar-menu-text">Dashboard</span>}
+          </NavLink>
+
+          {/* Orders */}
+          <NavLink
+            to="/admin/manage-order"
+            className={({ isActive }) =>
+              `sidebar-menu-item ${isActive ? 'active' : ''}`
+            }
+            title={isCollapsed ? 'Orders' : ''}
+          >
+            <ShoppingBag className="sidebar-menu-icon" />
+            {!isCollapsed && <span className="sidebar-menu-text">Orders</span>}
+          </NavLink>
+
+          {/* Returns */}
+          <NavLink
+            to="/admin/manage-return"
+            className={({ isActive }) =>
+              `sidebar-menu-item ${isActive ? 'active' : ''}`
+            }
+            title={isCollapsed ? 'Returns' : ''}
+          >
+            <PackageX className="sidebar-menu-icon" />
+            {!isCollapsed && <span className="sidebar-menu-text">Returns</span>}
+          </NavLink>
+
+          {/* Add Offers */}
+          <NavLink
+            to="/admin/add-offer"
+            className={({ isActive }) =>
+              `sidebar-menu-item ${isActive ? 'active' : ''}`
+            }
+            title={isCollapsed ? 'Add Offers' : ''}
+          >
+            <Gift className="sidebar-menu-icon" />
+            {!isCollapsed && <span className="sidebar-menu-text">Add Offers</span>}
+          </NavLink>
+
+          {/* Products (with Submenu) */}
+          <div className="sidebar-menu-group">
+            <div
+              className={`sidebar-menu-item has-submenu ${(window.location.pathname.includes('/admin/products') || expandedMenu === 'products') ? 'active' : ''
+                }`}
+              onClick={() => toggleSubMenu("products")}
+              title={isCollapsed ? 'Products' : ''}
+            >
+              <Package className="sidebar-menu-icon" />
+              {!isCollapsed && (
+                <>
+                  <span className="sidebar-menu-text">Products</span>
+                  <div className="sidebar-submenu-arrow">
+                    {expandedMenu === "products" ?
+                      <ChevronDown size={16} /> :
+                      <ChevronRight size={16} />
+                    }
+                  </div>
+                </>
+              )}
+            </div>
+
+            {!isCollapsed && expandedMenu === "products" && (
+              <div className="sidebar-submenu">
+                <NavLink
+                  to="/admin/products/add"
+                  className={({ isActive }) =>
+                    `sidebar-submenu-item ${isActive ? 'active' : ''}`
+                  }
+                >
+                  <span>Add Product</span>
+                </NavLink>
+                <NavLink
+                  to="/admin/products/manage"
+                  className={({ isActive }) =>
+                    `sidebar-submenu-item ${isActive ? 'active' : ''}`
+                  }
+                >
+                  <span>Manage Product</span>
+                </NavLink>
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Logout */}
+        <div className="sidebar-footer">
+          <button
+            className="sidebar-logout-button"
+            onClick={logout}
+            title={isCollapsed ? 'Logout' : ''}
+          >
+            <LogOut className="sidebar-logout-icon" />
+            {!isCollapsed && <span>Logout</span>}
+          </button>
+        </div>
+        <div>
+          {/* Toggle Button */}
+          <button className="sidebar-toggle" onClick={toggleSidebar}>
+            {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+            {isCollapsed ?
+              <span>&#8594;</span>
+              :
+              <span>&#8592;</span>
+            }
+          </button>
+        </div>
       </div>
-    </div>
+
+    </>
   );
 };
 

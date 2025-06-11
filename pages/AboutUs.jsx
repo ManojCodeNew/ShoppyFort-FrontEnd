@@ -11,7 +11,7 @@ const AboutUs = () => {
 
     const handleWhatsAppClick = () => {
         // Replace with your actual WhatsApp number
-        const phoneNumber = "+919482292440"; // Update this with your actual number
+        const phoneNumber = "+971508703086"; // Update this with your actual number
         const message = "Hello! I'm interested in your products.";
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
@@ -42,7 +42,7 @@ const AboutUs = () => {
                         <span>Licensed & Verified</span>
                     </div>
                     <h1 className="hero-title">
-                        Welcome to <span className="brand-name">Bhakti (FZE)</span>
+                        Welcome to <span className="brand-name">Shoppyfort</span>
                     </h1>
                     <p className="hero-subtitle">
                         Your trusted partner in e-commerce and trading solutions, officially licensed in Sharjah Free Zone
@@ -75,7 +75,7 @@ const AboutUs = () => {
             <section className="about-section">
                 <div className="section-header">
                     <h2>About Our Company</h2>
-                    <p>Bhakti (FZE) is a legally established Free Zone company in Sharjah, specializing in modern e-commerce solutions and trading services.</p>
+                    <p>Shoppyfort is a legally established Free Zone company in Sharjah, specializing in modern e-commerce solutions and trading services.</p>
                 </div>
 
                 <div className="about-grid">
@@ -137,7 +137,7 @@ const AboutUs = () => {
                         <div className="license-header">
                             <FaCertificate className="license-icon" />
                             <div>
-                                <h3>Bhakti (FZE)</h3>
+                                <h3>Shoppyfort</h3>
                                 <p>Free Zone Establishment</p>
                             </div>
                         </div>

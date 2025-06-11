@@ -3,6 +3,7 @@ import { useNotification } from '../Notify/NotificationProvider.jsx';
 import Loader from '../Load/Loader.jsx';
 import './styles/AddOffers.css';
 import { useAdminOffers } from './Context/AdminOffersContext.jsx';
+import { useUserContext } from './Context/ManageUsersContext.jsx';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const AddOffers = () => {
@@ -17,7 +18,7 @@ const AddOffers = () => {
     const { showNotification } = useNotification();
     const { offers, getOffers, deleteOffer } = useAdminOffers();
     const [uploadingImage, setUploadingImage] = useState(false);
-
+    const { token } = useUserContext();
     const handleImageChange = (event) => {
         setSelectedImage(event.target.files[0]);
     };
@@ -43,8 +44,12 @@ const AddOffers = () => {
         try {
             const response = await fetch(`${API_BASE_URL}/admin/upload/offer`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
                 body: formData,
             });
+            console.log("add offer", response);
 
             const data = await response.json();
             setUploadingImage(false);
@@ -72,6 +77,7 @@ const AddOffers = () => {
     };
 
     const handleDeleteOffer = async (offerId) => {
+        console.log("Offfer Id", offerId);
         if (window.confirm("Are you sure you want to delete this offer?")) {
             setIsLoading(true);
             try {

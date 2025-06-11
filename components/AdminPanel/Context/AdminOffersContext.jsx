@@ -32,6 +32,8 @@ function AdminOffersProvider({ children }) {
                 showNotification(response.success, "success");
                 setOffers(prevOffers => prevOffers.filter(offer => offer._id !== offerId));
             } else if (response.error) {
+                console.log("delete offer er", response.error);
+
                 showNotification(response.error, "error");
             }
         } catch (error) {
