@@ -22,6 +22,11 @@ function CategoryPage() {
     price: null,
   });
 
+  const formatText = (text) => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
   // Filter products based on gender, category, and selected filters
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -155,7 +160,7 @@ function CategoryPage() {
     <div className="category-page">
       <div className="category-content">
         <h1 className="category-title">
-          {gender?.charAt(0).toUpperCase() + gender?.slice(1)} {category ? `- ${category}` : ''}
+          {gender?.charAt(0).toUpperCase() + gender?.slice(1)} {category ? `- ${formatText(category)}` : ''}
         </h1>
         {/* filter page for Mobile  */}
         <button className="filter-button" onClick={toggleFilterModal}>Filters</button>
@@ -168,7 +173,7 @@ function CategoryPage() {
           </div>
         )}
       </div>
-      
+
       <div className="container">
         <div className="filter-product-container">
           <CategorySidebar filters={filters} onFilterChange={handleFilterChange} />

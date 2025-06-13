@@ -329,11 +329,10 @@ export function AuthProvider({ children }) {
   const googleLogin = useCallback(async (credential) => {
     try {
       // Add to your AuthContext
-      console.log('Environment:', {
-        origin: window.location.origin,
-        // apiUrl: API_BASE_URL,
-        nodeEnv: import.meta.env.MODE
-      });
+      // console.log('Environment:', {
+      //   origin: window.location.origin,
+      //   apiUrl: import.meta.env.VITE_API_URL,
+      // });
       setError(null);
       setLoading(true);
       setNetworkError(false);
@@ -343,7 +342,6 @@ export function AuthProvider({ children }) {
       }
 
       const response = await sendPostRequestToBackend('auth/google-login', { token: credential });
-      console.log('Google login response:', response);
 
       // Check for various error formats
       if (response.error || response.er) {

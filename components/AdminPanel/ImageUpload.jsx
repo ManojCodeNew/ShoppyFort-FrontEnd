@@ -3,7 +3,10 @@ import "./styles/ImageUpload.css";
 import { useAdminProducts } from "./Context/AdminProductsContext.jsx";
 import { useNotification } from "../Notify/NotificationProvider.jsx";
 import Loader from "../Load/Loader.jsx";
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { useUserContext } from "./Context/ManageUsersContext";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+console.log("Environment:", import.meta.env.VITE_API_URL);
+console.log("API URL:", API_BASE_URL);
 
 function ImageUpload({ productName, colors }) {
     const { setImages, initialData, removeImgOnDb, setInitialImgData } = useAdminProducts();
@@ -11,7 +14,7 @@ function ImageUpload({ productName, colors }) {
     const { showNotification } = useNotification();
     const [hasNewImages, setHasNewImages] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const { token } = useUserContext();
     // Initialize images when colors or initialData changes
     useEffect(() => {
         if (!colors || colors.length === 0) {
@@ -48,20 +51,20 @@ function ImageUpload({ productName, colors }) {
 
     const handleImageSelection = useCallback((e, colorName) => {
         const files = Array.from(e.target.files);
-        
+
         if (files.length === 0) return;
 
         // Validate file types
         const validFiles = files.filter(file => {
             const isValidType = file.type.startsWith('image/');
-            const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
-            
+            const isValidSize = file.size <= 100 * 1024 * 1024; // 5MB
+
             if (!isValidType) {
                 showNotification(`${file.name} is not a valid image file`, "error");
                 return false;
             }
             if (!isValidSize) {
-                showNotification(`${file.name} is too large (max 5MB)`, "error");
+                showNotification(`${file.name} is too large (max 100MB)`, "error");
                 return false;
             }
             return true;
@@ -79,17 +82,17 @@ function ImageUpload({ productName, colors }) {
             ...prevImages,
             [colorName]: [...(prevImages[colorName] || []), ...newFiles],
         }));
-        
+
         setHasNewImages(true);
         showNotification(`${validFiles.length} image(s) selected successfully!`, "success");
-        
+
         // Clear the input
         e.target.value = '';
     }, [showNotification]);
 
     const removeImage = useCallback(async (colorName, index, e) => {
         e.preventDefault();
-        
+
         if (!selectedImages[colorName] || !selectedImages[colorName][index]) {
             showNotification("Image not found!", "error");
             return;
@@ -127,10 +130,10 @@ function ImageUpload({ productName, colors }) {
                 }
 
                 // Delete from database
-                const dbResponse = await removeImgOnDb({ 
-                    id: initialData._id, 
-                    colorname: colorName, 
-                    position: index 
+                const dbResponse = await removeImgOnDb({
+                    id: initialData._id,
+                    colorname: colorName,
+                    position: index
                 });
 
                 if (!dbResponse?.success) {
@@ -138,12 +141,12 @@ function ImageUpload({ productName, colors }) {
                 }
 
                 showNotification("Image deleted successfully!", "success");
-                
+
                 // Update local state
                 updatedImages.splice(index, 1);
-                setSelectedImages(prevImages => ({ 
-                    ...prevImages, 
-                    [colorName]: updatedImages 
+                setSelectedImages(prevImages => ({
+                    ...prevImages,
+                    [colorName]: updatedImages
                 }));
 
                 // Update context states
@@ -177,9 +180,9 @@ function ImageUpload({ productName, colors }) {
                 // New image - just remove from local state
                 URL.revokeObjectURL(url);
                 updatedImages.splice(index, 1);
-                setSelectedImages(prevImages => ({ 
-                    ...prevImages, 
-                    [colorName]: updatedImages 
+                setSelectedImages(prevImages => ({
+                    ...prevImages,
+                    [colorName]: updatedImages
                 }));
                 showNotification("Image removed successfully!", "success");
             }
@@ -194,7 +197,7 @@ function ImageUpload({ productName, colors }) {
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
-        
+
         if (!hasNewImages) {
             showNotification("No new images to upload", "info");
             return;
@@ -202,6 +205,25 @@ function ImageUpload({ productName, colors }) {
 
         if (!productName?.trim()) {
             showNotification("Product name is required", "error");
+            return;
+        }
+        // Calculate total upload size
+        let totalSize = 0;
+        Object.values(selectedImages).forEach(colorImages => {
+            colorImages.forEach(image => {
+                if (image.file) {
+                    totalSize += image.file.size;
+                }
+            });
+        });
+
+        // Check total size (e.g., 500MB total limit)
+        const maxTotalSize = 500 * 1024 * 1024; // 500MB
+        if (totalSize > maxTotalSize) {
+            showNotification(
+                `Total upload size (${(totalSize / 1024 / 1024).toFixed(2)}MB) exceeds limit (500MB)`,
+                "error"
+            );
             return;
         }
 
@@ -212,30 +234,26 @@ function ImageUpload({ productName, colors }) {
             formData.append("productName", productName.trim());
 
             const newImagesMap = {};
-            const updatedImagesMap = {};
+            let fileCount = 0;
+
+            // const updatedImagesMap = {};
 
             // Process images for each color
             Object.entries(selectedImages).forEach(([color, images]) => {
                 const newImages = [];
-                const existingImages = [];
+                // const existingImages = [];
 
                 images.forEach((image) => {
                     if (image.file) {
                         // New image to upload
                         formData.append("images", image.file);
                         newImages.push(image.file.name);
-                    } else {
-                        // Existing image from S3
-                        existingImages.push(image);
+                        fileCount++;
                     }
                 });
 
                 if (newImages.length > 0) {
                     newImagesMap[color] = newImages;
-                }
-
-                if (existingImages.length > 0) {
-                    updatedImagesMap[color] = existingImages;
                 }
             });
 
@@ -245,21 +263,67 @@ function ImageUpload({ productName, colors }) {
                 setIsLoading(false);
                 return;
             }
+            console.log(`Uploading ${fileCount} files, total size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
 
             formData.append("colorImages", JSON.stringify(newImagesMap));
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+                showNotification("Upload timeout. Please try with smaller files.", "error");
+            }, 600000); // 10 minutes timeout
+
 
             const response = await fetch(`${API_BASE_URL}/upload-product-images`, {
-                method: "POST",
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
                 body: formData,
+                credentials: 'include',
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
+
+            console.log("Image Upload Error:", response);
+            console.log("Response status:", response.status);
+            console.log("Response headers:", response.headers);
+
+            if (!response.ok) {
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (e) {
+                    errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+                }
+
+                // Handle specific error codes
+                if (response.status === 413) {
+                    throw new Error("Files too large. Please reduce file sizes or upload fewer files at once.");
+                } else if (response.status === 401) {
+                    throw new Error("Authentication failed. Please login again.");
+                } else if (response.status === 403) {
+                    throw new Error("Access denied. Please check your permissions.");
+                } else if (response.status === 404) {
+                    throw new Error("Upload endpoint not found.");
+                } else if (response.status >= 500) {
+                    throw new Error("Server error. Please try again later.");
+                }
+
+                throw new Error(errorData.error || errorData.message || `Upload failed with status ${response.status}`);
+            }
 
             const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.error || "Upload failed");
-            }
-
             if (data.success && data.paths) {
+                const updatedImagesMap = {};
+                // Keep existing images
+                Object.entries(selectedImages).forEach(([color, images]) => {
+                    const existingImages = images.filter(img => !img.file);
+                    if (existingImages.length > 0) {
+                        updatedImagesMap[color] = existingImages;
+                    }
+                });
                 // Process uploaded images
                 data.paths.forEach(({ color, keys }) => {
                     if (!updatedImagesMap[color]) {
@@ -299,11 +363,15 @@ function ImageUpload({ productName, colors }) {
 
         } catch (error) {
             console.error("Upload failed:", error);
-            showNotification(error.message || "Failed to upload images", "error");
+            if (error.name === 'AbortError') {
+                showNotification("Upload timeout. Please try with smaller files or fewer images.", "error");
+            } else {
+                showNotification(error.message || "Failed to upload images", "error");
+            }
         } finally {
             setIsLoading(false);
         }
-    }, [hasNewImages, productName, selectedImages, setImages, showNotification]);
+    }, [hasNewImages, productName, selectedImages, setImages, showNotification, token]);
 
     if (!colors || colors.length === 0) {
         return (
@@ -317,13 +385,13 @@ function ImageUpload({ productName, colors }) {
     return (
         <div style={{ padding: "20px" }}>
             <h2>Product Image Uploader</h2>
-            
+
             {colors.map(color => (
                 <div key={color} className="img-selection-block">
                     <h3>{color}</h3>
-                    <input 
-                        type="file" 
-                        multiple 
+                    <input
+                        type="file"
+                        multiple
                         accept="image/*"
                         onChange={(e) => handleImageSelection(e, color)}
                         disabled={isLoading}
@@ -331,25 +399,25 @@ function ImageUpload({ productName, colors }) {
                     <div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}>
                         {(selectedImages[color] || []).map((image, index) => (
                             <div key={`${color}-${index}`} style={{ position: "relative", margin: "5px" }}>
-                                <img 
-                                    src={image.url} 
-                                    alt={`${color} Image ${index + 1}`} 
-                                    style={{ 
-                                        width: "100px", 
+                                <img
+                                    src={image.url}
+                                    alt={`${color} Image ${index + 1}`}
+                                    style={{
+                                        width: "100px",
                                         height: "100px",
                                         objectFit: "cover",
                                         border: "1px solid #ddd",
                                         borderRadius: "4px"
-                                    }} 
+                                    }}
                                 />
-                                <button 
-                                    onClick={(e) => removeImage(color, index, e)} 
+                                <button
+                                    onClick={(e) => removeImage(color, index, e)}
                                     disabled={isLoading}
-                                    style={{ 
-                                        position: "absolute", 
-                                        top: "-8px", 
-                                        right: "-8px", 
-                                        background: "red", 
+                                    style={{
+                                        position: "absolute",
+                                        top: "-8px",
+                                        right: "-8px",
+                                        background: "red",
                                         color: "white",
                                         border: "none",
                                         borderRadius: "50%",
@@ -383,16 +451,16 @@ function ImageUpload({ productName, colors }) {
                     </div>
                 </div>
             ))}
-            
+
             {isLoading && <Loader />}
-            
+
             {hasNewImages && !isLoading && (
-                <button 
-                    onClick={handleSubmit} 
-                    style={{ 
-                        marginTop: "20px", 
-                        padding: "10px 20px", 
-                        backgroundColor: "green", 
+                <button
+                    onClick={handleSubmit}
+                    style={{
+                        marginTop: "20px",
+                        padding: "10px 20px",
+                        backgroundColor: "green",
                         color: "white",
                         border: "none",
                         borderRadius: "4px",

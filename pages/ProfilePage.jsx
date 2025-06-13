@@ -5,7 +5,6 @@ import '../styles/pages/profile-page.scss';
 import sendPostRequestToBackend from '@/components/Request/Post';
 const ProfilePage = () => {
   const { user, setUser, token, logout } = useAuth();
-  console.log(user);
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -14,7 +13,6 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-        console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
     if (!user) {
       navigate('/login');

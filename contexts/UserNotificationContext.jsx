@@ -86,7 +86,6 @@ export default function UserNotificationsProvider({ children }) {
     const getWallet = useCallback(async () => {
         try {
             const response = await sendGetRequestToBackend('auth/wallet/getWallet', token);
-            console.log("wallet response", response);
             return response;
         } catch (error) {
             console.error("Error fetching wallet:", error);

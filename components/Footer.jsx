@@ -154,7 +154,7 @@ const Footer = () => {
       <div className="footer-bottom">
         <div className="footer-bottom-content">
           <p>
-            © {new Date().getFullYear()} Bhakti (F2F). All rights reserved.{' '}
+            © {new Date().getFullYear()} Shoppyfort. All rights reserved.{' '}
             Developed by{' '}
             <a href="https://vinyasatech.com/" className="company-link">
               VINYASA

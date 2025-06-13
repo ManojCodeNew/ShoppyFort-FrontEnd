@@ -26,7 +26,6 @@ const ProductGrid = ({ gender, category, subcategory }) => {
     
 
   }, [gender, category, subcategory,products]);
-console.log("Filtered DATA",filteredProducts);
 
   return (
     <div className="special-offers-container">

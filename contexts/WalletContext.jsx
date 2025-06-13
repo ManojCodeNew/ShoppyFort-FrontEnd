@@ -20,7 +20,6 @@ export default function WalletProvider({ children }) {
         try {
             const response = await sendGetRequestToBackend("auth/wallet/getWallet", token);
             if (response.success) {
-                console.log("Wallet Money :", response);
 
                 setWallet(response);
             } else {

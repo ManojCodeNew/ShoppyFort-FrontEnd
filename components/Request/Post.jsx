@@ -1,8 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 async function sendPostRequestToBackend(path, data, token) {
-    console.log("Sending POST request to backend:", path, data, token);
-    console.log("POST request:", { path, origin: window.location.origin });
-
+ 
     try {
         const headers = {
             'Content-Type': 'application/json',
@@ -30,7 +28,6 @@ async function sendPostRequestToBackend(path, data, token) {
         });
         clearTimeout(timeoutId);
 
-        console.log("headers :", response);
         if (!response.ok) {
             let errorData;
             try {

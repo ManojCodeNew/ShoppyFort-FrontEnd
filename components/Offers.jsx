@@ -10,7 +10,6 @@ function Offers() {
     const { offers, loadingOffers, errorOffers } = useOffers();
     const { products } = useProducts();
     const { offerId } = useParams();
-    console.log("OfferId :", offerId, "Offers :", offers);
 
     const [productsToShow, setProductsToShow] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,17 +24,14 @@ function Offers() {
 
                 if (currentOffer) {
                     if (currentOffer.productIds && currentOffer.productIds.length > 0) {
-                        console.log("Filtering products by productIds");
 
                         // Filter products based on productIds from the offer
                         const filteredByProductId = products.filter(product =>
                             currentOffer.productIds.includes(product.productid)
                         );
-                        console.log("Filtered Products by Product IDs:", filteredByProductId, " Products:", products);
 
                         setProductsToShow(filteredByProductId);
                     } else if (currentOffer.productIds && currentOffer.discount > 0) {
-                        console.log("Filtering products by productIds and discount");
 
                         const filteredByDiscountAndProductId = products.filter(product =>
                             currentOffer.productIds.includes(product.productid) && product.discount >= currentOffer.discount
@@ -43,13 +39,12 @@ function Offers() {
                         setProductsToShow(filteredByDiscountAndProductId);
                     }
                     else if (currentOffer.discountText) {
-                        console.log("Filtering products by discountText");
 
                         // Filter products based on discountText from the offer
                         const discountValue = parseInt(currentOffer.discountText);
                         if (!isNaN(discountValue)) {
                             const filteredByDiscount = products.filter(product =>
-                                product.discount >= discountValue
+                                product.discount <= discountValue
                             );
                             setProductsToShow(filteredByDiscount);
                         } else {

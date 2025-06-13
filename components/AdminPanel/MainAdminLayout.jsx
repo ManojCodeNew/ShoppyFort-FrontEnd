@@ -26,4 +26,4 @@ function MainAdminLayout() {
     )
 }
 
-export default MainAdminLayout
+export default MainAdminLayout;

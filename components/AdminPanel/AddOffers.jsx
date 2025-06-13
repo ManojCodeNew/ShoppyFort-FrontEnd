@@ -4,7 +4,7 @@ import Loader from '../Load/Loader.jsx';
 import './styles/AddOffers.css';
 import { useAdminOffers } from './Context/AdminOffersContext.jsx';
 import { useUserContext } from './Context/ManageUsersContext.jsx';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const AddOffers = () => {
     const [title, setTitle] = useState('');
@@ -49,7 +49,6 @@ const AddOffers = () => {
                 },
                 body: formData,
             });
-            console.log("add offer", response);
 
             const data = await response.json();
             setUploadingImage(false);
@@ -77,7 +76,6 @@ const AddOffers = () => {
     };
 
     const handleDeleteOffer = async (offerId) => {
-        console.log("Offfer Id", offerId);
         if (window.confirm("Are you sure you want to delete this offer?")) {
             setIsLoading(true);
             try {

@@ -61,7 +61,6 @@ const PaymentForm = () => {
                 body: JSON.stringify({ amount: Math.round(totalCostwithVAT * 100) }),
             });
             const data = await response.json();
-            console.log("Payment Response:", data);
             if (!response.ok) {
                 showNotification(`HTTP error! status: ${response.status}`, "error");
                 setLoading(false);
@@ -82,7 +81,6 @@ const PaymentForm = () => {
                         },
                     },
                 });
-            console.log("Stripe Payment Intent:", paymentIntent);
             if (stripeError) {
                 setError(stripeError.message);
                 showNotification(stripeError.message, 'error');
@@ -105,7 +103,6 @@ const PaymentForm = () => {
                         },
                         zipCode,
                     };
-                    console.log("Final Order Data:", orderData);
 
                     const orderResponse = await sendPostRequestToBackend('order/addOrder', orderData, token);
 

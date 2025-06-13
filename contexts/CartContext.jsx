@@ -192,8 +192,6 @@ export const CartProvider = ({ children }) => {
 
     const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-    console.log("VAT_Price in cartcontext", VAT_Price);
-
     const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCostwithVAT, totalCostwithoutVAT, totalItems, clearCart, VAT_Price, fetchCartItems }
     return (
         <CartContext.Provider value={value}>

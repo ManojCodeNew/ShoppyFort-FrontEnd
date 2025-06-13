@@ -13,7 +13,6 @@ export default function Wallet() {
     const [loading, setLoading] = useState(true);
     const { allOrder, fetchOrders } = useOrderDetails();
     const { products, fetchProducts } = useProducts();
-    console.log("All data", allOrder, products);
 
     useEffect(() => {
         const fetchData = async () => {

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 async function sendDeleteRequestToBackend(path, data, token) {
     const controller = new AbortController();
@@ -14,7 +14,6 @@ async function sendDeleteRequestToBackend(path, data, token) {
         signal: controller.signal
 
     });
-    console.log("response of delete",response);
     
     clearTimeout(timeoutId);
     if (!response.ok) {
@@ -25,9 +24,6 @@ async function sendDeleteRequestToBackend(path, data, token) {
         };
     }
     const result = await response.json();
-    if (result) {
-        console.log("RESULT", result);
-    }
     return result;
 }
 

@@ -33,7 +33,13 @@ const groupProductsByGenderAndCategory = (products) => {
 
 const MobileSidebar = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
-const {products}=useProducts();
+  const { products } = useProducts();
+
+  const formatText = (text) => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
   const groupedCategories = groupProductsByGenderAndCategory(products);
   return (
     <div className="mobile-sidebar-overlay">
@@ -48,25 +54,25 @@ const {products}=useProducts();
         <div className="sidebar-content">
           {Object.values(groupedCategories).map((category) => (
             <div key={category.path} className="category-section">
-              
-              <Link 
-                to={`category${category.path}`}  
+
+              <Link
+                to={`category${category.path}`}
                 className="category-title"
                 onClick={onClose}
               >
-                {category.title}
+                {formatText(category.title)}
                 <ChevronRight />
               </Link>
               <div className="subcategories">
                 {category.subcategories.map((sub) => (
-                  
-                  <Link 
+
+                  <Link
                     key={sub.path}
                     to={`category${sub.path}`}
                     className="subcategory"
                     onClick={onClose}
                   >
-                    {sub.name}
+                    {formatText(sub.name)}
                   </Link>
                 ))}
               </div>

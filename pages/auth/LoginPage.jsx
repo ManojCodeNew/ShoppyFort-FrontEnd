@@ -59,7 +59,7 @@ const LoginPage = () => {
     console.log('=== DEBUG INFO ===');
     console.log('Current origin:', window.location.origin);
     console.log('Current href:', window.location.href);
-    // console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
+    console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
     console.log('API URL:', import.meta.env.VITE_API_URL);
   }, []);
 

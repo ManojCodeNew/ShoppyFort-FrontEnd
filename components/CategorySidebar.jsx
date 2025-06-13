@@ -27,6 +27,10 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
     'silver': '#C0C0C0',
     'fuchsia': '#FF00FF',
   };
+  const formatText = (text) => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
 
   const getColorValue = (colorName) => {
     const lowerColor = colorName.toLowerCase();
@@ -66,7 +70,7 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
                     onChange={(e) => handleCheckboxChange(e, 'categories')}
                   />
                   <span className="checkmark"></span>
-                  <span className="item-label">{item}</span>
+                  <span className="item-label">{formatText(item)}</span>
                 </label>
               ))}
             </div>
@@ -86,7 +90,7 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
                     onChange={(e) => handleCheckboxChange(e, 'brands')}
                   />
                   <span className="checkmark"></span>
-                  <span className="item-label">{item}</span>
+                  <span className="item-label">{formatText(item)}</span>
                 </label>
               ))}
             </div>
@@ -128,14 +132,14 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
                   />
                   <span className="checkmark"></span>
                   <div className="color-display">
-                    <span 
-                      className="color-swatch" 
-                      style={{ 
+                    <span
+                      className="color-swatch"
+                      style={{
                         backgroundColor: getColorValue(item),
                         border: item.toLowerCase() === 'white' ? '1px solid #ddd' : 'none'
                       }}
                     ></span>
-                    <span className="color-name">{item}</span>
+                    <span className="color-name">{formatText(item)}</span>
                   </div>
                 </label>
               ))}

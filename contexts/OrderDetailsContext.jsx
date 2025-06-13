@@ -54,7 +54,6 @@ export const OrderDetailsProvider = ({ children }) => {
         }
 
         try {
-            console.log("Return Type :", returnData);
             const body = {
                 userid: user._id,
                 orderid: returnData.orderId,

@@ -54,7 +54,6 @@ export default function Address() {
   const [orderPlacementInitiated, setOrderPlacementInitiated] = useState(false);
 
   const { wallet, processWalletPayment, loading: walletLoading } = useWallet();
-  // console.log("Wallet :", wallet);
 
   const fetchAddress = useCallback(async () => {
     setLoading(true);
@@ -226,7 +225,6 @@ export default function Address() {
         setOrderPlacementInitiated(false);
         return;
       }
-      console.log("paymentResult", paymentResult);
       orderData = {
         ...orderDetails,
         paymentMethod: useWalletMoney ?
@@ -259,9 +257,6 @@ export default function Address() {
     } else {
       return;
     }
-    console.log("Final Order Data in Address.jsx", orderData, "Remaining Amt:", remainingAmount);
-
-
 
     setOrderDetails(orderData);
     setLoading(true);

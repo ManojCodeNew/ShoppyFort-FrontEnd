@@ -1,5 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const sendGetRequestToBackend = async (path, token) => {
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+console.log("APi URL", API_BASE_URL);
+const sendGetRequestToBackend = async (path, token, abortSignal = null) => {
   try {
     if (!path) {
       throw new Error('API path is required');
@@ -12,17 +13,27 @@ const sendGetRequestToBackend = async (path, token) => {
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    let controller;
+    let timeoutId;
 
+    if (abortSignal) {
+      // Use the provided signal (from component)
+      controller = null;
+    } else {
+      // Create our own controller with timeout
+      controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 30000); // Increased to 30 seconds
+    }
     const response = await fetch(`${API_BASE_URL}/${path}`, {
       method: "GET",
       headers: headers,
       signal: controller.signal
     });
-    clearTimeout(timeoutId);
-    console.log(`GET ${path} Response Status:`, response.status);
-
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
     // Handle different HTTP status codes
     if (!response.ok) {
       let errorData = {};

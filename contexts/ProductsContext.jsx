@@ -45,8 +45,6 @@ export default function ProductProvider({ children }) {
             showNotification("Error fetching products", "error");
         }
     };
-    console.log("all peoduct data :", products);
-
 
     useEffect(() => {
         fetchProducts();
