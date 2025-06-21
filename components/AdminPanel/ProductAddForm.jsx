@@ -45,8 +45,13 @@ const ProductAddForm = () => {
         if (products && products.length > 0) {
             // Extract unique categories
             const uniqueCategories = [
-                ...new Set(products.map((p) => p.category).filter(cat => cat && cat.trim() !== ''))
-            ].map(cat => capitalizeWords(cat));
+                ...new Set(
+                    products
+                        .map((p) => p.category)
+                        .filter(cat => cat && cat.trim() !== '')
+                        .map(cat => capitalizeWords(cat))
+                )
+            ];
             setCategories(uniqueCategories);
         }
     }, [initialData, products]);
@@ -144,6 +149,7 @@ const ProductAddForm = () => {
             action();
         }
     };
+    console.log("Categories :", categories);
 
     return (
         <div className="product-form">

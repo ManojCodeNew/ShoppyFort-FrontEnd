@@ -14,10 +14,11 @@ export default function UserNotificationsProvider({ children }) {
     const { token, user } = useAuth(); // Get user and token from AuthContext
     const [lastOtpId, setLastOtpId] = useState(null);
     const [pollingInterval, setPollingInterval] = useState(null);
+    const [initialLoadDone, setInitialLoadDone] = useState(false);
 
-    const getNotifications = useCallback(async () => {
+    const getNotifications = useCallback(async (isInitial = false) => {
         try {
-            setLoading(true);
+            if (isInitial) setLoading(true);
             const notificationResponse = await sendGetRequestToBackend('auth/notifications', token);
             if (notificationResponse.success) {
                 const updatedNotifications = notificationResponse.otp.map((notif) => ({
@@ -38,25 +39,33 @@ export default function UserNotificationsProvider({ children }) {
                     showNotification(message, "info");
                     setLastOtpId(newest._id); // update last shown OTP
                 }
-                setNotifications(updatedNotifications);
+
+                // Only set state if changed
+                const isSame = JSON.stringify(notifications.map(n => n._id)) === JSON.stringify(updatedNotifications.map(n => n._id));
+                if (!isSame) {
+                    setNotifications(updatedNotifications);
+                }
             }
         } catch (error) {
             console.error("Error fetching notifications:", error);
-            showNotification("Failed to fetch notifications", "error");
+            if (isInitial) showNotification("Failed to fetch notifications", "error");
             setNotifications([]);
         } finally {
-            setLoading(false);
+            if (isInitial) {
+                setLoading(false);
+                setInitialLoadDone(true);
+            }
         }
 
     }, [token, lastOtpId, showNotification]);
 
     // Polling to fetch notifications every 30 seconds
     useEffect(() => {
-        getNotifications();
+        getNotifications(true);
 
         // Set up interval for polling (every 30 seconds)
         const interval = setInterval(() => {
-            getNotifications();
+            getNotifications(false);
         }, 30000); // 30 seconds
 
         // Store interval ID for cleanup

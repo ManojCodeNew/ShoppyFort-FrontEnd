@@ -12,7 +12,7 @@ import heart from '../assets/Images/heart.png';
 import ShoppingBag from '../assets/Images/bag.png';
 import User from '../assets/Images/user.png';
 import { useUserNotifications } from '@/contexts/UserNotificationContext';
-import SearchBarMobile from './SearchBarMobile.jsx';
+
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -20,8 +20,10 @@ const Navbar = () => {
   const { totalItems: wishlistItems } = useWishlist();
   const { logout, user, token } = useAuth();
   const { hasUnread } = useUserNotifications();
+
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
+
   const userProfile = user ? (
     <>
       <Link to="/profile" className='user-details'>
@@ -29,16 +31,22 @@ const Navbar = () => {
         <p className='user-email'>{user.phoneno}</p>
       </Link>
 
-      <Link to='/orders' className='user-order-link'><p className='user-order'>Orders</p></Link>
-      <Link to='/notifications' className='user-notification-link'><p className='user-notification'>
-        Notification
-        {hasUnread && <span className="dot-blink" />}
-      </p></Link>
+      <Link to='/orders' className='user-order-link'>
+        <p className='user-order'>Orders</p>
+      </Link>
+
+      <Link to='/notifications' className='user-notification-link'>
+        <p className='user-notification'>
+          Notification
+          {hasUnread && <span className="dot-blink" />}
+        </p>
+      </Link>
 
       <Link to='/wallet' className='user-wallet-link'>
         <p className='user-wallet'>
           Wallet
         </p></Link>
+
       <p className='user-logout' onClick={logout}>Logout</p>
     </>
 
@@ -47,11 +55,17 @@ const Navbar = () => {
       <div className="Guest-container">
         <h5>Welcome</h5>
         <p>Sign in to continue.</p>
-        <Link to='/login'><button className='sign-in'>Sign in</button></Link>
+        <Link to='/login'>
+          <button className='sign-in'>Sign in</button>
+        </Link>
       </div>
       <hr className='underline' />
-      <Link to='/login' className='user-order-link'><p className='user-order'>Orders</p></Link>
-      <Link to='/notifications' className='user-notification-link'><p className='user-notification'>Notification</p></Link>
+      <Link to='/login' className='user-order-link'>
+        <p className='user-order'>Orders</p>
+      </Link>
+      <Link to='/notifications' className='user-notification-link'>
+        <p className='user-notification'>Notification</p>
+      </Link>
     </>
   );
 
@@ -62,15 +76,18 @@ const Navbar = () => {
           <button
             className="menu-button"
             onClick={() => setIsSidebarOpen(true)}
+            aria-label="Open menu"
           >
             <Menu />
           </button>
 
           <div className="nav-left" >
             <Link to="/" className="logo">
-              <img src={logo} alt="" />
+              <img src={logo} alt="Shoppyfort Logo" />
             </Link>
-            <SearchBar />
+            {/* <div className="search-container"> */}
+              <SearchBar />
+            {/* </div> */}
           </div>
 
           <div className="nav-actions">
@@ -79,13 +96,15 @@ const Navbar = () => {
               onMouseLeave={handleMouseLeave}
             >
               <div className="user-icon-wrapper">
-                <img src={User} alt="User" className='user-icon' />
+                <img src={User} alt="User Profile" className='user-icon' />
                 {hasUnread && <span className="dot-blink" />}
               </div>
               <span className='profile-title'>Profile</span>
+
               {isHovered && (
                 <div className="popup-profile"
                   onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <h4>Profile Details</h4>
                   {userProfile}
@@ -93,6 +112,7 @@ const Navbar = () => {
               )}
 
             </div>
+
             <Link to="/wishlist" className="nav-action">
               <img src={heart} alt="" className='heart-icon' />
               <span>Wishlist</span>
@@ -100,11 +120,9 @@ const Navbar = () => {
                 <span className="badge">{wishlistItems}</span>
               )}
             </Link>
-            <button
-              className="nav-action"
-            >
-              <Link to="/cart" className="nav-action">
 
+          
+              <Link to="/cart" className="nav-action">
                 <img src={ShoppingBag} alt="ShoppingBag" className='ShoppingBag-icon' />
                 <span>Cart</span>
                 {cartItems > 0 && (
@@ -112,7 +130,6 @@ const Navbar = () => {
                 )}
               </Link>
 
-            </button>
           </div>
         </div>
       </nav>
@@ -121,7 +138,7 @@ const Navbar = () => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
- 
+
     </header>
   );
 };

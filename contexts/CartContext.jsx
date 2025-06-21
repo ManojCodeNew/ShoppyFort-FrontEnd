@@ -7,6 +7,8 @@ import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 import { useAuth } from './AuthContext.jsx';
 // Create CartContext
 const CartContext = createContext();
+const SHIPPING_PRICE = 10;
+const SHIPPING_PRICE_LIMIT = 100.00;
 
 // CartProvider component to provide context
 export const CartProvider = ({ children }) => {
@@ -179,20 +181,30 @@ export const CartProvider = ({ children }) => {
     }, [token]);
 
     // Calculate total cost of items in the cart
-    const totalCost_of_products_in_paise = cartItems?.reduce((sum, item) => {
-        const itemTotalInPaise = (item.quantity || 1) * Math.round((item.price || 0) * 100);
-        return sum + itemTotalInPaise;
-    }, 0) || 0;
+    const totalCost_of_products_in_paise = cartItems.reduce((sum, item) => {
+        const priceInPaise = Math.round(item.price * 100);
+        return sum + (item.quantity || 1) * priceInPaise;
+    }, 0);
+
     const VAT_Price_in_paise = Math.round(totalCost_of_products_in_paise * 0.05);
-    const totalCost_in_paise = totalCost_of_products_in_paise + VAT_Price_in_paise;
+    let totalCost_in_paise = totalCost_of_products_in_paise + VAT_Price_in_paise;
+
+    // Shipping logic (applied in paise)
+    let shippingFeeInPaise = 0;
+    if (totalCost_in_paise < SHIPPING_PRICE_LIMIT * 100) {
+        shippingFeeInPaise = SHIPPING_PRICE * 100;
+        totalCost_in_paise += shippingFeeInPaise;
+    }
 
     const totalCostwithoutVAT = (totalCost_of_products_in_paise / 100).toFixed(2);
     const VAT_Price = (VAT_Price_in_paise / 100).toFixed(2);
-    const totalCostwithVAT = (totalCost_in_paise / 100).toFixed(2);
+    let totalCostwithVAT = (totalCost_in_paise / 100).toFixed(2);
+    const added_Shipping_Price = shippingFeeInPaise > 0 ? (shippingFeeInPaise / 100) : 0;
+
 
     const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCostwithVAT, totalCostwithoutVAT, totalItems, clearCart, VAT_Price, fetchCartItems }
+    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCostwithVAT, totalCostwithoutVAT, totalItems, clearCart, VAT_Price, fetchCartItems, added_Shipping_Price }
     return (
         <CartContext.Provider value={value}>
             {children}

@@ -81,8 +81,8 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="product-card-info">
-        <h3 className="brand">{brand.length > 15 ? brand.slice(0, 13) + "..." : brand}</h3>
-        <p className="name">{name.length > 15 ? name.slice(0, 13) + "..." : name}</p>
+        <h3 className="brand">{name.length > 15 ? name.slice(0, 13) + "..." : name}</h3>
+        <p className="name">{brand.length > 15 ? brand.slice(0, 13) + "..." : brand}</p>
         <div className="price-info">
           <span className="current-price"><small className="currency-label">AED</small>{price}</span>
           {originalPrice && (

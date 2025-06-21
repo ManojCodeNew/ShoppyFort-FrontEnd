@@ -4,9 +4,9 @@ import { useAdminProducts } from "./Context/AdminProductsContext.jsx";
 import { useNotification } from "../Notify/NotificationProvider.jsx";
 import Loader from "../Load/Loader.jsx";
 import { useUserContext } from "./Context/ManageUsersContext";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-console.log("Environment:", import.meta.env.VITE_API_URL);
-console.log("API URL:", API_BASE_URL);
+
 
 function ImageUpload({ productName, colors }) {
     const { setImages, initialData, removeImgOnDb, setInitialImgData } = useAdminProducts();
@@ -15,6 +15,13 @@ function ImageUpload({ productName, colors }) {
     const [hasNewImages, setHasNewImages] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { token } = useUserContext();
+
+    // Drag and drop state
+    const [draggedItem, setDraggedItem] = useState(null);
+    const [draggedOverItem, setDraggedOverItem] = useState(null);
+    const [isDragging, setIsDragging] = useState(false);
+
+
     // Initialize images when colors or initialData changes
     useEffect(() => {
         if (!colors || colors.length === 0) {
@@ -24,10 +31,12 @@ function ImageUpload({ productName, colors }) {
         }
 
         const initialImagesState = colors.reduce((acc, color) => {
-            acc[color] = initialData?.colorImages?.[color]?.map(imageUrl => ({
+            acc[color] = initialData?.colorImages?.[color]?.map((imageUrl, index) => ({
+                id: `${color}-${index}-${Date.now()}`,
                 name: imageUrl.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1] || imageUrl,
                 url: imageUrl,
-                file: null
+                file: null,
+                order: index
             })) || [];
             return acc;
         }, {});

@@ -1,28 +1,96 @@
 @use '../_variables' as *;
 
 .offerProduct-container {
-  flex: 1;
-  width: 80%;
-  align-items: center;
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(180px, 1fr)
-  ); // Adjusts dynamically
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 15px;
-  height: fit-content;
-  margin: 1px auto ;
+  width: 90%;
+  margin: 0 auto;
   padding: 10px;
 
   @include mobile-only {
-    margin-left: 0;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 10px;
-    margin: 1px auto;
+  }
+
+  .product-card {
+    position: relative;
+    border: 1px solid #d1e7dd;
+    border-radius: 10px;
+    padding: 10px;
+    // text-align: center;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .discount-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background-color: #28a745;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+
+    .wishlist-icon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      cursor: pointer;
+    }
+
+    .product-name {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 8px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-brand {
+      font-size: 0.85rem;
+      color: gray;
+      margin-bottom: 5px;
+    }
+
+    .product-pricing {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+
+      .current-price {
+        font-weight: 700;
+        color: #212529;
+      }
+
+      .original-price {
+        text-decoration: line-through;
+        color: #888;
+        font-size: 0.9rem;
+      }
+    }
   }
 }
+
 .offers-title {
-  margin-top: 10px;
-  margin-left: 8%;
-  text-align: start;
+  margin-top: 20px;
+  margin-left: 5%;
+  font-size: 1.3rem;
+  font-weight: 600;
 }

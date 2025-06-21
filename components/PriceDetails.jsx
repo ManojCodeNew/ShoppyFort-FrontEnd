@@ -2,7 +2,9 @@ import React from 'react'
 import "../styles/components/ProductDetails.scss";
 import { useCart } from '../contexts/CartContext';
 export default function PriceDetails({ totalMRP, discountMRP }) {
-    const { totalCostwithVAT, VAT_Price, totalCostwithoutVAT } = useCart(); // Use the context values
+    const { totalCostwithVAT, VAT_Price, totalCostwithoutVAT, added_Shipping_Price } = useCart(); // Use the context values
+
+    const totalWithShipping = (parseFloat(totalCostwithVAT)).toFixed(2);
 
     return (
         <>
@@ -33,14 +35,25 @@ export default function PriceDetails({ totalMRP, discountMRP }) {
                         </tr>
                         <tr >
                             <td className='shipping-fee'>Shipping fee <span className='Know-more'>Know More</span> <p className='free-shipping-for-you'> shipping for you</p></td>
-                            <td className='shipping-fee-free'><span className='strikeout-amt'> <small className="currency-label">AED</small>79</span>   Free</td>
-                        </tr>
+                            {added_Shipping_Price == 0 ?
+                                (
+                                    <td className='shipping-fee-free'>
+                                        <small className="currency-label">AED</small><span className='strikeout-amt'> 10</span>
+                                        Free
+                                    </td>
+                                ) : (
+                                    <td className='shipping-fee-free'>
+                                        <small className="currency-label">AED</small>10
 
-                        {/* <hr /> */}
+                                    </td>
+
+                                )}
+
+                        </tr>
 
                         <tr className="Total-amt">
                             <td>Total Amount</td>
-                            <td> <small className="currency-label">AED</small>{totalCostwithVAT}</td>
+                                <td> <small className="currency-label">AED</small>{totalWithShipping}</td>
 
                         </tr>
                     </tbody>

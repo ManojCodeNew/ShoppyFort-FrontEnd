@@ -328,11 +328,7 @@ export function AuthProvider({ children }) {
   // Google login function - IMPROVED
   const googleLogin = useCallback(async (credential) => {
     try {
-      // Add to your AuthContext
-      // console.log('Environment:', {
-      //   origin: window.location.origin,
-      //   apiUrl: import.meta.env.VITE_API_URL,
-      // });
+    
       setError(null);
       setLoading(true);
       setNetworkError(false);

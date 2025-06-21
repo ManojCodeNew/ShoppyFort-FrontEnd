@@ -1,6 +1,5 @@
 @use '../_variables' as *;
 
-
 .category-sidebar {
   background-color: $white;
   border-radius: 12px;
@@ -8,6 +7,8 @@
   box-shadow: $box-shadow-light;
   margin-bottom: 20px;
   border: 1px solid #e9ecef;
+  max-width: 280px;
+  width: 100%;
 
   @include tablet-and-up {
     position: sticky;
@@ -34,6 +35,7 @@
 
       &:last-child {
         border-bottom: none;
+        margin-bottom: 0;
       }
 
       .section-title {
@@ -44,22 +46,34 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
-
       .filter-items {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        &.filter-items-vertical {
+          .filter-item {
+            width: 100%;
+            margin-bottom: 0;
+          }
+        }
+
+        // .filter-items {
         .filter-item {
           display: flex;
           align-items: center;
-          margin-bottom: 12px;
           cursor: pointer;
-          padding: 8px 0;
+          padding: 10px 8px;
           border-radius: 6px;
           transition: all 0.2s ease;
           position: relative;
-
+          min-height: 40px;
+          width: 100%;
           &:hover {
             background-color: #f8f9fa;
-            padding-left: 8px;
-            padding-right: 8px;
+            // padding-left: 8px;
+            // padding-right: 8px;
+            transform: translateX(2px);
           }
 
           input[type='checkbox'] {
@@ -109,6 +123,7 @@
             color: $gray-dark;
             font-weight: 500;
             line-height: 1.4;
+            flex: 1;
           }
 
           // Color specific styles
@@ -116,7 +131,8 @@
             .color-display {
               display: flex;
               align-items: center;
-              gap: 8px;
+              gap: 10px;
+              flex: 1;
 
               .color-swatch {
                 width: 20px;
@@ -132,9 +148,15 @@
                 color: $gray-dark;
                 font-weight: 500;
                 text-transform: capitalize;
+                flex: 1;
               }
             }
           }
+        }
+      }
+      &.color-section {
+        .filter-items {
+          gap: 10px;
         }
       }
 
@@ -153,6 +175,7 @@
           background-color: #f8f9fa;
           border-radius: 4px;
           border: 1px solid #e9ecef;
+          font-weight: 600;
         }
       }
 
@@ -228,6 +251,7 @@
     box-shadow: none;
     border: none;
     padding: 16px;
+    max-width: 100%;
 
     .filter-title {
       font-size: 1.2rem;
@@ -237,6 +261,7 @@
     .filters-container {
       .filter-section {
         margin-bottom: 24px;
+        padding-bottom: 16px;
 
         .section-title {
           font-size: 0.9rem;
@@ -244,6 +269,8 @@
         }
 
         .filter-items {
+          gap: 6px;
+
           .filter-item {
             margin-bottom: 10px;
             padding: 6px 0;
@@ -251,9 +278,50 @@
             .item-label {
               font-size: 0.85rem;
             }
+            &.color-filter-item {
+              .color-display {
+                gap: 8px;
+
+                .color-swatch {
+                  width: 18px;
+                  height: 18px;
+                }
+
+                .color-name {
+                  font-size: 0.85rem;
+                }
+              }
+            }
+          }
+        }
+        .price-range-display {
+          span {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+          }
+        }
+
+        .current-price-display {
+          span {
+            font-size: 0.8rem;
+            padding: 6px 12px;
           }
         }
       }
     }
   }
+}
+.filter-section-spacing {
+  margin-bottom: 28px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Ensure consistent layout
+.filter-items-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }

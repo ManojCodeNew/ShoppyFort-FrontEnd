@@ -55,18 +55,24 @@ export default function Address() {
 
   const { wallet, processWalletPayment, loading: walletLoading } = useWallet();
 
+  const totalAmount = parseFloat(totalCostwithVAT);
+
   const fetchAddress = useCallback(async () => {
     setLoading(true);
     try {
       const response = await sendGetRequestToBackend(`checkout/Address`, token);
       if (response.address?.length > 0) {
+        setLoading(false);
+
         setAddressList(response.address);
         setShowAddressForm(false);
       } else {
+        setLoading(false);
         setAddressList([]);
         setShowAddressForm(true);
       }
     } catch (error) {
+      setLoading(false);
       showNotification("Error fetching products", "error");
     } finally {
       setLoading(false);
@@ -77,25 +83,30 @@ export default function Address() {
     if (user) {
       fetchAddress();
       fetchCartItems();
-      if (paymentMethod === 'Online') {
-        document.querySelector('.payment-form')?.scrollIntoView({ behavior: 'smooth' });
-      }
-      if (!cartItems.length) {
-        showNotification("Your cart is empty", "error")
-        navigate("/");
-        return;
-      }
     }
+  }, [user])
 
-  }, [orderDetails, paymentMethod, user, cartItems.length, navigate, showNotification]);
+  useEffect(() => {
+    if (paymentMethod === 'Online') {
+      document.querySelector('.payment-form')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [paymentMethod]);
+
+  useEffect(() => {
+    if (!cartItems.length && user) {
+      showNotification("Your cart is empty", "error")
+      navigate("/");
+    }
+  }, [user, cartItems.length]);
+
 
   useEffect(() => {
     if (wallet && wallet.balance > 0) {
-      const usableAmount = Math.min(wallet?.balance, totalCostwithVAT);
+      const usableAmount = Math.min(wallet?.balance, totalAmount);
       setWalletUsed(parseFloat(usableAmount.toFixed(2)));
-      setRemainingAmount(parseFloat(Math.max(0, totalCostwithVAT - usableAmount).toFixed(2)));
+      setRemainingAmount(parseFloat(Math.max(0, totalAmount - usableAmount).toFixed(2)));
     }
-  }, [wallet, totalCostwithVAT]);
+  }, [wallet, totalAmount]);
 
   // store form data to the state
   const handleChange = (e) => {
@@ -181,6 +192,7 @@ export default function Address() {
     try {
       const response = await sendPostRequestToBackend('checkout/addAddress', addressWithUser, token);
       if (response.success) {
+        setLoading(false);
         showNotification('Address added successfully', 'success');
         fetchAddress(); //Refresh address list
         setShowAddressForm(false);
@@ -215,7 +227,7 @@ export default function Address() {
     let orderData;
     if (useWalletMoney) {
       let paymentResult = await processWalletPayment(
-        totalCostwithVAT,
+        totalAmount,
         orderDetails.orderid,
         'wallet'
       );
@@ -231,7 +243,7 @@ export default function Address() {
           (paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet') :
           paymentMethod,
         paymentDetails: {
-          amount: totalCostwithVAT,
+          amount: totalAmount,
           currency: 'aed',
           method: 'wallet',
           status: 'succeeded'
@@ -247,7 +259,7 @@ export default function Address() {
         paymentDetails: {
           method: 'cash',
           status: 'pending',
-          amount: totalCostwithVAT,
+          amount: totalAmount,
           currency: 'aed'
         },
         isPaid: false,
@@ -272,6 +284,7 @@ export default function Address() {
         showNotification(response.error || "Error placing order", "error");
       }
     } catch (error) {
+      setLoading(false);
       showNotification("Failed to place order", "error");
     } finally {
       setLoading(false);
@@ -296,7 +309,7 @@ export default function Address() {
 
               <input type="text" name="username" value={address.username} className='name' placeholder='Name*' onChange={handleChange} required />
 
-              <input type="telephone" name="mobileno" value={address.mobileno} className='mobile-number' placeholder='Mobile No*' onChange={handleChange} required />
+              <input type="tel" name="mobileno" value={address.mobileno} className='mobile-number' placeholder='Mobile No*' onChange={handleChange} required />
 
               <label htmlFor="Address">Address</label>
               <input type="number" name="pincode" value={address.pincode} className='pincode' placeholder='Pin Code*' onChange={handleChange} required />
@@ -335,25 +348,40 @@ export default function Address() {
 
         )}
         <div className='cart-price-details'>
-          <PriceDetails totalMRP={totalMRP} discountMRP={discountMRP} totalCost={totalCostwithVAT} VAT_Price={VAT_Price} />
+          <PriceDetails totalMRP={totalMRP} discountMRP={discountMRP} totalCost={totalAmount} VAT_Price={VAT_Price} />
           {selectedAddressPresence && (
             <>
+              <div className="payment-method-title">Choose Payment Method</div>
+
               <div className="payment-method">
-                <div className="online_method">
+                <div className={`payment-option online_method ${paymentMethod === 'Online' && !useWalletMoney ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     className="radio-btn"
-                    checked={paymentMethod === 'Online'}
+                    checked={paymentMethod === 'Online' && !useWalletMoney}
                     onChange={() => {
                       setPaymentMethod('Online');
                       setUseWalletMoney(false)
                     }}
                   />
-                  <label>Card Payment</label>
-                  {paymentMethod === 'Online' && !useWalletMoney && < PaymentForm />}
+                  <div className="payment-content">
+                    <label className="payment-label">
+                      <div className="payment-icon card-icon">💳</div>
+                      Card Payment
+                    </label>
+                    <div className="payment-description">
+                      Pay securely with your credit or debit card
+                    </div>
+                    {paymentMethod === 'Online' && !useWalletMoney && (
+                      <div className="payment-form">
+                        <PaymentForm />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="COD_method">
+
+                <div className={`payment-option COD_method ${paymentMethod === 'COD' ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     className="radio-btn"
@@ -363,11 +391,19 @@ export default function Address() {
                       setUseWalletMoney(false);
                     }}
                   />
-                  <label>Cash on Delivery</label>
+                  <div className="payment-content">
+                    <label className="payment-label">
+                      <div className="payment-icon cod-icon">💰</div>
+                      Cash on Delivery
+                    </label>
+                    <div className="payment-description">
+                      Pay with cash when your order is delivered
+                    </div>
+                  </div>
                 </div>
 
                 {wallet?.balance > 0 && (
-                  <div className="wallet_method">
+                  <div className={`payment-option wallet_method ${useWalletMoney ? 'selected' : ''}`}>
                     <input
                       type="radio"
                       className="radio-btn"
@@ -377,15 +413,24 @@ export default function Address() {
                         setPaymentMethod(null);
                       }}
                     />
-                    <label>Pay with Wallet (AED {wallet.balance.toFixed(2)} available)</label>
-                    {useWalletMoney && (
-                      <div className="wallet-payment-info">
-                        <p>Using AED {walletUsed.toFixed(2)} from wallet</p>
-                        {remainingAmount > 0 && (
-                          <p>Remaining: AED {remainingAmount.toFixed(2)}</p>
-                        )}
+                    <div className="payment-content">
+                      <label className="payment-label">
+                        <div className="payment-icon wallet-icon">🏦</div>
+                        Pay with Wallet
+                        <span className="wallet-balance">(AED {wallet.balance} available)</span>
+                      </label>
+                      <div className="payment-description">
+                        Use your wallet balance for instant payment
                       </div>
-                    )}
+                      {useWalletMoney && (
+                        <div className="wallet-payment-info">
+                          <p>Using AED {walletUsed.toFixed(2)} from wallet</p>
+                          {remainingAmount > 0 && (
+                            <p>Remaining: AED {remainingAmount.toFixed(2)}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 

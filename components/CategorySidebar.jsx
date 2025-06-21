@@ -52,12 +52,16 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
   useEffect(() => {
     setCurrentPrice(filters.priceRange.max);
   }, [filters.priceRange.max]);
+  const minProductCount = 2;
+  const shouldShowFilterSection = (filterArray) => {
+    return filterArray && filterArray.length >= minProductCount;
+  };
 
   return (
     <div className="category-sidebar">
       <h4 className='filter-title'>FILTERS</h4>
       <div className="filters-container">
-        {filters.categories.length > 1 && (
+        {shouldShowFilterSection(filters.categories) && (
           <div className="filter-section">
             <h5 className='section-title'>CATEGORIES</h5>
             <div className="filter-items">

@@ -21,8 +21,8 @@ const UserNotifications = () => {
                                 const entityId = isOrder ? notification.orderid : notification.returnid;
                                 const entityType = isOrder ? "Order" : "Return";
                                 const message = isOrder
-                                    ? `Use OTP ${notification.otp} to confirm delivery of <b>${entityType}</b> ${entityId}.`
-                                    : `Use OTP ${notification.otp} to confirm pickup of <b>${entityType}</b> ${entityId}.`;
+                                    ? `Use OTP ${notification.otp} to confirm delivery of ${entityType} ${entityId}.`
+                                    : `Use OTP ${notification.otp} to confirm pickup of ${entityType} ${entityId}.`;
 
                                 return (
                                     <ListGroup.Item
