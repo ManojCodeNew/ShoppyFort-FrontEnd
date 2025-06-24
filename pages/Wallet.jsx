@@ -6,6 +6,7 @@ import { FiArrowUpRight, FiArrowDownLeft, FiClock } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { useProducts } from '@/contexts/ProductsContext';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
+
 export default function Wallet() {
     const { getWallet, wallet } = useWallet();
     const [balance, setBalance] = useState(0);
@@ -32,7 +33,8 @@ export default function Wallet() {
     }, [wallet]);
 
     const getOrderId = (orderid) => {
-        return allOrder.find(order => order._id === orderid);
+        return allOrder.find(order => order.orderid === orderid);
+        
     }
 
     const getProductId = (productObj) => {
@@ -114,7 +116,7 @@ export default function Wallet() {
                                     </div>
                                 </div>
                             </div>
-                        ))};
+                        ))}
                     </div>
                 )
                 }

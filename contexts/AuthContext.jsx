@@ -32,6 +32,26 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Add token refresh logic
+  const refreshTokenIfNeeded = async () => {
+    const token = localStorage.getItem(TOKEN_TYPE);
+    if (!token || !isTokenExpired(token)) return token;
+
+    try {
+      const response = await sendPostRequestToBackend('auth/refresh-token', { token });
+      if (response.success && response.token) {
+        localStorage.setItem(TOKEN_TYPE, response.token);
+        return response.token;
+      }
+      throw new Error('Token refresh failed');
+    } catch (error) {
+      clearAuthData();
+      return null;
+    }
+  };
+
+
+
   // Helper function to clear auth data
   const clearAuthData = useCallback(() => {
     setUser(null);
@@ -93,7 +113,6 @@ export function AuthProvider({ children }) {
 
         while (retryCount < maxRetries) {
           try {
-            console.log("Fetching user data with token:", storedToken);
             // Fetch user data with the stored token
             const accessUserData = await sendGetRequestToBackend('auth/getUser', storedToken);
 
@@ -114,7 +133,7 @@ export function AuthProvider({ children }) {
                 break;
               }
 
-              handleAuthError(errorMsg, false); // Don't show toast on initial load
+              handleAuthError(errorMsg, false);
               break;
             } else if (accessUserData.tokenExpired) {
               handleAuthError('TokenExpired', false);
@@ -123,10 +142,6 @@ export function AuthProvider({ children }) {
               setUser(accessUserData.user);
               setIsAuthenticated(true);
               setNetworkError(false);
-              break;
-            } else {
-              console.log("Unexpected response format:", accessUserData);
-              // Don't clear auth data for unexpected responses
               break;
             }
           } catch (err) {
@@ -163,17 +178,15 @@ export function AuthProvider({ children }) {
 
       const response = await sendPostRequestToBackend('auth/login', { email, password });
 
-      // Handle error responses
-      if (response.msg || response.er || response.error) {
-        const errorMsg = response.msg || response.er || response.error;
+      // Standardize error handling
+      if (!response.success) {
+        const errorMsg = response.message || response.msg || response.error || 'Login failed';
         setError(errorMsg);
         showNotification(errorMsg, "error");
         return { success: false, error: errorMsg };
       }
-
-      // Check if we got a valid response
-      if (!response.success || !response.token) {
-        const errorMsg = response.message || 'Invalid login response - no token received';
+      if (!response.token) {
+        const errorMsg = 'No authentication token received';
         setError(errorMsg);
         showNotification(errorMsg, 'error');
         return { success: false, error: errorMsg };
@@ -182,7 +195,7 @@ export function AuthProvider({ children }) {
       // Store token first
       localStorage.setItem(TOKEN_TYPE, response.token);
 
-      // Then fetch user data
+      // // Then fetch user data
       const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
 
       if (accessUserData.error || accessUserData.er) {
@@ -195,12 +208,11 @@ export function AuthProvider({ children }) {
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
         setIsAuthenticated(true);
+        setUserDataLoaded(true);
         setNetworkError(false);
         showNotification('Login successful! 🎉', 'success');
-        setTimeout(() => {
-          window.location.reload(); // Reload to update UI
-          navigate('/profile'); // Redirect to profile after reload
-        }, 800);
+
+        window.location.reload(); 
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -278,12 +290,10 @@ export function AuthProvider({ children }) {
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
         setIsAuthenticated(true);
+        setUserDataLoaded(true);
         setNetworkError(false);
         showNotification("Registration successful! 🎉", "success");
-        setTimeout(() => {
-          window.location.reload(); // Reload to update UI
-          navigate('/profile'); // Redirect to profile after reload
-        }, 800);
+        window.location.reload();
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -328,7 +338,7 @@ export function AuthProvider({ children }) {
   // Google login function - IMPROVED
   const googleLogin = useCallback(async (credential) => {
     try {
-    
+
       setError(null);
       setLoading(true);
       setNetworkError(false);
@@ -377,13 +387,11 @@ export function AuthProvider({ children }) {
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
         setIsAuthenticated(true);
+        setUserDataLoaded(true);
         setNetworkError(false);
         showNotification('Google login successful! 🎉', 'success');
-        setTimeout(() => {
-          window.location.reload(); // Reload to update UI
-        }, 800);
-        navigate('/profile'); // Redirect to profile after reload
 
+        window.location.reload();
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -420,11 +428,6 @@ export function AuthProvider({ children }) {
     return true;
   }, [isAuthenticated, showNotification, navigate]);
 
-  useEffect(() => {
-    if (token && isAuthenticated) {
-      window.location.reload();
-    }
-  }, [setIsAuthenticated, token]);
 
   const value = {
     user,
@@ -435,11 +438,13 @@ export function AuthProvider({ children }) {
     requireAuth, // Add this for protected actions
     isLoading: loading,
     isAuthenticated,
+    userDataLoaded,
     networkError, // Add this to show network status
     error,
     token,
     setUser,
-    clearAuthData
+    clearAuthData,
+    refreshTokenIfNeeded
   };
 
   return (

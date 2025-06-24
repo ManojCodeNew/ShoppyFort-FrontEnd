@@ -1,8 +1,7 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useWishlist } from '../contexts/WishlistContext';
 import ProductCard from '../components/ProductCard';
 import '../styles/pages/wishlist-page.scss';
-// import Notification from '@/components/Notification';
 
 const WishlistPage = () => {
   const { items } = useWishlist();
@@ -10,7 +9,6 @@ const WishlistPage = () => {
 
   return (
     <div className="wishlist-page">
-  
       <div className="container">
         <h1>My Wishlist ({items.length})</h1>
 
@@ -25,7 +23,7 @@ const WishlistPage = () => {
             ))}
           </div>
         )}
-    
+
       </div>
     </div>
   );

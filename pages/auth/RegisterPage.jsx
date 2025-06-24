@@ -20,20 +20,31 @@ const RegisterPage = () => {
     error,
     isLoading,
     isAuthenticated,
-    userDataLoaded
+    userDataLoaded,
+    token
   } = useAuth();
+
 
   const navigate = useNavigate();
 
 
   // Redirect if already logged in AND user data is loaded
   useEffect(() => {
-    if (isAuthenticated && userDataLoaded) {
-      console.log('User is authenticated and data is loaded, redirecting to profile');
-      navigate('/profile');
+    if (isAuthenticated && userDataLoaded && token) {
+      navigate('/profile', { replace: true });
     }
-  }, [isAuthenticated, userDataLoaded, navigate]);
+  }, [isAuthenticated, userDataLoaded, navigate, token]);
 
+  // Early return if user is already authenticated to prevent rendering register form
+  if (isAuthenticated && userDataLoaded) {
+    return (
+      <div className="auth-page">
+        <div className="auth-container">
+          <p>Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   const validateForm = () => {
     const newErrors = {};
@@ -80,8 +91,6 @@ const RegisterPage = () => {
 
     if (isSubmitting || isLoading) return;
 
-    console.log("RegisterPage data", formData);
-
     if (!validateForm()) {
       return;
     }
@@ -95,8 +104,8 @@ const RegisterPage = () => {
       const result = await register(registrationData);
 
       if (result.success) {
-        // Navigation will be handled by useEffect when user state updates
-        console.log('Registration successful, user will be redirected');
+        // Registration successful, redirect to profile or login page
+        navigate('/profile', { replace: true });
       } else {
         // Error handling is already done in the register function
         console.log('Registration failed:', result.error);

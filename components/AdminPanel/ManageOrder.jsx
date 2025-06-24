@@ -244,25 +244,25 @@ const ManageOrder = () => {
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "placed").length}
                         </span>
-                        <span className="stat-label">New Orders</span>
+                        <span className="stat-label" style={{color:"black"}}>New Orders</span>
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "Shipped").length}
                         </span>
-                        <span className="stat-label">Shipped</span>
+                        <span className="stat-label" style={{color:"black"}}>Shipped</span>
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "Delivered").length}
                         </span>
-                        <span className="stat-label">Delivered</span>
+                        <span className="stat-label" style={{color:"black"}}>Delivered</span>
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "Cancelled").length}
                         </span>
-                        <span className="stat-label">Cancelled</span>
+                        <span className="stat-label" style={{color:"black"}}>Cancelled</span>
                     </div>
                 </div>
             </div>

@@ -73,7 +73,7 @@ function RecentOrders() {
                                         <td><small>AED </small>{order.totalprice || 0}</td>
                                         <td>
                                             <span className={`status-badge ${order.status?.toLowerCase() || 'pending'}`}>
-                                                {order.status || 'Pending'}
+                                                {order.status || 'Pending'}  
                                             </span>
                                         </td>
                                     </tr>

@@ -7,7 +7,7 @@ import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 const OrderPlaced = () => {
 
   const navigate = useNavigate();
-  const { orderDetails, setOrderDetails,fetchOrders } = useOrderDetails();
+  const { orderDetails, setOrderDetails, fetchOrders } = useOrderDetails();
 
   const order = orderDetails;
 

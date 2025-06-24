@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
-import "./styles/ImageUpload.css";
 import { useAdminProducts } from "./Context/AdminProductsContext.jsx";
 import { useNotification } from "../Notify/NotificationProvider.jsx";
 import Loader from "../Load/Loader.jsx";
 import { useUserContext } from "./Context/ManageUsersContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
 
 function ImageUpload({ productName, colors }) {
     const { setImages, initialData, removeImgOnDb, setInitialImgData } = useAdminProducts();
@@ -21,7 +19,6 @@ function ImageUpload({ productName, colors }) {
     const [draggedOverItem, setDraggedOverItem] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
 
-
     // Initialize images when colors or initialData changes
     useEffect(() => {
         if (!colors || colors.length === 0) {
@@ -32,7 +29,7 @@ function ImageUpload({ productName, colors }) {
 
         const initialImagesState = colors.reduce((acc, color) => {
             acc[color] = initialData?.colorImages?.[color]?.map((imageUrl, index) => ({
-                id: `${color}-${index}-${Date.now()}`,
+                id: `${color}-${index}-${Date.now()}`, // Add unique ID for drag operations
                 name: imageUrl.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1] || imageUrl,
                 url: imageUrl,
                 file: null,
@@ -56,7 +53,7 @@ function ImageUpload({ productName, colors }) {
                 });
             });
         };
-    }, []);
+    }, [selectedImages]);
 
     const handleImageSelection = useCallback((e, colorName) => {
         const files = Array.from(e.target.files);
@@ -66,7 +63,7 @@ function ImageUpload({ productName, colors }) {
         // Validate file types
         const validFiles = files.filter(file => {
             const isValidType = file.type.startsWith('image/');
-            const isValidSize = file.size <= 100 * 1024 * 1024; // 5MB
+            const isValidSize = file.size <= 100 * 1024 * 1024; // 100MB
 
             if (!isValidType) {
                 showNotification(`${file.name} is not a valid image file`, "error");
@@ -81,16 +78,20 @@ function ImageUpload({ productName, colors }) {
 
         if (validFiles.length === 0) return;
 
-        const newFiles = validFiles.map(file => ({
-            name: file.name,
-            url: URL.createObjectURL(file),
-            file
-        }));
-
-        setSelectedImages(prevImages => ({
-            ...prevImages,
-            [colorName]: [...(prevImages[colorName] || []), ...newFiles],
-        }));
+        setSelectedImages(prevImages => {
+            const existingCount = selectedImages[colorName]?.length || 0;
+            const newFiles = validFiles.map((file, index) => ({
+                id: `${colorName}-new-${Date.now()}-${index}`,
+                name: file.name,
+                url: URL.createObjectURL(file),
+                file,
+                order: existingCount + index
+            }));
+            return {
+                ...prevImages,
+                [colorName]: [...(prevImages[colorName] || []), ...newFiles],
+            }
+        });
 
         setHasNewImages(true);
         showNotification(`${validFiles.length} image(s) selected successfully!`, "success");
@@ -99,16 +100,18 @@ function ImageUpload({ productName, colors }) {
         e.target.value = '';
     }, [showNotification]);
 
-    const removeImage = useCallback(async (colorName, index, e) => {
+    const removeImage = useCallback(async (colorName, imageId, e) => {
         e.preventDefault();
 
-        if (!selectedImages[colorName] || !selectedImages[colorName][index]) {
+        const colorImages = selectedImages[colorName] || [];
+        const imageIndex = colorImages.findIndex(img => img.id === imageId);
+
+        if (imageIndex === -1) {
             showNotification("Image not found!", "error");
             return;
         }
 
-        const updatedImages = [...selectedImages[colorName]];
-        const imageToRemove = updatedImages[index];
+        const imageToRemove = colorImages[imageIndex];
         const { url, file } = imageToRemove;
 
         try {
@@ -142,7 +145,7 @@ function ImageUpload({ productName, colors }) {
                 const dbResponse = await removeImgOnDb({
                     id: initialData._id,
                     colorname: colorName,
-                    position: index
+                    position: imageIndex
                 });
 
                 if (!dbResponse?.success) {
@@ -150,51 +153,35 @@ function ImageUpload({ productName, colors }) {
                 }
 
                 showNotification("Image deleted successfully!", "success");
-
-                // Update local state
-                updatedImages.splice(index, 1);
-                setSelectedImages(prevImages => ({
-                    ...prevImages,
-                    [colorName]: updatedImages
-                }));
-
-                // Update context states
-                setImages(prevImages => {
-                    const updatedState = { ...prevImages };
-                    if (updatedState[colorName]) {
-                        updatedState[colorName] = updatedState[colorName].filter(
-                            img => img.name !== imagePath
-                        );
-                        if (updatedState[colorName].length === 0) {
-                            delete updatedState[colorName];
-                        }
-                    }
-                    return updatedState;
-                });
-
-                setInitialImgData(prevImages => {
-                    const updatedState = { ...prevImages };
-                    if (updatedState[colorName]) {
-                        updatedState[colorName] = updatedState[colorName].filter(
-                            img => img.name !== imagePath
-                        );
-                        if (updatedState[colorName].length === 0) {
-                            delete updatedState[colorName];
-                        }
-                    }
-                    return updatedState;
-                });
-
             } else {
                 // New image - just remove from local state
                 URL.revokeObjectURL(url);
-                updatedImages.splice(index, 1);
-                setSelectedImages(prevImages => ({
-                    ...prevImages,
-                    [colorName]: updatedImages
-                }));
                 showNotification("Image removed successfully!", "success");
             }
+
+            // Update local state - remove image and reorder remaining images
+            const updatedImages = colorImages
+                .filter(img => img.id !== imageId)
+                .map((img, index) => ({ ...img, order: index }));
+
+            setSelectedImages(prevImages => ({
+                ...prevImages,
+                [colorName]: updatedImages
+            }));
+
+            // Update context states
+            setImages(prevImages => {
+                const updatedState = { ...prevImages };
+                if (updatedState[colorName]) {
+                    updatedState[colorName] = updatedState[colorName].filter(
+                        img => img.id !== imageId
+                    );
+                    if (updatedState[colorName].length === 0) {
+                        delete updatedState[colorName];
+                    }
+                }
+                return updatedState;
+            });
 
         } catch (error) {
             console.error("Error removing image:", error);
@@ -202,7 +189,82 @@ function ImageUpload({ productName, colors }) {
         } finally {
             setIsLoading(false);
         }
-    }, [selectedImages, initialData, removeImgOnDb, setImages, setInitialImgData, showNotification]);
+    }, [selectedImages, initialData, removeImgOnDb, setImages, showNotification]);
+
+    // Drag and Drop handlers
+    const handleDragStart = useCallback((e, colorName, imageId) => {
+        setDraggedItem({ colorName, imageId });
+        setIsDragging(true);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', e.target.outerHTML);
+        e.target.style.opacity = '0.5';
+    }, []);
+
+    const handleDragEnd = useCallback((e) => {
+        e.target.style.opacity = '1';
+        setDraggedItem(null);
+        setDraggedOverItem(null);
+        setIsDragging(false);
+    }, []);
+
+    const handleDragOver = useCallback((e, colorName, imageId) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDraggedOverItem({ colorName, imageId });
+    }, []);
+
+    const handleDragLeave = useCallback((e) => {
+        // Only clear if we're actually leaving the draggable area
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            setDraggedOverItem(null);
+        }
+    }, []);
+
+    const handleDrop = useCallback((e, targetColorName, targetImageId) => {
+        e.preventDefault();
+
+        if (!draggedItem || draggedItem.imageId === targetImageId) {
+            return;
+        }
+
+        const { colorName: sourceColorName, imageId: sourceImageId } = draggedItem;
+
+        // Only allow reordering within the same color
+        if (sourceColorName !== targetColorName) {
+            showNotification("Images can only be reordered within the same color", "warning");
+            return;
+        }
+
+        const colorImages = [...(selectedImages[sourceColorName] || [])];
+        const sourceIndex = colorImages.findIndex(img => img.id === sourceImageId);
+        const targetIndex = colorImages.findIndex(img => img.id === targetImageId);
+
+        if (sourceIndex === -1 || targetIndex === -1) return;
+
+        // Reorder the images
+        const [movedImage] = colorImages.splice(sourceIndex, 1);
+        colorImages.splice(targetIndex, 0, movedImage);
+
+        // Update order property
+        const reorderedImages = colorImages.map((img, index) => ({
+            ...img,
+            order: index
+        }));
+
+        setSelectedImages(prevImages => ({
+            ...prevImages,
+            [sourceColorName]: reorderedImages
+        }));
+
+        // Update context state as well
+        setImages(prevImages => ({
+            ...prevImages,
+            [sourceColorName]: reorderedImages
+        }));
+
+        setHasNewImages(true);
+        showNotification("Images reordered successfully!", "success");
+    }, [draggedItem, selectedImages, setImages, showNotification]);
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -216,6 +278,7 @@ function ImageUpload({ productName, colors }) {
             showNotification("Product name is required", "error");
             return;
         }
+
         // Calculate total upload size
         let totalSize = 0;
         Object.values(selectedImages).forEach(colorImages => {
@@ -245,14 +308,13 @@ function ImageUpload({ productName, colors }) {
             const newImagesMap = {};
             let fileCount = 0;
 
-            // const updatedImagesMap = {};
-
-            // Process images for each color
+            // Process images for each color in the correct order
             Object.entries(selectedImages).forEach(([color, images]) => {
+                // Sort images by their order property
+                const sortedImages = images.sort((a, b) => a.order - b.order);
                 const newImages = [];
-                // const existingImages = [];
 
-                images.forEach((image) => {
+                sortedImages.forEach((image) => {
                     if (image.file) {
                         // New image to upload
                         formData.append("images", image.file);
@@ -272,16 +334,30 @@ function ImageUpload({ productName, colors }) {
                 setIsLoading(false);
                 return;
             }
+
             console.log(`Uploading ${fileCount} files, total size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
 
             formData.append("colorImages", JSON.stringify(newImagesMap));
+
+            // Include image order information
+            const imageOrderMap = {};
+            Object.entries(selectedImages).forEach(([color, images]) => {
+                imageOrderMap[color] = images
+                    .sort((a, b) => a.order - b.order)
+                    .map(img => ({
+                        name: img.name,
+                        order: img.order,
+                        isNew: !!img.file
+                    }));
+            });
+            formData.append("imageOrder", JSON.stringify(imageOrderMap));
+
             // Create AbortController for timeout
             const controller = new AbortController();
             const timeoutId = setTimeout(() => {
                 controller.abort();
                 showNotification("Upload timeout. Please try with smaller files.", "error");
             }, 600000); // 10 minutes timeout
-
 
             const response = await fetch(`${API_BASE_URL}/upload-product-images`, {
                 method: 'POST',
@@ -293,10 +369,6 @@ function ImageUpload({ productName, colors }) {
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
-
-            console.log("Image Upload Error:", response);
-            console.log("Response status:", response.status);
-            console.log("Response headers:", response.headers);
 
             if (!response.ok) {
                 let errorData;
@@ -326,27 +398,32 @@ function ImageUpload({ productName, colors }) {
 
             if (data.success && data.paths) {
                 const updatedImagesMap = {};
-                // Keep existing images
+
+                // Keep existing images in their current order
                 Object.entries(selectedImages).forEach(([color, images]) => {
-                    const existingImages = images.filter(img => !img.file);
+                    const sortedImages = images.sort((a, b) => a.order - b.order);
+                    const existingImages = sortedImages.filter(img => !img.file);
                     if (existingImages.length > 0) {
                         updatedImagesMap[color] = existingImages;
                     }
                 });
-                // Process uploaded images
+
+                // Process uploaded images and insert them in the correct positions
                 data.paths.forEach(({ color, keys }) => {
                     if (!updatedImagesMap[color]) {
                         updatedImagesMap[color] = [];
                     }
 
-                    const newImages = keys.map(key => ({
+                    const newImages = keys.map((key, index) => ({
+                        id: `${color}-${Date.now()}-${index}`,
                         name: key,
                         url: `https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/${key}`,
                         file: null,
+                        order: updatedImagesMap[color].length + index
                     }));
 
                     updatedImagesMap[color] = [
-                        ...(updatedImagesMap[color] || []),
+                        ...updatedImagesMap[color],
                         ...newImages,
                     ];
                 });
@@ -394,69 +471,170 @@ function ImageUpload({ productName, colors }) {
     return (
         <div style={{ padding: "20px" }}>
             <h2>Product Image Uploader</h2>
+            <div style={{
+                marginBottom: "15px",
+                padding: "10px",
+                backgroundColor: "#f0f8ff",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                fontSize: "14px"
+            }}>
+                <strong>💡 Tip:</strong> Drag and drop images to reorder them within each color. The first image will be used as the default display image.
+            </div>
 
             {colors.map(color => (
-                <div key={color} className="img-selection-block">
-                    <h3>{color}</h3>
+                <div key={color} className="img-selection-block" style={{ marginBottom: "30px" }}>
+                    <h3 style={{
+                        color: "#333",
+                        borderBottom: "2px solid #eee",
+                        paddingBottom: "5px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px"
+                    }}>
+                        {color}
+                        <span style={{
+                            fontSize: "12px",
+                            color: "#666",
+                            backgroundColor: "#f5f5f5",
+                            padding: "2px 8px",
+                            borderRadius: "12px"
+                        }}>
+                            {(selectedImages[color] || []).length} images
+                        </span>
+                    </h3>
+
                     <input
                         type="file"
                         multiple
                         accept="image/*"
                         onChange={(e) => handleImageSelection(e, color)}
                         disabled={isLoading}
+                        style={{ marginBottom: "15px" }}
                     />
-                    <div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}>
-                        {(selectedImages[color] || []).map((image, index) => (
-                            <div key={`${color}-${index}`} style={{ position: "relative", margin: "5px" }}>
-                                <img
-                                    src={image.url}
-                                    alt={`${color} Image ${index + 1}`}
+
+                    <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+                        gap: "10px",
+                        marginTop: "10px"
+                    }}>
+                        {(selectedImages[color] || [])
+                            .sort((a, b) => a.order - b.order)
+                            .map((image, index) => (
+                                <div
+                                    key={image.id}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, color, image.id)}
+                                    onDragEnd={handleDragEnd}
+                                    onDragOver={(e) => handleDragOver(e, color, image.id)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, color, image.id)}
                                     style={{
-                                        width: "100px",
-                                        height: "100px",
-                                        objectFit: "cover",
-                                        border: "1px solid #ddd",
-                                        borderRadius: "4px"
-                                    }}
-                                />
-                                <button
-                                    onClick={(e) => removeImage(color, index, e)}
-                                    disabled={isLoading}
-                                    style={{
-                                        position: "absolute",
-                                        top: "-8px",
-                                        right: "-8px",
-                                        background: "red",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "50%",
-                                        width: "24px",
-                                        height: "24px",
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center"
+                                        position: "relative",
+                                        cursor: isDragging ? "grabbing" : "grab",
+                                        border: draggedOverItem?.imageId === image.id ? "2px dashed #007bff" : "1px solid #ddd",
+                                        borderRadius: "8px",
+                                        overflow: "hidden",
+                                        backgroundColor: draggedOverItem?.imageId === image.id ? "#f8f9fa" : "white",
+                                        transform: draggedItem?.imageId === image.id ? "scale(0.95)" : "scale(1)",
+                                        transition: "all 0.2s ease",
+                                        boxShadow: draggedOverItem?.imageId === image.id ? "0 4px 12px rgba(0,0,0,0.15)" : "0 2px 4px rgba(0,0,0,0.1)"
                                     }}
                                 >
-                                    ×
-                                </button>
-                                {image.file && (
+                                    {/* Order indicator */}
                                     <div style={{
                                         position: "absolute",
-                                        bottom: "0",
-                                        left: "0",
-                                        right: "0",
+                                        top: "5px",
+                                        left: "5px",
                                         background: "rgba(0,0,0,0.7)",
                                         color: "white",
+                                        borderRadius: "50%",
+                                        width: "20px",
+                                        height: "20px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
                                         fontSize: "10px",
-                                        padding: "2px",
-                                        textAlign: "center"
+                                        fontWeight: "bold",
+                                        zIndex: 2
                                     }}>
-                                        New
+                                        {index + 1}
                                     </div>
-                                )}
-                            </div>
-                        ))}
+
+                                    <img
+                                        src={image.url}
+                                        alt={`${color} Image ${index + 1}`}
+                                        style={{
+                                            width: "100%",
+                                            height: "120px",
+                                            objectFit: "cover",
+                                            display: "block"
+                                        }}
+                                        draggable={false} // Prevent image drag
+                                    />
+
+                                    <button
+                                        onClick={(e) => removeImage(color, image.id, e)}
+                                        disabled={isLoading}
+                                        style={{
+                                            position: "absolute",
+                                            top: "5px",
+                                            right: "5px",
+                                            background: "#dc3545",
+                                            color: "white",
+                                            border: "none",
+                                            borderRadius: "50%",
+                                            width: "24px",
+                                            height: "24px",
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: "14px",
+                                            fontWeight: "bold",
+                                            zIndex: 2,
+                                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                                        }}
+                                        title="Remove image"
+                                    >
+                                        ×
+                                    </button>
+
+                                    {image.file && (
+                                        <div style={{
+                                            position: "absolute",
+                                            bottom: "0",
+                                            left: "0",
+                                            right: "0",
+                                            background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                                            color: "white",
+                                            fontSize: "10px",
+                                            padding: "8px 4px 4px",
+                                            textAlign: "center",
+                                            fontWeight: "bold"
+                                        }}>
+                                            NEW
+                                        </div>
+                                    )}
+
+                                    {index === 0 && (
+                                        <div style={{
+                                            position: "absolute",
+                                            top: "30px",
+                                            left: "5px",
+                                            background: "#28a745",
+                                            color: "white",
+                                            fontSize: "8px",
+                                            padding: "2px 6px",
+                                            borderRadius: "10px",
+                                            fontWeight: "bold"
+                                        }}>
+                                            DEFAULT
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                     </div>
                 </div>
             ))}
@@ -468,13 +646,19 @@ function ImageUpload({ productName, colors }) {
                     onClick={handleSubmit}
                     style={{
                         marginTop: "20px",
-                        padding: "10px 20px",
-                        backgroundColor: "green",
+                        padding: "12px 24px",
+                        backgroundColor: "#28a745",
                         color: "white",
                         border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer"
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                        transition: "background-color 0.2s ease"
                     }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = "#218838"}
+                    onMouseOut={(e) => e.target.style.backgroundColor = "#28a745"}
                 >
                     Upload New Images
                 </button>

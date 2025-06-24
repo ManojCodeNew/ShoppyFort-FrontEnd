@@ -223,6 +223,11 @@
   color: #92400e;
 }
 
+.status-badge.shipped {
+  background-color: #ffcc00;
+  color: #042f86;
+}
+
 .status-badge.cancelled {
   background-color: #fee2e2;
   color: #b91c1c;

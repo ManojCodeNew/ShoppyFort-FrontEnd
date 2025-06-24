@@ -9,7 +9,6 @@ import ActiveHeartBtn from '../assets/Images/active.png';
 import ShoppingBag from '../assets/Images/bagwhite.png';
 import { useProducts } from '@/contexts/ProductsContext.jsx';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
-
 const ProductViewPage = () => {
   const { id } = useParams();
   const { products } = useProducts();
@@ -164,6 +163,7 @@ const ProductViewPage = () => {
   return (
     <div className="product-view-page">
       <div className="product-view-page-container">
+
         <div className="product-view-page-layout">
 
           <div className="product-view-page-image" ref={imageContainerRef}>

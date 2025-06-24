@@ -27,7 +27,6 @@ export const OrderDetailsProvider = ({ children }) => {
             const response = await sendGetRequestToBackend("order", token);
             if (response.success) {
                 setAllOrder(response.orders);
-                console.log("orderdetails:", response.orders);
 
             }
         } catch (error) {

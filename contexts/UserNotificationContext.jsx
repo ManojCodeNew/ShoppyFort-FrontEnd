@@ -28,7 +28,7 @@ export default function UserNotificationsProvider({ children }) {
                 }))
 
                 const newest = updatedNotifications[0];
-                if (newest && newest._id !== lastOtpId) {
+                if (newest && newest._id !== lastOtpId && !newest.read) {
                     const isOrder = !!newest.orderid;
                     const entityId = isOrder ? newest.orderid : newest.returnid;
                     const message = isOrder
