@@ -149,7 +149,6 @@ const ProductAddForm = () => {
             action();
         }
     };
-    console.log("Categories :", categories);
 
     return (
         <div className="product-form">

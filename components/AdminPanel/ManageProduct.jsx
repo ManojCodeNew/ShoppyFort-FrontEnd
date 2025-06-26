@@ -22,7 +22,6 @@ const ProductTable = () => {
 
     }
     const handleDeleteConfirm = (productId) => {
-        console.log("handleDeleteConfirm",productId);
         
         deleteProduct(productId);
         setShowDeleteModal(false);

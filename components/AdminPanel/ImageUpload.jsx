@@ -335,7 +335,6 @@ function ImageUpload({ productName, colors }) {
                 return;
             }
 
-            console.log(`Uploading ${fileCount} files, total size: ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
 
             formData.append("colorImages", JSON.stringify(newImagesMap));
 

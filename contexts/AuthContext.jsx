@@ -99,7 +99,6 @@ export function AuthProvider({ children }) {
 
         // Check if token is expired before making request
         if (isTokenExpired(storedToken)) {
-          console.log("Token expired, clearing auth data");
           clearAuthData();
           setLoading(false);
           setUserDataLoaded(true);
@@ -124,7 +123,6 @@ export function AuthProvider({ children }) {
               if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
                 retryCount++;
                 if (retryCount < maxRetries) {
-                  console.log(`Network error, retrying... (${retryCount}/${maxRetries})`);
                   await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                   continue;
                 }

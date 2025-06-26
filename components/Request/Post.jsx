@@ -13,9 +13,7 @@ async function sendPostRequestToBackend(path, data, token) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
         // Log the request details for debugging
-        console.log('Making POST request to:', `${API_BASE_URL}/${path}`);
-        console.log('Request data:', data);
-        console.log('Request headers:', headers);
+    
 
         const response = await fetch(`${API_BASE_URL}/${path}`, {
             method: 'POST',
@@ -73,7 +71,6 @@ async function sendPostRequestToBackend(path, data, token) {
         }
 
         const result = await response.json();
-        console.log("Successful response:", result);
         return result;
 
     } catch (error) {
