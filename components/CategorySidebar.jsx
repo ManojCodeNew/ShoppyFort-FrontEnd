@@ -31,11 +31,19 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
     if (!text) return text;
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   };
+  const isValidColor = (color) => {
+    const s = new Option().style;
+    s.color = color;
+    return s.color !== '';
+  };
 
   const getColorValue = (colorName) => {
     const lowerColor = colorName.toLowerCase();
-    return colorMap[lowerColor] || colorName;
+    const mappedColor = colorMap[lowerColor];
+    if (mappedColor) return mappedColor;
+    return isValidColor(lowerColor) ? lowerColor : '#ccc'; // fallback gray if invalid
   };
+
 
   const handlePriceChange = (e) => {
     const price = parseInt(e.target.value, 10);
@@ -104,9 +112,9 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
         <div className="filter-section">
           <h5 className='section-title'>PRICE</h5>
           <div className="price-range-display">
-            <span>₹{filters.priceRange.min}</span>
+            <span>AED {filters.priceRange.min}</span>
             <span>-</span>
-            <span>₹{filters.priceRange.max}</span>
+            <span>AED {filters.priceRange.max}</span>
           </div>
           <input
             type="range"
@@ -118,7 +126,7 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
             disabled={filters.priceRange.min === filters.priceRange.max}
           />
           <div className="current-price-display">
-            <span>Current: ₹{currentPrice}</span>
+            <span>Current: AED {currentPrice}</span>
           </div>
         </div>
 
@@ -126,27 +134,29 @@ const CategorySidebar = ({ filters, onFilterChange }) => {
           <div className="filter-section">
             <h5 className='section-title'>COLOR</h5>
             <div className="filter-items color-items">
-              {filters.colors.map((item, i) => (
-                <label key={i} className="color-filter-item filter-item">
-                  <input
-                    type="checkbox"
-                    name={item}
-                    value={item}
-                    onChange={(e) => handleCheckboxChange(e, 'colors')}
-                  />
-                  <span className="checkmark"></span>
-                  <div className="color-display">
-                    <span
-                      className="color-swatch"
-                      style={{
-                        backgroundColor: getColorValue(item),
-                        border: item.toLowerCase() === 'white' ? '1px solid #ddd' : 'none'
-                      }}
-                    ></span>
-                    <span className="color-name">{formatText(item)}</span>
-                  </div>
-                </label>
-              ))}
+              {filters.colors
+                .filter((item) => isValidColor(getColorValue(item)))
+                .map((item, i) => (
+                  <label key={i} className="color-filter-item filter-item">
+                    <input
+                      type="checkbox"
+                      name={item}
+                      value={item}
+                      onChange={(e) => handleCheckboxChange(e, 'colors')}
+                    />
+                    <span className="checkmark"></span>
+                    <div className="color-display">
+                      <span
+                        className="color-swatch"
+                        style={{
+                          backgroundColor: getColorValue(item),
+                          border: item.toLowerCase() === 'white' ? '1px solid #ddd' : 'none'
+                        }}
+                      ></span>
+                      <span className="color-name">{formatText(item)}</span>
+                    </div>
+                  </label>
+                ))}
             </div>
           </div>
         )}

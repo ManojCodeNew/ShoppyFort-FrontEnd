@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Loader } from 'lucide-react';
 import '../styles/components/hero.scss';
 import { useOffers } from '@/contexts/OffersContext';
-
 const Hero = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +55,7 @@ const Hero = () => {
 
   return (
     <div className="hero" style={{ backgroundImage: `url(${banner.imageUrl})` }}>
+
       <div className="hero-content">
         <div className="container">
           <div className="hero-text">

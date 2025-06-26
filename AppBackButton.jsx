@@ -13,19 +13,41 @@ const AppBackButton = () => {
     return (
         <button
             style={{
-                margin: '12px 0',
-                padding: '10px 18px',
-                backgroundColor: 'gray',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '16px',
+                position: 'absolute',
+                top: '100px',
+                left: '10px',
+                width: '36px',
+                height: '36px',
+                zIndex:1,
+                borderRadius: '8%',
+                backgroundColor: '#fff',
+                border: '2px solid #ccc',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px',
+                color: '#000',
                 cursor: 'pointer',
             }}
+
             onClick={() => navigate(-1)}
         >
-            ⬅ Back
-        </button>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#333"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+            ←
+        </button >
     );
 };
 

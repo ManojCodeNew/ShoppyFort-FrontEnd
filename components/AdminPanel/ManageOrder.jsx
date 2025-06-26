@@ -37,12 +37,12 @@ const ManageOrder = () => {
 
     // Status color mapping for consistency
     const statusColors = {
-        "placed": "bg-blue-500", // New order, pending
-        "Shipped": "bg-indigo-500", // Order left warehouse
-        "out-for-delivery": "bg-amber-500", // En route to customer
-        "Delivered": "bg-green-500", // Successfully delivered
-        "Cancelled": "bg-red-500", // Order cancelled
-        "Refunded": "bg-purple-500" // Order refunded
+        "placed": "bg-blue-500",
+        "Shipped": "bg-indigo-500",
+        "out-for-delivery": "bg-amber-500",
+        "Delivered": "bg-green-500",
+        "Cancelled": "bg-red-500",
+        "Refunded": "bg-purple-500"
     };
 
     // Status icon mapping
@@ -53,6 +53,38 @@ const ManageOrder = () => {
         "Delivered": <CheckCircle size={16} />,
         "Cancelled": <AlertCircle size={16} />,
         "Refunded": <RefreshCw size={16} /> // Assuming RefreshCw for refunded, change if better icon exists
+    };
+    // Helper function to format address display
+    const formatAddress = (address) => {
+        if (!address) return "No address available";
+
+        const parts = [];
+        if (address.buildingNumber) parts.push(address.buildingNumber);
+        if (address.streetName) parts.push(address.streetName);
+        if (address.area) parts.push(address.area);
+
+        return parts.join(', ') || "Address not specified";
+    };
+
+    const formatCityState = (address) => {
+        if (!address) return "";
+
+        const parts = [];
+        if (address.city) parts.push(address.city);
+        if (address.emirate) parts.push(address.emirate);
+        if (address.pobox) parts.push(address.pobox);
+
+        return parts.join(', ');
+    };
+
+    const getFullAddress = (address) => {
+        if (!address) return "No address available";
+
+        const addressLine = formatAddress(address);
+        const cityLine = formatCityState(address);
+        const country = address.country || "";
+
+        return [addressLine, cityLine, country].filter(Boolean).join(', ');
     };
 
     useEffect(() => {
@@ -99,7 +131,11 @@ const ManageOrder = () => {
                 order.orderid.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 (order.userName && order.userName.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (order.contactDetails && order.contactDetails.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (order.shippingaddress?.pincode && String(order.shippingaddress.pincode).includes(searchTerm))
+                (order.shippingaddress?.username && order.shippingaddress.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (order.shippingaddress?.mobileno && String(order.shippingaddress.mobileno).includes(searchTerm)) ||
+                (order.shippingaddress?.pobox && String(order.shippingaddress.pobox).includes(searchTerm)) ||
+                (order.shippingaddress?.city && order.shippingaddress.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (order.shippingaddress?.emirate && order.shippingaddress.emirate.toLowerCase().includes(searchTerm.toLowerCase()))
             );
         }
 
@@ -163,12 +199,12 @@ const ManageOrder = () => {
     };
 
     const sendOtpNotification = (orderId, userId) => {
-        const otp = Math.floor(1000 + Math.random() * 9000); // Generate 4-digit OTP
-        const expiresAt = Date.now() + 2 * 60 * 1000; // 2 min expiration (increased for testing)
+        const otp = Math.floor(1000 + Math.random() * 9000);
+        const expiresAt = Date.now() + 2 * 60 * 1000;
         const newOTP = {
             orderid: orderId,
             userid: userId,
-            status: "out-for-delivery", // Update status to out-for-delivery when OTP is sent
+            status: "out-for-delivery",
             otp,
             otpExpiresAt: expiresAt,
         };
@@ -188,37 +224,47 @@ const ManageOrder = () => {
             setOtpModal({ ...otpModal, show: false, otp: "" });
             return;
         }
+        try {
+            const otpResponse = await getOtpOnDb(orderid);
 
-        const otpResponse = await getOtpOnDb(orderid);
+            if (!otpResponse || !otpResponse.otp) {
+                showNotification("Failed to retrieve OTP details. Please try again.", "error");
+                return;
+            }
 
-        if (!otpResponse || !otpResponse.otp) {
-            showNotification("Failed to retrieve OTP details. Please try again.", "error");
-            return;
-        }
+            const otpData = otpResponse.otp;
+            const otpExpiryTime = new Date(otpData.otpExpiresAt).getTime();
 
-        const otpData = otpResponse.otp;
-        const otpExpiryTime = new Date(otpData.otpExpiresAt).getTime();
+            if (otpExpiryTime < Date.now()) {
+                showNotification("OTP has expired, request a new one.", "error");
+                setOtpModal({ ...otpModal, show: false, otp: "" });
+                return;
+            }
 
-        if (otpExpiryTime < Date.now()) {
-            showNotification("OTP has expired, request a new one.", "error");
-            setOtpModal({ ...otpModal, show: false, otp: "" });
-            return;
-        }
-
-        if (parseInt(otpData.otp) === parseInt(otpModal.otp)) {
-            showNotification("OTP verified successfully!", "success");
-            await updateOrderStatus(orderid, "Delivered");
-            await fetchOrders();
-            setOtpModal({ ...otpModal, show: false, otp: "" });
-        } else {
-            showNotification("Invalid OTP, please try again.", "error");
+            if (parseInt(otpData.otp) === parseInt(otpModal.otp)) {
+                showNotification("OTP verified successfully!", "success");
+                await updateOrderStatus(orderid, "Delivered");
+                await fetchOrders();
+                setOtpModal({ ...otpModal, show: false, otp: "" });
+            } else {
+                showNotification("Invalid OTP, please try again.", "error");
+            }
+        } catch (error) {
+            console.error("Error verifying OTP:", error);
+            showNotification("Error verifying OTP. Please try again.", "error");
         }
     };
 
     const refreshOrders = async () => {
         setIsLoading(true);
-        await fetchOrders();
-        showNotification("Orders refreshed successfully.", "success");
+        try {
+            await fetchOrders();
+            showNotification("Orders refreshed successfully.", "success");
+        } catch (error) {
+            showNotification("Failed to refresh orders.", "error");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     // Pagination Logic
@@ -234,7 +280,7 @@ const ManageOrder = () => {
             {isLoading && (
                 // This div is crucial to provide a positioned parent for the absolute loader
                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 9998 }}>
-                    <Loader /> {/* Loader now receives its full-screen properties from this wrapper */}
+                    <Loader />
                 </div>
             )}
             <div className="dashboard-header">
@@ -244,25 +290,25 @@ const ManageOrder = () => {
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "placed").length}
                         </span>
-                        <span className="stat-label" style={{color:"black"}}>New Orders</span>
+                        <span className="stat-label" style={{ color: "black" }}>New Orders</span>
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "Shipped").length}
                         </span>
-                        <span className="stat-label" style={{color:"black"}}>Shipped</span>
+                        <span className="stat-label" style={{ color: "black" }}>Shipped</span>
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "Delivered").length}
                         </span>
-                        <span className="stat-label" style={{color:"black"}}>Delivered</span>
+                        <span className="stat-label" style={{ color: "black" }}>Delivered</span>
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
                             {orders.filter((o) => o.status === "Cancelled").length}
                         </span>
-                        <span className="stat-label" style={{color:"black"}}>Cancelled</span>
+                        <span className="stat-label" style={{ color: "black" }}>Cancelled</span>
                     </div>
                 </div>
             </div>
@@ -356,24 +402,25 @@ const ManageOrder = () => {
                                             <td className="order-id-cell">{order.orderid}</td>
                                             <td>
                                                 <div className="customer-info">
-                                                    <strong>{order.userName ? order.userName : "Unknown"}</strong>
+                                                    <strong>
+                                                        {order.shippingaddress?.username || order.userName || "Unknown"}
+                                                    </strong>
                                                     <span className="contact">
-                                                        {order.contactDetails ? order.contactDetails : "No Contact"}
+                                                        {order.shippingaddress?.mobileno || order.contactDetails || "No Contact"}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div className="address-info">
-                                                    <div>
-                                                        {order.shippingaddress?.deliveryaddress}, {order.shippingaddress?.locality}
-                                                    </div>
-                                                    <div>
-                                                        {order.shippingaddress?.city}, {order.shippingaddress?.state} -{" "}
-                                                        {order.shippingaddress?.pincode}
-                                                    </div>
+                                                    <div>{formatAddress(order.shippingaddress)}</div>
+                                                    <div>{formatCityState(order.shippingaddress)}</div>
+                                                    {order.shippingaddress?.country && (
+                                                        <div>{order.shippingaddress.country}</div>
+                                                    )}
                                                 </div>
                                             </td>
-                                            <td>{order.items.length}</td>
+
+                                            <td>{order.items?.length || 0}</td>
                                             <td className="price-cell">
                                                 AED {order.totalprice.toLocaleString("en-IN")}
                                             </td>
@@ -535,9 +582,11 @@ const ManageOrder = () => {
                                                                 </p>
                                                                 <p>
                                                                     <strong>Shipping Address:</strong>{" "}
-                                                                    {order.shippingaddress?.deliveryaddress}, {order.shippingaddress?.locality},{" "}
-                                                                    {order.shippingaddress?.city}, {order.shippingaddress?.state} -{" "}
-                                                                    {order.shippingaddress?.pincode}
+                                                                    {getFullAddress(order.shippingaddress)}
+                                                                </p>
+                                                                <p>
+                                                                    <strong>Address Type:</strong>{" "}
+                                                                    {order.shippingaddress?.savedaddressas || "N/A"}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -559,12 +608,12 @@ const ManageOrder = () => {
                                                                             <td>{product.name || "N/A"}</td>
                                                                             <td>{product.quantity || "N/A"}</td>
                                                                             <td>AED {product.price || "N/A"}</td>
-                                                                            <td>AED {(product.price * product.quantity).toFixed(2)}</td>
+                                                                            <td>AED {((product.price || 0) * (product.quantity || 0)).toFixed(2)}</td>
                                                                         </tr>
-                                                                    ))}
+                                                                    )) | []}
                                                                     <tr className="order-summary-row">
                                                                         <td colSpan="3" className="summary-label">Subtotal</td>
-                                                                        <td>AED {order.totalprice.toFixed(2)}</td>
+                                                                        <td>AED {(order.totalprice || 0).toFixed(2)}</td>
                                                                     </tr>
                                                                     {order.amountPaidFromWallet > 0 && (
                                                                         <tr className="order-summary-row">
@@ -605,9 +654,10 @@ const ManageOrder = () => {
                                                                 {/* Order Shipped */}
                                                                 <div
                                                                     className={`timeline-item ${order.status === "Shipped" ||
-                                                                        order.status === "Delivered"
-                                                                        ? "completed"
-                                                                        : ""
+                                                                            order.status === "out-for-delivery" ||
+                                                                            order.status === "Delivered"
+                                                                            ? "completed"
+                                                                            : ""
                                                                         }`}
                                                                 >
                                                                     <div className="timeline-icon">

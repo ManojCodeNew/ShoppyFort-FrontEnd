@@ -52,7 +52,7 @@ const Footer = () => {
 
         if (hasProducts) {
           const linkText = `${gender.charAt(0).toUpperCase() + gender.slice(1)}'s ${category}`;
-          const linkPath = `/category/${gender}/${category.toLowerCase().replace(/\s+/g, '-')}`;
+          const linkPath = `/category/${gender}/${category}`;
 
           quickLinks.push({
             text: linkText,

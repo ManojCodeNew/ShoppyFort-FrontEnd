@@ -5,7 +5,7 @@ import PriceDetails from '../components/PriceDetails.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '@/components/Notify/NotificationProvider';
 const CartPage = () => {
-    const { cartItems, handleRemove, handleQuantityChange, totalCost } = useCart(); // Use the context values
+    const { cartItems, handleRemove, handleQuantityChange, totalCostwithoutVAT,totalCostwithVAT } = useCart(); // Use the context values
     const { showNotification } = useNotification();
     const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const CartPage = () => {
             <h1 className='cart-heading'>Your Shopping Cart</h1>
             <div className="cart-summary">
                 <p className='cart-summary-text'>Total Items: {cartItems.length}</p>
-                <p className='cart-summary-text'>Total Cost:  <small className="currency-label">AED</small>{totalCost}</p>
+                <p className='cart-summary-text'>Total Cost:  <small className="currency-label">AED</small>{totalCostwithoutVAT}</p>
             </div>
             {cartItems.length > 0 ? (
                 <div className="cartPage-container">
@@ -71,7 +71,7 @@ const CartPage = () => {
                         ))}
                     </div>
                     <div className='cart-price-details'>
-                        <PriceDetails totalMRP={totalMRP} discountMRP={discountMRP} totalCost={totalCost} />
+                        <PriceDetails totalMRP={totalMRP} discountMRP={discountMRP} totalCostwithoutVAT={totalCostwithoutVAT} />
 
                         <button className="continue-btn" onClick={() => navigate('/checkout/address')} >Continue</button>
                     </div>

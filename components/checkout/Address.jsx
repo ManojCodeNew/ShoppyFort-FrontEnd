@@ -15,19 +15,58 @@ import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useProducts } from '@/contexts/ProductsContext.jsx';
 import { useWallet } from '@/contexts/WalletContext.jsx';
 
+// Validation utility functions
+const validateMobileNumber = (mobile) => {
+  const cleanMobile = mobile.replace(/\s|-/g, '');
+  // UAE mobile number patterns: +971XXXXXXXXX, 971XXXXXXXXX, 0XXXXXXXXX, XXXXXXXXXX
+  const uaePattern = /^(\+971|971|0)?[5][0-9]{8}$/;
+  return uaePattern.test(cleanMobile);
+};
+
+const validatePOBox = (pobox) => {
+  if (!pobox) return true; // Optional field
+  const poboxPattern = /^\d{1,6}$/;
+  return poboxPattern.test(pobox);
+};
+
+const validateName = (name) => {
+  if (!name || name.trim().length < 2) return false;
+  // Allow letters, spaces, hyphens, and apostrophes
+  const namePattern = /^[a-zA-Z\s'-]{2,50}$/;
+  return namePattern.test(name.trim());
+};
+
+const validateRequired = (value) => {
+  return value && value.toString().trim().length > 0;
+};
+
 export default function Address() {
   const [address, setAddress] = useState({
     userid: '',
     username: '',
     mobileno: '',
-    pincode: '',
-    deliveryaddress: '',
-    locality: '',
-    city: '',
-    state: '',
+    buildingNumber: '',
+    streetName: '',
+    area: '',
+    city: 'Dubai',
+    emirate: 'Dubai',
+    country: 'United Arab Emirates',
+    pobox: '',
     savedaddressas: '',
     defaultaddress: false
   });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const emirates = [
+    'Abu Dhabi',
+    'Dubai',
+    'Sharjah',
+    'Ajman',
+    'Umm Al Quwain',
+    'Ras Al Khaimah',
+    'Fujairah'
+  ];
 
   const [addressList, setAddressList] = useState([]);
   const { orderDetails, setOrderDetails } = useOrderDetails();
@@ -55,40 +94,97 @@ export default function Address() {
 
   const { wallet, processWalletPayment, loading: walletLoading } = useWallet();
 
-  const totalAmount = parseFloat(totalCostwithVAT);
+  const totalAmount = parseFloat(totalCostwithVAT || 0);
+
+  // Comprehensive validation function
+  const validateAddressForm = () => {
+    const errors = {};
+
+    // Required field validations
+    if (!validateRequired(address.username)) {
+      errors.username = 'Name is required';
+    } else if (!validateName(address.username)) {
+      errors.username = 'Please enter a valid name (2-50 characters, letters only)';
+    }
+
+    if (!validateRequired(address.mobileno)) {
+      errors.mobileno = 'Mobile number is required';
+    } else if (!validateMobileNumber(address.mobileno)) {
+      errors.mobileno = 'Please enter a valid UAE mobile number (e.g., +971 50 123 4567)';
+    }
+
+    if (!validateRequired(address.buildingNumber)) {
+      errors.buildingNumber = 'Building number is required';
+    } else if (address.buildingNumber.trim().length > 20) {
+      errors.buildingNumber = 'Building number is too long';
+    }
+
+    if (!validateRequired(address.streetName)) {
+      errors.streetName = 'Street name is required';
+    } else if (address.streetName.trim().length > 100) {
+      errors.streetName = 'Street name is too long';
+    }
+
+    if (!validateRequired(address.area)) {
+      errors.area = 'Area is required';
+    } else if (address.area.trim().length > 100) {
+      errors.area = 'Area name is too long';
+    }
+
+    if (!validateRequired(address.city)) {
+      errors.city = 'City is required';
+    }
+
+    if (!validateRequired(address.emirate)) {
+      errors.emirate = 'Emirate selection is required';
+    }
+
+    if (!validateRequired(address.savedaddressas)) {
+      errors.savedaddressas = 'Please select Home or Work';
+    }
+
+    // Optional field validations
+    if (address.pobox && !validatePOBox(address.pobox)) {
+      errors.pobox = 'PO Box should contain only numbers (max 6 digits)';
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const fetchAddress = useCallback(async () => {
+    if (!user || !token) return;
     setLoading(true);
     try {
       const response = await sendGetRequestToBackend(`checkout/Address`, token);
       if (response.address?.length > 0) {
-        setLoading(false);
-
+        
         setAddressList(response.address);
         setShowAddressForm(false);
       } else {
-        setLoading(false);
         setAddressList([]);
         setShowAddressForm(true);
       }
     } catch (error) {
-      setLoading(false);
+      console.error('Error fetching addresses:', error);
       showNotification("Error fetching products", "error");
     } finally {
       setLoading(false);
     }
-  }, [token, showNotification]);
+  }, [token, showNotification, user]);
 
   useEffect(() => {
-    if (user) {
+    if (user && token) {
       fetchAddress();
       fetchCartItems();
     }
-  }, [user])
+  }, [user, token, fetchAddress, fetchCartItems]);
 
   useEffect(() => {
     if (paymentMethod === 'Online') {
-      document.querySelector('.payment-form')?.scrollIntoView({ behavior: 'smooth' });
+      const paymentForm = document.querySelector('.payment-form');
+      if (paymentForm) {
+        paymentForm.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   }, [paymentMethod]);
 
@@ -97,16 +193,30 @@ export default function Address() {
       showNotification("Your cart is empty", "error")
       navigate("/");
     }
-  }, [user, cartItems.length]);
+  }, [user, cartItems.length, showNotification, navigate]);
 
 
   useEffect(() => {
-    if (wallet && wallet.balance > 0) {
-      const usableAmount = Math.min(wallet?.balance, totalAmount);
+    if (wallet?.balance > 0) {
+      const usableAmount = Math.min(wallet.balance, totalAmount);
       setWalletUsed(parseFloat(usableAmount.toFixed(2)));
       setRemainingAmount(parseFloat(Math.max(0, totalAmount - usableAmount).toFixed(2)));
+    } else {
+      setWalletUsed(0);
+      setRemainingAmount(totalAmount);
     }
   }, [wallet, totalAmount]);
+
+  // Clear specific field error when user starts typing
+  const clearFieldError = (fieldName) => {
+    if (formErrors[fieldName]) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
+  };
 
   // store form data to the state
   const handleChange = (e) => {
@@ -114,7 +224,8 @@ export default function Address() {
     setAddress((prevData) => ({
       ...prevData,
       [name]: type === "checkbox" ? checked : value,
-    }))
+    }));
+    clearFieldError(name);
   }
 
   //Button active code
@@ -129,43 +240,9 @@ export default function Address() {
       ...prevData,
       savedaddressas: buttonType,
     }));
+    clearFieldError('savedaddressas');
   };
-  const validateAddressFields = (address, showNotification) => {
-    const requiredFields = [
-      { key: 'username', label: 'Name' },
-      { key: 'mobileno', label: 'Mobile Number' },
-      { key: 'pincode', label: 'Pin Code' },
-      { key: 'deliveryaddress', label: 'Address' },
-      { key: 'locality', label: 'Locality/Town' },
-      { key: 'city', label: 'City/District' },
-      { key: 'state', label: 'State' },
-      { key: 'savedaddressas', label: 'Home or Work (Save As)' },
-    ];
 
-    for (const field of requiredFields) {
-      if (!address[field.key] || address[field.key].trim() === '') {
-        showNotification(`Please fill out the ${field.label}`, 'error');
-
-        // Try to scroll to the missing field
-        const inputElement = document.querySelector(`[name="${field.key}"]`);
-        if (inputElement) inputElement.scrollIntoView({ behavior: 'smooth' });
-        return false;
-      }
-    }
-
-    // Optional format checks
-    if (!/^\d{6}$/.test(address.pincode)) {
-      showNotification('Please enter a valid 6-digit pin code', 'error');
-      return false;
-    }
-
-    if (!/^\d{10}$/.test(address.mobileno)) {
-      showNotification('Please enter a valid 10-digit mobile number', 'error');
-      return false;
-    }
-
-    return true;
-  }
 
   const addAddress = async (e) => {
     e.preventDefault();
@@ -176,26 +253,53 @@ export default function Address() {
       return; // Prevent further execution
     }
 
-    const isValid = validateAddressFields(address, showNotification);
-    if (!isValid) return; // Prevent further execution
-
-    if (!address.savedaddressas) {
-      showNotification('Please select Home or Work', 'error');
+    // Validate form
+    if (!validateAddressForm()) {
+      // Scroll to first error field
+      const firstErrorField = Object.keys(formErrors)[0];
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errorElement.focus();
+      }
       return;
     }
+
     const addressWithUser = {
       ...address,
-      userid: user._id
+      userid: user._id,
+      username: address.username.trim(),
+      mobileno: address.mobileno.trim(),
+      buildingNumber: address.buildingNumber.trim(),
+      streetName: address.streetName.trim(),
+      area: address.area.trim(),
+      city: address.city.trim(),
+      pobox: address.pobox.trim(),
     }
+    setIsSubmitting(true);
     setLoading(true);
 
     try {
       const response = await sendPostRequestToBackend('checkout/addAddress', addressWithUser, token);
       if (response.success) {
-        setLoading(false);
         showNotification('Address added successfully', 'success');
-        fetchAddress(); //Refresh address list
+        await fetchAddress(); //Refresh address list
         setShowAddressForm(false);
+        setAddress({
+          userid: '',
+          username: '',
+          mobileno: '',
+          buildingNumber: '',
+          streetName: '',
+          area: '',
+          city: 'Dubai',
+          emirate: 'Dubai',
+          country: 'United Arab Emirates',
+          pobox: '',
+          savedaddressas: '',
+          defaultaddress: false
+        });
+        setActive({ homebtn: false, workbtn: false });
       } else {
         showNotification(response.error || 'Failed to add address', 'error');
       }
@@ -204,18 +308,36 @@ export default function Address() {
       showNotification('Error while adding address', 'error');
     } finally {
       setLoading(false);
+      setIsSubmitting(false);
+
     }
   }
 
   const toggleAddressForm = () => {
     setShowAddressForm(true);
+    setFormErrors({});
+
   }
+  const validatePayment = () => {
+    if (!paymentMethod && !useWalletMoney) {
+      showNotification("Please select a payment method", "error");
+      return false;
+    }
+
+    if (!selectedAddressPresence) {
+      showNotification("Please select a delivery address", "error");
+      return false;
+    }
+
+    return true;
+  };
 
   const placeOrder = async () => {
-    if (!paymentMethod && !useWalletMoney) {
-      showNotification("Please select Payment option", "error");
-      return;
-    }
+    if (!validatePayment()) return;
+    // if (!paymentMethod && !useWalletMoney) {
+    //   showNotification("Please select Payment option", "error");
+    //   return;
+    // }
     if (orderPlacementInitiated) {
       showNotification("Order placement is already in progress.", "warning");
       return;
@@ -225,75 +347,78 @@ export default function Address() {
     setLoading(true);
 
     let orderData;
-    if (useWalletMoney) {
-      let paymentResult = await processWalletPayment(
-        totalAmount,
-        orderDetails.orderid,
-        'wallet'
-      );
-
-      if (!paymentResult.success) {
-        setLoading(false);
-        setOrderPlacementInitiated(false);
-        return;
-      }
-      orderData = {
-        ...orderDetails,
-        paymentMethod: useWalletMoney ?
-          (paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet') :
-          paymentMethod,
-        paymentDetails: {
-          amount: totalAmount,
-          currency: 'aed',
-          method: 'wallet',
-          status: 'succeeded'
-        },
-        amountPaidFromWallet: paymentResult?.amountPaid || 0,
-        isPaid: !useWalletMoney ? false : (remainingAmount === 0)
-      };
-
-    } else if (paymentMethod === 'COD') {
-      orderData = {
-        ...orderDetails,
-        paymentMethod: 'COD',
-        paymentDetails: {
-          method: 'cash',
-          status: 'pending',
-          amount: totalAmount,
-          currency: 'aed'
-        },
-        isPaid: false,
-        amountPaidFromWallet: 0
-      };
-
-    } else {
-      return;
-    }
-
-    setOrderDetails(orderData);
-    setLoading(true);
-
-
     try {
+      if (useWalletMoney) {
+        let paymentResult = await processWalletPayment(
+          totalAmount,
+          orderDetails.orderid,
+          'wallet'
+        );
+
+        if (!paymentResult.success) {
+          throw new Error(paymentResult.error || 'Wallet payment failed');
+        }
+        orderData = {
+          ...orderDetails,
+          paymentMethod: paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet',
+          paymentDetails: {
+            amount: totalAmount,
+            currency: 'aed',
+            method: 'wallet',
+            status: 'succeeded'
+          },
+          amountPaidFromWallet: paymentResult?.amountPaid || 0,
+          isPaid: remainingAmount === 0
+        };
+
+      } else if (paymentMethod === 'COD') {
+        orderData = {
+          ...orderDetails,
+          paymentMethod: 'COD',
+          paymentDetails: {
+            method: 'cash',
+            status: 'pending',
+            amount: totalAmount,
+            currency: 'aed'
+          },
+          isPaid: false,
+          amountPaidFromWallet: 0
+        };
+
+      } else {
+        throw new Error('Invalid payment method selected');
+      }
+
+      setOrderDetails(orderData);
+
       const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
       if (response.success) {
         clearCart();
         await fetchProducts();
         navigate('/successToOrder');
       } else {
-        showNotification(response.error || "Error placing order", "error");
+        throw new Error(response.error || "Error placing order");
       }
     } catch (error) {
-      setLoading(false);
-      showNotification("Failed to place order", "error");
+      console.error('Order placement error:', error);
+      showNotification(error.message || "Failed to place order", "error");
     } finally {
       setLoading(false);
+      setOrderPlacementInitiated(false);
     }
 
   }
 
 
+  const handlePaymentMethodChange = (method) => {
+    setPaymentMethod(method);
+    setUseWalletMoney(false);
+  };
 
+  const handleWalletPaymentChange = () => {
+    setUseWalletMoney(true);
+    setPaymentMethod('');
+  };
 
 
   return (
@@ -305,39 +430,153 @@ export default function Address() {
         {showAddressForm ? (
           <div className='Address-container'>
             <form action="" className='contact-details' onSubmit={addAddress}>
-              <label htmlFor="contact-details">CONTACT DETAILS</label>
+              <div className="form-section">
+                <h3 className="section-title"> CONTACT DETAILS</h3>
+                <div className='input-group'>
+                  <input
+                    type="text"
+                    name="username"
+                    value={address.username}
+                    className={`form-input name ${formErrors.username ? 'error' : ''}`}
+                    placeholder='Full Name*'
+                    onChange={handleChange}
+                    maxLength="50"
+                    required
+                  />
+                  {formErrors.username && <span className="error-message">{formErrors.username}</span>}
+                </div>
 
-              <input type="text" name="username" value={address.username} className='name' placeholder='Name*' onChange={handleChange} required />
-
-              <input type="tel" name="mobileno" value={address.mobileno} className='mobile-number' placeholder='Mobile No*' onChange={handleChange} required />
-
-              <label htmlFor="Address">Address</label>
-              <input type="number" name="pincode" value={address.pincode} className='pincode' placeholder='Pin Code*' onChange={handleChange} required />
-              <input type="text" name="deliveryaddress" value={address.deliveryaddress} className='address' placeholder='Address(House No, Building,Street,Area)*' onChange={handleChange} required />
-              <input type="text" name="locality" value={address.locality} className='locality' placeholder='Locality/Town*' onChange={handleChange} required />
-
-              <div className="city-and-state">
-                <input type="text" name="city" value={address.city} className='city' placeholder='City/District*' onChange={handleChange} required />
-                <input type="text" name="state" value={address.state} className='state' placeholder='State*' onChange={handleChange} required />
+                <div className="input-group">
+                  <input
+                    type="tel"
+                    name="mobileno"
+                    value={address.mobileno}
+                    className='form-input mobile-number'
+                    placeholder='Mobile Number* (+971 50 123 4567)'
+                    onChange={handleChange}
+                    required
+                  />
+                  {formErrors.mobileno && <span className="error-message">{formErrors.mobileno}</span>}
+                </div>
               </div>
 
-              <label htmlFor="save-address-as" className='save-address-as'>SAVE ADDRESS AS</label>
-              <div className='save-address-btn-container'>
-                <p
-                  className={`homebtn ${active.homebtn ? 'active' : ''}`}
-                  onClick={activeButton}
-                >Home</p>
-                <p
-                  className={`workbtn ${active.workbtn ? 'active' : ''}`}
-                  onClick={activeButton}
-                >Work</p>
+              <div className="form-section">
+                <h3 className="section-title">🏠 ADDRESS DETAILS</h3>
+
+                <div className="address-row">
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      name="buildingNumber"
+                      value={address.buildingNumber}
+                      className={`form-input building-number ${formErrors.buildingNumber ? 'error' : ''}`}
+                      placeholder='Building Number*'
+                      onChange={handleChange}
+                      maxLength="20"
+                      required
+                    />
+                    {formErrors.buildingNumber && <span className="error-message">{formErrors.buildingNumber}</span>}
+                  </div>
+
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      name="streetName"
+                      value={address.streetName}
+                      className={`form-input street-name ${formErrors.streetName ? 'error' : ''}`}
+                      placeholder='Street Name*'
+                      onChange={handleChange}
+                      maxLength="100"
+                      required
+                    />
+                    {formErrors.streetName && <span className="error-message">{formErrors.streetName}</span>}
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="area"
+                    value={address.area}
+                    className={`form-input area ${formErrors.area ? 'error' : ''}`}
+                    placeholder='Area/Neighborhood*'
+                    onChange={handleChange}
+                    maxLength="100"
+                    required
+                  />
+                  {formErrors.area && <span className="error-message">{formErrors.area}</span>}
+                </div>
+
+                <div className="city-and-emirate">
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      name="city"
+                      value={address.city}
+                      className={`form-input city ${formErrors.city ? 'error' : ''}`}
+                      placeholder='City*'
+                      onChange={handleChange}
+                      required
+                    />
+                    {formErrors.city && <span className="error-message">{formErrors.city}</span>}
+                  </div>
+
+                  <div className="input-group">
+                    <select
+                      name="emirate"
+                      value={address.emirate}
+                      className={`form-input emirate-select ${formErrors.emirate ? 'error' : ''}`}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Emirate*</option>
+                      {emirates.map(emirate => (
+                        <option key={emirate} value={emirate}>{emirate}</option>
+                      ))}
+                    </select>
+                    {formErrors.emirate && <span className="error-message">{formErrors.emirate}</span>}
+                  </div>
+                </div>
+
+                <div className="additional-info">
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      name="pobox"
+                      value={address.pobox}
+                      className={`form-input pobox ${formErrors.pobox ? 'error' : ''}`}
+                      placeholder='PO Box (Optional)'
+                      onChange={handleChange}
+                      maxLength="6"
+                    />
+                    {formErrors.pobox && <span className="error-message">{formErrors.pobox}</span>}
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="save-address-section">
+                <label className='save-address-as'>SAVE ADDRESS AS</label>
+                <div className='save-address-btn-container'>
+                  <button
+                    type='button'
+                    className={`homebtn ${active.homebtn ? 'active' : ''}`}
+                    onClick={activeButton}
+                  >Home</button>
+                  <button
+                    type='button'
+                    className={`workbtn ${active.workbtn ? 'active' : ''}`}
+                    onClick={activeButton}
+                  >Work</button>
+                </div>
+                {formErrors.savedaddressas && <span className="error-message">{formErrors.savedaddressas}</span>}
               </div>
 
               <div className="checkbox-container">
-                <input type="checkbox" name="defaultaddress" className='default-Address-checkbox' onChange={handleChange} checked={address.defaultaddress} /><p>Make this address default  </p>
+                <input type="checkbox" name="defaultaddress" className='default-Address-checkbox' onChange={handleChange} checked={address.defaultaddress} /><label>Make this address default  </label>
               </div>
 
-              <button className='add-address-btn' type="submit" disabled={loading}>{loading ? 'Saving...' : 'ADD ADDRESS'}</button>
+              <button className='add-address-btn' type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'ADD ADDRESS'}</button>
             </form>
 
           </div>
@@ -359,10 +598,7 @@ export default function Address() {
                     type="radio"
                     className="radio-btn"
                     checked={paymentMethod === 'Online' && !useWalletMoney}
-                    onChange={() => {
-                      setPaymentMethod('Online');
-                      setUseWalletMoney(false)
-                    }}
+                    onChange={() => handlePaymentMethodChange('Online')}
                   />
                   <div className="payment-content">
                     <label className="payment-label">
@@ -386,10 +622,7 @@ export default function Address() {
                     type="radio"
                     className="radio-btn"
                     checked={paymentMethod === 'COD'}
-                    onClick={() => {
-                      setPaymentMethod('COD');
-                      setUseWalletMoney(false);
-                    }}
+                    onChange={() => handlePaymentMethodChange('COD')}
                   />
                   <div className="payment-content">
                     <label className="payment-label">
@@ -408,10 +641,8 @@ export default function Address() {
                       type="radio"
                       className="radio-btn"
                       checked={useWalletMoney}
-                      onChange={() => {
-                        setUseWalletMoney(true);
-                        setPaymentMethod(null);
-                      }}
+                      onChange={handleWalletPaymentChange}
+
                     />
                     <div className="payment-content">
                       <label className="payment-label">
@@ -436,7 +667,7 @@ export default function Address() {
 
               </div>
               {(paymentMethod === 'COD' || useWalletMoney) && (
-                <button className="place-order-btn" onClick={placeOrder} disabled={walletLoading || orderPlacementInitiated}>
+                <button className="place-order-btn" onClick={placeOrder} disabled={walletLoading || orderPlacementInitiated || loading}>
                   {walletLoading ? 'Processing...' : orderPlacementInitiated ? 'Placing Order...' : 'Place Order'}
                 </button>
               )}

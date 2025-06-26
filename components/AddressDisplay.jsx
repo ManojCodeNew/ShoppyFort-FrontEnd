@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../styles/components/AddressDisplay.scss"; // Make sure to include styles
+import "../styles/components/AddressDisplay.scss"; 
 import { useAddress } from "@/contexts/AddressContext";
 import sendPostRequestToBackend from "./Request/Post";
 import { useNavigate } from "react-router-dom";
@@ -16,20 +16,19 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     // Access Token
 
     const navigate = useNavigate();
+    const { setOrderDetails } = useOrderDetails();
     const addNewAddress = () => {
         toggleAddressForm();
     };
 
-    const { setOrderDetails } = useOrderDetails();
+    const generateOrderId = () => {
+        const timestamp = Date.now().toString(36);
+        const randomStr = Math.random().toString(36).substring(2, 6);
+        return `SH-${timestamp}-${randomStr}`.toUpperCase();
+    };
 
     const setOrderDetailsDataToContext = () => {
-        if (token) {
-            const generateOrderId = () => {
-                const timestamp = Date.now().toString(36);
-                const randomStr = Math.random().toString(36).substring(2, 6);
-                return `SH-${timestamp}-${randomStr}`.toUpperCase();
-            };
-
+        if (token && selectedAddress) {
             const shippingAddress = addressData.find(address => address._id === selectedAddress);
 
             if (shippingAddress) {
@@ -43,7 +42,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
                 setOrderDetails(orderDetails);
             }
         }
-    }
+    };
 
 
 
@@ -60,7 +59,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
             setSelectedAddressPresence(selectedAddress)
             setOrderDetailsDataToContext();
         }
-    }, [selectedAddress]);
+    }, [selectedAddress, addressData, cartItems, totalCostwithVAT, token, user]);
 
     // Keep addressData in sync with addressList prop
     useEffect(() => {
@@ -68,15 +67,42 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     }, [addressList]);
 
     const removeAddress = async (addressid) => {
-        const response = await sendPostRequestToBackend('checkout/address/remove', { addressid });
-        if (response.success) {
-            setAddressData(currentItems => currentItems.filter(item => item._id !== addressid));
+        try {
+            const response = await sendPostRequestToBackend('checkout/address/remove', { addressid });
+            if (response.success) {
+                setAddressData(currentItems => currentItems.filter(item => item._id !== addressid));
+                // If removed address was selected, clear selection
+                if (selectedAddress === addressid) {
+                    setSelectedAddress(null);
+                    setSelectedAddressPresence(null);
+                }
+            }
+        } catch (error) {
+            console.error('Error removing address:', error);
         }
     };
 
     const handleCheckboxChange = (addressId) => {
         setSelectedAddress(addressId);
-        setSelectedAddressPresence(addressId);
+    };
+    // Helper function to format address display
+    const formatAddress = (address) => {
+        const parts = [];
+
+        if (address.buildingNumber) parts.push(address.buildingNumber);
+        if (address.streetName) parts.push(address.streetName);
+        if (address.area) parts.push(address.area);
+
+        return parts.join(', ');
+    };
+    const formatCityState = (address) => {
+        const parts = [];
+
+        if (address.city) parts.push(address.city);
+        if (address.emirate) parts.push(address.emirate);
+        if (address.pobox) parts.push(`P.O. Box: ${address.pobox}`);
+
+        return parts.join(', ');
     };
 
     return (
@@ -100,14 +126,19 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
                                     onChange={() => handleCheckboxChange(address._id)}
                                 />
                                 <div className="addressDisplay-details">
-                                    <p>{address.username} <span className="home-tag">{address.savedaddressas}</span></p>
-                                    <p>{address.deliveryaddress}</p>
-                                    <p>{address.city}, {address.state} - {address.pincode}</p>
+                                    <p>
+                                        {address.username}
+                                        <span className="home-tag">{address.savedaddressas}</span>
+                                        {address.defaultaddress && <span className="default-tag">Default</span>}
+                                    </p>
+                                    <p>{formatAddress(address)}</p>
+                                    <p>{formatCityState(address)}</p>
+                                    <p>{address.country}</p>
                                     <p>Mobile: {address.mobileno}</p>
                                 </div>
                             </div>
                             <div className="addressDisplay-card-right">
-                                <p onClick={() => removeAddress(address._id)} className="removeAddress-btn"> X</p>
+                                <p onClick={() => removeAddress(address._id)} className="removeAddress-btn" aria-label="Remove address"> X</p>
                             </div>
                         </div>
                     ))

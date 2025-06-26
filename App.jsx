@@ -36,11 +36,13 @@ import AdminOffersProvider from './components/AdminPanel/Context/AdminOffersCont
 import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext.jsx';
 import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext.jsx';
 import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturnContext.jsx';
+import AppBackButton from './AppBackButton';
 const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEYYnDOqG6JTw68x8JjiuSluNPb5iemtpiLdOcxqp1irCCddXp6p3U001PeLWXNf'); // Replace with your actual publishable key
 const PublicLayout = () => (
   <>
     <Navbar />
-    <main>
+    <main >
+      <AppBackButton />
       <Outlet />
     </main>
     <Footer />
@@ -79,20 +81,20 @@ const App = () => {
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminPanelLogin />} />
       <Route path="/admin/*" element={
-        localStorage.getItem("adminAuth") === "true" && localStorage.getItem("adminToken") ? 
-        <UserProvider>
-          <AdminProductsProvider>
-            <AdminOffersProvider>
-              <OrderProvider>
-                <ManageReturnProvider>
-                  <MainAdminLayout />
-                </ManageReturnProvider>
-              </OrderProvider>
-            </AdminOffersProvider>
-          </AdminProductsProvider>
-        </UserProvider>
-        :
-        <Navigate to="/admin/login" />
+        localStorage.getItem("adminAuth") === "true" && localStorage.getItem("adminToken") ?
+          <UserProvider>
+            <AdminProductsProvider>
+              <AdminOffersProvider>
+                <OrderProvider>
+                  <ManageReturnProvider>
+                    <MainAdminLayout />
+                  </ManageReturnProvider>
+                </OrderProvider>
+              </AdminOffersProvider>
+            </AdminProductsProvider>
+          </UserProvider>
+          :
+          <Navigate to="/admin/login" />
       }>
         <Route index element={<Dashboard />} />
         <Route path="products/manage" element={<ManageProduct />} />
