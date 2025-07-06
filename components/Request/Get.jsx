@@ -1,5 +1,4 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-console.log("APi URL", API_BASE_URL);
 const sendGetRequestToBackend = async (path, token, abortSignal = null) => {
   try {
     if (!path) {

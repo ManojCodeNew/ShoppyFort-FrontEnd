@@ -1,5 +1,5 @@
 import sendGetRequestToBackend from "@/components/Request/Get";
-import { Children, createContext, useCallback, useContext, useEffect, useState } from "react";
+import { Children, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useNotification } from "@/components/Notify/NotificationProvider";
 import { useAuth } from "./AuthContext.jsx";
 import moment from "moment";
@@ -15,7 +15,6 @@ export default function UserNotificationsProvider({ children }) {
     const [lastOtpId, setLastOtpId] = useState(null);
     const [pollingInterval, setPollingInterval] = useState(null);
     const [initialLoadDone, setInitialLoadDone] = useState(false);
-
     const getNotifications = useCallback(async (isInitial = false) => {
         try {
             if (isInitial) setLoading(true);
@@ -41,10 +40,16 @@ export default function UserNotificationsProvider({ children }) {
                 }
 
                 // Only set state if changed
-                const isSame = JSON.stringify(notifications.map(n => n._id)) === JSON.stringify(updatedNotifications.map(n => n._id));
-                if (!isSame) {
+                const areEqual = (a, b) =>
+                    a.length === b.length && a.every((n, i) => n._id === b[i]._id && n.read === b[i].read);
+
+                if (!areEqual(notifications, updatedNotifications)) {
                     setNotifications(updatedNotifications);
                 }
+                // const isSame = JSON.stringify(notifications.map(n => n._id)) === JSON.stringify(updatedNotifications.map(n => n._id));
+                // if (!isSame) {
+                //     setNotifications(updatedNotifications);
+                // }
             }
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -107,14 +112,14 @@ export default function UserNotificationsProvider({ children }) {
     const hasUnread = notifications.some((notif) => !notif.read);
 
 
-    const value = {
+    const value = useMemo(() => ({
         getNotifications,
         notifications,
         setNotifications,
         markAsRead,
         hasUnread,
         getWallet
-    }
+    }),[getNotifications, notifications, markAsRead, hasUnread, getWallet]);
     return (
         <UserNotificationsContext.Provider value={value}>
             {children}

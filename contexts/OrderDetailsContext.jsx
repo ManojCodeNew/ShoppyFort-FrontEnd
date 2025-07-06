@@ -1,26 +1,38 @@
-
-import sendGetRequestToBackend from '@/components/Request/Get';
+import sendGetRequestToBackend from '@/components/Request/Get.jsx';
 import React, { createContext, useState, useContext, useCallback, useEffect, useMemo } from 'react';
-import sendPostRequestToBackend from '@/components/Request/Post';
-import { useNotification } from '@/components/Notify/NotificationProvider';
-import { useAuth } from './AuthContext.jsx';
+import sendPostRequestToBackend from '@/components/Request/Post.jsx';
+import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
+import { useAuth } from './AuthContext';
 // Create CartContext
 const OrderDetailsContext = createContext();
 
 // CartProvider component to provide context
 export const OrderDetailsProvider = ({ children }) => {
-    const [orderDetails, setOrderDetails] = useState({
-        orderid: '',
-        userid: '',
-        shippingaddress: '',
-        items: [],
-        totalprice: 0,
-        CashOnDelivery: false,
-    })
+    const [orderDetails, setOrderDetailsState] = useState(() => {
+        const saved = localStorage.getItem('orderDetails');
+        return saved ? JSON.parse(saved) : {
+            orderid: '',
+            userid: '',
+            shippingaddress: '',
+            items: [],
+            totalprice: 0,
+            CashOnDelivery: false,
+        };
+    });
+
     const [allOrder, setAllOrder] = useState([]);
     const { showNotification } = useNotification();
     const [allReturns, setAllReturns] = useState(null);
     const { token, user } = useAuth();
+
+    const setOrderDetails = (details) => {
+        setOrderDetailsState(details);
+        if (details && Object.keys(details).length > 0) {
+            localStorage.setItem('orderDetails', JSON.stringify(details));
+        } else {
+            localStorage.removeItem('orderDetails');
+        }
+    };
 
     const fetchOrders = async () => {
         try {
@@ -109,23 +121,17 @@ export const OrderDetailsProvider = ({ children }) => {
         }
     }, [token, fetchOrders, showNotification]);
 
-    useEffect(() => {
-        if (token) {
-            fetchOrders();
-            fetchReturns();
-        }
-    }, [token])
-
     const value = useMemo(() => ({
         orderDetails,
         setOrderDetails,
         submitReturnRequest,
         allOrder,
+        fetchReturns,
         fetchOrders,
         user,
         allReturns,
         cancelOrder
-    }), [orderDetails, allOrder, user, allReturns, token,submitReturnRequest,cancelOrder,fetchOrders])
+    }), [orderDetails, allOrder, user, allReturns, token, submitReturnRequest, cancelOrder, fetchOrders])
 
     return (
         <OrderDetailsContext.Provider value={value}>

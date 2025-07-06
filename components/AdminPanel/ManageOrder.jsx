@@ -38,21 +38,21 @@ const ManageOrder = () => {
     // Status color mapping for consistency
     const statusColors = {
         "placed": "bg-blue-500",
-        "Shipped": "bg-indigo-500",
+        "shipped": "bg-indigo-500",
         "out-for-delivery": "bg-amber-500",
-        "Delivered": "bg-green-500",
-        "Cancelled": "bg-red-500",
-        "Refunded": "bg-purple-500"
+        "delivered": "bg-green-500",
+        "cancelled": "bg-red-500",
+        "refunded": "bg-purple-500"
     };
 
     // Status icon mapping
     const statusIcons = {
         "placed": <ShoppingBag size={16} />,
-        "Shipped": <Package size={16} />,
+        "shipped": <Package size={16} />,
         "out-for-delivery": <Truck size={16} />,
-        "Delivered": <CheckCircle size={16} />,
-        "Cancelled": <AlertCircle size={16} />,
-        "Refunded": <RefreshCw size={16} /> // Assuming RefreshCw for refunded, change if better icon exists
+        "delivered": <CheckCircle size={16} />,
+        "cancelled": <AlertCircle size={16} />,
+        "refunded": <RefreshCw size={16} /> // Assuming RefreshCw for refunded, change if better icon exists
     };
     // Helper function to format address display
     const formatAddress = (address) => {
@@ -97,6 +97,8 @@ const ManageOrder = () => {
             setFilteredOrders([]);
             setIsLoading(false);
         }
+        console.log("Order:", orders);
+
     }, [ordersData]);
 
     // Effect for OTP countdown timer
@@ -243,7 +245,7 @@ const ManageOrder = () => {
 
             if (parseInt(otpData.otp) === parseInt(otpModal.otp)) {
                 showNotification("OTP verified successfully!", "success");
-                await updateOrderStatus(orderid, "Delivered");
+                await updateOrderStatus(orderid, "delivered");
                 await fetchOrders();
                 setOtpModal({ ...otpModal, show: false, otp: "" });
             } else {
@@ -274,7 +276,6 @@ const ManageOrder = () => {
     const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
     return (
         <div className="order-table-container">
             {isLoading && (
@@ -300,7 +301,7 @@ const ManageOrder = () => {
                     </div>
                     <div className="stat-card">
                         <span className="stat-number">
-                            {orders.filter((o) => o.status === "Delivered").length}
+                            {orders.filter((o) => o.status === "delivered").length}
                         </span>
                         <span className="stat-label" style={{ color: "black" }}>Delivered</span>
                     </div>
@@ -337,10 +338,10 @@ const ManageOrder = () => {
                         >
                             <option value="all">All Status</option>
                             <option value="placed">New Order</option>
-                            <option value="Shipped">Shipped</option>
+                            <option value="shipped">Shipped</option>
                             {/* <option value="out-for-delivery">Out for Delivery</option> */}
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
                             {/* <option value="Refunded">Refunded</option> */}
                         </select>
                     </div>
@@ -463,7 +464,7 @@ const ManageOrder = () => {
                                                         </button>
                                                     )}
 
-                                                    {order.status !== "Delivered" && order.status !== "Cancelled" && (
+                                                    {order.status !== "delivered" && order.status !== "Cancelled" && (
                                                         <button
                                                             className="action-btn cancel"
                                                             onClick={() =>
@@ -610,7 +611,7 @@ const ManageOrder = () => {
                                                                             <td>AED {product.price || "N/A"}</td>
                                                                             <td>AED {((product.price || 0) * (product.quantity || 0)).toFixed(2)}</td>
                                                                         </tr>
-                                                                    )) | []}
+                                                                    )) || []}
                                                                     <tr className="order-summary-row">
                                                                         <td colSpan="3" className="summary-label">Subtotal</td>
                                                                         <td>AED {(order.totalprice || 0).toFixed(2)}</td>
@@ -654,10 +655,10 @@ const ManageOrder = () => {
                                                                 {/* Order Shipped */}
                                                                 <div
                                                                     className={`timeline-item ${order.status === "Shipped" ||
-                                                                            order.status === "out-for-delivery" ||
-                                                                            order.status === "Delivered"
-                                                                            ? "completed"
-                                                                            : ""
+                                                                        order.status === "out-for-delivery" ||
+                                                                        order.status === "delivered"
+                                                                        ? "completed"
+                                                                        : ""
                                                                         }`}
                                                                 >
                                                                     <div className="timeline-icon">
@@ -677,7 +678,7 @@ const ManageOrder = () => {
 
                                                                 {/* Order Delivered */}
                                                                 <div
-                                                                    className={`timeline-item ${order.status === "Delivered" ? "completed" : ""}`}
+                                                                    className={`timeline-item ${order.status === "delivered" ? "completed" : ""}`}
                                                                 >
                                                                     <div className="timeline-icon">
                                                                         <CheckCircle size={16} />

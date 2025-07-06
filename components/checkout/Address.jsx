@@ -2,38 +2,34 @@ import React, { useCallback, useEffect, useState } from 'react'
 import '../../styles/components/Address.scss';
 import sendPostRequestToBackend from '../Request/Post.jsx';
 import sendGetRequestToBackend from '../Request/Get.jsx';
-import PriceDetails from '../PriceDetails';
-import { useCart } from '@/contexts/CartContext';
-import AddressDisplay from '../AddressDisplay';
-import { useAddress } from '@/contexts/AddressContext';
+import PriceDetails from '../PriceDetails.jsx';
+import { useCart } from '../../contexts/CartContext.jsx';
+import AddressDisplay from '../AddressDisplay.jsx';
+import { useAddress } from '../../contexts/AddressContext.jsx';
 import { useNavigate } from 'react-router-dom';
-import { useOrderDetails } from '@/contexts/OrderDetailsContext';
+import { useOrderDetails } from '../../contexts/OrderDetailsContext.jsx';
 import { useNotification } from '../Notify/NotificationProvider.jsx';
 import Loader from '../Load/Loader.jsx';
-import PaymentForm from './PaymentForm';
-import { useAuth } from '@/contexts/AuthContext.jsx';
-import { useProducts } from '@/contexts/ProductsContext.jsx';
-import { useWallet } from '@/contexts/WalletContext.jsx';
-
+import PaymentForm from './PaymentForm.jsx';
+import { useAuth } from '../../contexts/AuthContext.jsx';
+import { useProducts } from '../../contexts/ProductsContext.jsx';
+import { useWallet } from '../../contexts/WalletContext.jsx';
 // Validation utility functions
 const validateMobileNumber = (mobile) => {
   const cleanMobile = mobile.replace(/\s|-/g, '');
-  // UAE mobile number patterns: +971XXXXXXXXX, 971XXXXXXXXX, 0XXXXXXXXX, XXXXXXXXXX
-  const uaePattern = /^(\+971|971|0)?[5][0-9]{8}$/;
+  const uaePattern = /^(\+971|971|0)?(50|51|52|54|55|56|58)[0-9]{7}$/;
   return uaePattern.test(cleanMobile);
 };
 
 const validatePOBox = (pobox) => {
-  if (!pobox) return true; // Optional field
-  const poboxPattern = /^\d{1,6}$/;
-  return poboxPattern.test(pobox);
+  if (!pobox) return true;
+  return /^\d{1,6}$/.test(pobox);
 };
 
 const validateName = (name) => {
   if (!name || name.trim().length < 2) return false;
-  // Allow letters, spaces, hyphens, and apostrophes
-  const namePattern = /^[a-zA-Z\s'-]{2,50}$/;
-  return namePattern.test(name.trim());
+  // Supports international characters
+  return /^[\p{L}\s'-]{2,50}$/u.test(name.trim());
 };
 
 const validateRequired = (value) => {
@@ -55,6 +51,7 @@ export default function Address() {
     savedaddressas: '',
     defaultaddress: false
   });
+
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,21 +66,29 @@ export default function Address() {
   ];
 
   const [addressList, setAddressList] = useState([]);
-  const { orderDetails, setOrderDetails } = useOrderDetails();
-  const { selectedAddressPresence } = useAddress();
-  const { showNotification } = useNotification();
 
+  // Using context hooks
   const navigate = useNavigate();
-  const { cartItems, fetchCartItems, totalCostwithVAT, VAT_Price, clearCart } = useCart();
+  const { selectedAddressPresence } = useAddress();
+  const { orderDetails, setOrderDetails } = useOrderDetails();
+  const { showNotification } = useNotification();
+  const { cartItems, fetchCartItems, totalCostwithVAT, VAT_Price, clearCart, totalItems } = useCart();
+  const { user, token } = useAuth();
+  const { fetchProducts } = useProducts();
+  const { wallet = { initialized: false },
+    processWalletPayment,
+    loading: walletLoading = false,
+    getWallet } = useWallet();
+
+  const [error, setError] = useState(null);
   const [showAddressForm, setShowAddressForm] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('Online');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState({
     homebtn: false,
     workbtn: false
   });
-  const { user, token } = useAuth();
-  const { fetchProducts } = useProducts();
+
   const totalMRP = cartItems.reduce((total, item) => total + item.originalPrice * (item.quantity || 1), 0);
   const discountMRP = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
@@ -92,10 +97,30 @@ export default function Address() {
   const [useWalletMoney, setUseWalletMoney] = useState(false);
   const [orderPlacementInitiated, setOrderPlacementInitiated] = useState(false);
 
-  const { wallet, processWalletPayment, loading: walletLoading } = useWallet();
-
   const totalAmount = parseFloat(totalCostwithVAT || 0);
 
+  // Fetch wallet and cart data on mount
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        setLoading(true);
+        if (cartItems.length === 0) {
+          await fetchCartItems();
+        }
+        if (!wallet.initialized && !wallet.loading) {
+          await getWallet(true);
+        }
+      } catch (error) {
+        console.error('Error initializing data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user && token) {
+      initializeData();
+    }
+  }, [user, token, getWallet, fetchCartItems, cartItems.length, wallet?.initialized, wallet.loading]);
   // Comprehensive validation function
   const validateAddressForm = () => {
     const errors = {};
@@ -152,32 +177,45 @@ export default function Address() {
   };
 
   const fetchAddress = useCallback(async () => {
-    if (!user || !token) return;
+    if (!token) {
+      setError('Authentication required');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
+
     try {
-      const response = await sendGetRequestToBackend(`checkout/Address`, token);
-      if (response.address?.length > 0) {
-        
-        setAddressList(response.address);
-        setShowAddressForm(false);
+      const response = await sendGetRequestToBackend('checkout/Address', token);
+      console.log('Address API Response:', response); // Debug log
+
+      if (response?.success) {
+        // Handle both response.address and response.addresses for API consistency
+        const addresses = response.address || response.addresses || [];
+        setAddressList(addresses);
+        setShowAddressForm(addresses.length === 0);
       } else {
+        setError(response?.error || 'Failed to load addresses');
         setAddressList([]);
         setShowAddressForm(true);
       }
     } catch (error) {
-      console.error('Error fetching addresses:', error);
-      showNotification("Error fetching products", "error");
+      console.error('Address fetch error:', error);
+      setError(error.message || 'Network error loading addresses');
+      setAddressList([]);
+      setShowAddressForm(true);
     } finally {
       setLoading(false);
     }
-  }, [token, showNotification, user]);
+  }, [token, showNotification]);
 
+  // Fetch addresses on mount and when token changes
   useEffect(() => {
     if (user && token) {
       fetchAddress();
-      fetchCartItems();
     }
-  }, [user, token, fetchAddress, fetchCartItems]);
+  }, [user, token, fetchAddress]);
+
 
   useEffect(() => {
     if (paymentMethod === 'Online') {
@@ -189,18 +227,14 @@ export default function Address() {
   }, [paymentMethod]);
 
   useEffect(() => {
-    if (!cartItems.length && user) {
-      showNotification("Your cart is empty", "error")
-      navigate("/");
-    }
-  }, [user, cartItems.length, showNotification, navigate]);
-
-
-  useEffect(() => {
+    // Wallet balance is greater than required total amount
     if (wallet?.balance > 0) {
       const usableAmount = Math.min(wallet.balance, totalAmount);
-      setWalletUsed(parseFloat(usableAmount.toFixed(2)));
-      setRemainingAmount(parseFloat(Math.max(0, totalAmount - usableAmount).toFixed(2)));
+      const fixedUsable = Math.round(usableAmount * 100) / 100;
+      const fixedRemaining = Math.round((totalAmount - fixedUsable) * 100) / 100;
+
+      setWalletUsed(fixedUsable);
+      setRemainingAmount(fixedRemaining);
     } else {
       setWalletUsed(0);
       setRemainingAmount(totalAmount);
@@ -217,6 +251,7 @@ export default function Address() {
       });
     }
   };
+
 
   // store form data to the state
   const handleChange = (e) => {
@@ -247,26 +282,24 @@ export default function Address() {
   const addAddress = async (e) => {
     e.preventDefault();
 
-    if (!user) {
+    if (!user || !token) {
       showNotification('Please login first', 'error');
       navigate('/login');
-      return; // Prevent further execution
+      return;
     }
 
     // Validate form
     if (!validateAddressForm()) {
-      // Scroll to first error field
-      const firstErrorField = Object.keys(formErrors)[0];
-      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
-      if (errorElement) {
-        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        errorElement.focus();
+      const firstError = Object.keys(formErrors)[0];
+      if (firstError) {
+        const element = document.querySelector(`[name="${firstError}"]`);
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element?.focus();
       }
       return;
     }
 
-    const addressWithUser = {
-      ...address,
+    const addressData = {
       userid: user._id,
       username: address.username.trim(),
       mobileno: address.mobileno.trim(),
@@ -274,44 +307,59 @@ export default function Address() {
       streetName: address.streetName.trim(),
       area: address.area.trim(),
       city: address.city.trim(),
+      emirate: address.emirate.trim(),
+      country: address.country.trim(),
       pobox: address.pobox.trim(),
-    }
+      savedaddressas: address.savedaddressas.trim(),
+      defaultaddress: Boolean(address.defaultaddress)
+    };
+
     setIsSubmitting(true);
     setLoading(true);
-
+    console.log("Address Data:", addressData);
     try {
-      const response = await sendPostRequestToBackend('checkout/addAddress', addressWithUser, token);
-      if (response.success) {
+      const response = await sendPostRequestToBackend(
+        'checkout/addAddress',
+        addressData,
+        token
+      );
+      console.log("Address Response:", response, token);
+      if (response?.success) {
         showNotification('Address added successfully', 'success');
-        await fetchAddress(); //Refresh address list
+        await fetchAddress(); // Refresh the address list
         setShowAddressForm(false);
-        setAddress({
-          userid: '',
-          username: '',
-          mobileno: '',
-          buildingNumber: '',
-          streetName: '',
-          area: '',
-          city: 'Dubai',
-          emirate: 'Dubai',
-          country: 'United Arab Emirates',
-          pobox: '',
-          savedaddressas: '',
-          defaultaddress: false
-        });
-        setActive({ homebtn: false, workbtn: false });
+        resetAddressForm();
       } else {
-        showNotification(response.error || 'Failed to add address', 'error');
+        const errorMsg = response?.error || response?.message || 'Failed to add address';
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Add address error:', error);
-      showNotification('Error while adding address', 'error');
+      showNotification(error.message || 'Error adding address', 'error');
     } finally {
-      setLoading(false);
       setIsSubmitting(false);
-
+      setLoading(false);
     }
-  }
+  };
+
+  const resetAddressForm = () => {
+    setAddress({
+      userid: '',
+      username: '',
+      mobileno: '',
+      buildingNumber: '',
+      streetName: '',
+      area: '',
+      city: 'Dubai',
+      emirate: 'Dubai',
+      country: 'United Arab Emirates',
+      pobox: '',
+      savedaddressas: '',
+      defaultaddress: false
+    });
+    setActive({ homebtn: false, workbtn: false });
+    setFormErrors({});
+  };
 
   const toggleAddressForm = () => {
     setShowAddressForm(true);
@@ -319,13 +367,16 @@ export default function Address() {
 
   }
   const validatePayment = () => {
+    if (!selectedAddressPresence) {
+      showNotification("Please select a delivery address", "error");
+      return false;
+    }
     if (!paymentMethod && !useWalletMoney) {
       showNotification("Please select a payment method", "error");
       return false;
     }
-
-    if (!selectedAddressPresence) {
-      showNotification("Please select a delivery address", "error");
+    if (useWalletMoney && wallet?.balance <= 0) {
+      showNotification("Wallet balance is insufficient", "error");
       return false;
     }
 
@@ -333,11 +384,9 @@ export default function Address() {
   };
 
   const placeOrder = async () => {
+    if (orderPlacementInitiated || wallet.loading) return;
     if (!validatePayment()) return;
-    // if (!paymentMethod && !useWalletMoney) {
-    //   showNotification("Please select Payment option", "error");
-    //   return;
-    // }
+
     if (orderPlacementInitiated) {
       showNotification("Order placement is already in progress.", "warning");
       return;
@@ -346,62 +395,102 @@ export default function Address() {
     setOrderPlacementInitiated(true);
     setLoading(true);
 
-    let orderData;
     try {
-      if (useWalletMoney) {
-        let paymentResult = await processWalletPayment(
-          totalAmount,
-          orderDetails.orderid,
-          'wallet'
-        );
+      // // Update orderDetails with the latest totalprice and other necessary fields
+      // setOrderDetails((prev) => ({
+      //   ...prev,
+      //   userid: user._id,
+      //   items: cartItems.map((item) => ({
+      //     productid: item._id,
+      //     quantity: item.quantity || 1,
+      //     price: item.price,
+      //     selections: item.selections || {}
+      //   })),
+      //   shippingaddress: selectedAddressPresence,
+      //   totalprice: totalAmount, // Ensure totalprice is set correctly
+      //   paymentMethod: useWalletMoney
+      //     ? (walletUsed < totalAmount ? 'wallet_partial' : 'wallet')
+      //     : paymentMethod,
+      //   paymentDetails: {
+      //     amount: totalAmount,
+      //     currency: 'AED',
+      //     method: useWalletMoney ? 'wallet' : paymentMethod.toLowerCase(),
+      //     status: 'pending',
+      //     walletAmount: useWalletMoney ? walletUsed : 0,
+      //     remainingAmount: useWalletMoney ? remainingAmount : totalAmount
+      //   },
+      //   isPaid: false
+      // }));
 
-        if (!paymentResult.success) {
-          throw new Error(paymentResult.error || 'Wallet payment failed');
-        }
-        orderData = {
-          ...orderDetails,
-          paymentMethod: paymentResult?.remainingAmount > 0 ? 'wallet_partial' : 'wallet',
-          paymentDetails: {
-            amount: totalAmount,
-            currency: 'aed',
-            method: 'wallet',
-            status: 'succeeded'
-          },
-          amountPaidFromWallet: paymentResult?.amountPaid || 0,
-          isPaid: remainingAmount === 0
-        };
-
-      } else if (paymentMethod === 'COD') {
-        orderData = {
-          ...orderDetails,
-          paymentMethod: 'COD',
-          paymentDetails: {
-            method: 'cash',
-            status: 'pending',
-            amount: totalAmount,
-            currency: 'aed'
-          },
-          isPaid: false,
-          amountPaidFromWallet: 0
-        };
-
-      } else {
-        throw new Error('Invalid payment method selected');
-      }
-
-      setOrderDetails(orderData);
-
+      const orderData = {
+        ...orderDetails,
+        paymentMethod: useWalletMoney
+          ? (walletUsed < totalAmount ? 'wallet_partial' : 'wallet')
+          : paymentMethod,
+        paymentDetails: {
+          amount: totalAmount,
+          currency: 'AED',
+          method: useWalletMoney ? 'wallet' : paymentMethod.toLowerCase(),
+          status: 'pending',
+          walletAmount: useWalletMoney ? walletUsed : 0,
+          remainingAmount: useWalletMoney ? remainingAmount : totalAmount
+        },
+        isPaid: false
+      };
+      console.log("Order Data:", orderData);
       const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
-      if (response.success) {
-        clearCart();
-        await fetchProducts();
-        navigate('/successToOrder');
-      } else {
-        throw new Error(response.error || "Error placing order");
+      console.log("Order Response:", response);
+      if (!response.success) {
+        throw new Error(response.error || "Failed to place order");
       }
+      setOrderDetails(response.order);
+
+
+      let paymentResult = null;
+
+      if (useWalletMoney && response.success) {
+        try {
+          paymentResult = await processWalletPayment(
+            walletUsed,
+            response.order.orderid || orderDetails.orderid,
+            'wallet'
+          );
+
+
+          if (!paymentResult.success) {
+            throw new Error(paymentResult.error || 'Wallet payment failed');
+          }
+          const paymentUpdateData = {
+            orderId: response.order._id,
+            paymentStatus: paymentResult.remaining > 0 ? 'partial' : 'completed',
+            paidAmount: paymentResult.amountPaid,
+            paymentMethod: paymentResult.remaining > 0 ? 'wallet_partial' : 'wallet'
+          };
+
+          const paymetStatusUpdateResponse = await sendPostRequestToBackend('order/updatePaymentStatus', paymentUpdateData, token);
+          if (!paymetStatusUpdateResponse.success) {
+            throw new Error(paymetStatusUpdateResponse.error || 'Failed to update payment status');
+          }
+          setOrderDetails(paymetStatusUpdateResponse.order);
+
+        } catch (walletError) {
+          console.error('Wallet payment error:', walletError);
+          // Since order is already created, you could either:
+          // 1. Cancel the order, or 
+          // 2. Keep it as pending payment
+          showNotification("Order created but wallet payment failed. Please contact support.", "warning");
+          throw walletError;
+        }
+      }
+      await clearCart();
+      await fetchProducts();
+      showNotification("Order placed successfully!", "success");
+      navigate('/successToOrder');
+
     } catch (error) {
       console.error('Order placement error:', error);
       showNotification(error.message || "Failed to place order", "error");
+
     } finally {
       setLoading(false);
       setOrderPlacementInitiated(false);
@@ -411,15 +500,19 @@ export default function Address() {
 
 
   const handlePaymentMethodChange = (method) => {
-    setPaymentMethod(method);
-    setUseWalletMoney(false);
+    if (method === 'wallet') {
+      setUseWalletMoney(true);
+      setPaymentMethod('');
+    } else {
+      setUseWalletMoney(false);
+      setPaymentMethod(method);
+    }
   };
 
   const handleWalletPaymentChange = () => {
     setUseWalletMoney(true);
     setPaymentMethod('');
   };
-
 
   return (
     <>
@@ -593,7 +686,7 @@ export default function Address() {
               <div className="payment-method-title">Choose Payment Method</div>
 
               <div className="payment-method">
-                <div className={`payment-option online_method ${paymentMethod === 'Online' && !useWalletMoney ? 'selected' : ''}`}>
+                <div className={`payment-option ${paymentMethod === 'Online' && !useWalletMoney ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     className="radio-btn"
@@ -636,7 +729,7 @@ export default function Address() {
                 </div>
 
                 {wallet?.balance > 0 && (
-                  <div className={`payment-option wallet_method ${useWalletMoney ? 'selected' : ''}`}>
+                  <div className={`payment-option ${useWalletMoney ? 'selected' : ''}`}>
                     <input
                       type="radio"
                       className="radio-btn"
@@ -667,8 +760,18 @@ export default function Address() {
 
               </div>
               {(paymentMethod === 'COD' || useWalletMoney) && (
-                <button className="place-order-btn" onClick={placeOrder} disabled={walletLoading || orderPlacementInitiated || loading}>
-                  {walletLoading ? 'Processing...' : orderPlacementInitiated ? 'Placing Order...' : 'Place Order'}
+                <button
+                  className="place-order-btn"
+                  onClick={placeOrder}
+                  disabled={loading || orderPlacementInitiated || walletLoading}
+                >
+                  {loading || orderPlacementInitiated ? (
+                    <>
+                      <span className="spinner"></span> Processing...
+                    </>
+                  ) : (
+                    'Place Order'
+                  )}
                 </button>
               )}
             </>

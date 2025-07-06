@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/pages/OrderDetails.scss';
+import '@/styles/pages/OrderDetails.scss';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 import { useNotification } from '@/components/Notify/NotificationProvider';
 
 function OrderDetails() {
-    const { allOrder, submitReturnRequest, allReturns, cancelOrder, fetchOrders } = useOrderDetails();
+    const { allOrder, submitReturnRequest, allReturns, cancelOrder, fetchOrders, fetchReturns } = useOrderDetails();
     const [activeReturnReasons, setActiveReturnReasons] = useState(null);
     const [activeReturnId, setActiveReturnId] = useState(null);
     const [selectedReason, setSelectedReason] = useState(null);
@@ -29,6 +29,10 @@ function OrderDetails() {
         quantity: 1,
         isSubmitting: false
     });
+    useEffect(() => {
+        fetchOrders();
+        fetchReturns();
+    }, []);
     useEffect(() => {
         // Update return status if needed based on allReturns
         if (allReturns && returnData.productId && returnData.orderId) {
@@ -150,6 +154,7 @@ function OrderDetails() {
         const diffDays = diffTime / (1000 * 60 * 60 * 24); // convert milliseconds to minutes
         return diffDays <= 3;
     };
+console.log("All order :",allOrder);
 
     return (
         <section className="order-section">
@@ -256,7 +261,7 @@ function OrderDetails() {
                                     <p className="wallet-payment">Amount Paid from Wallet: <small className="currency-label">AED</small>{order.amountPaidFromWallet}</p>
                                 )}
                                 {order.paymentMethod === "wallet_partial" && order.totalprice > order.amountPaidFromWallet && (
-                                    <p className="remaining-payment">Remaining Amount to Pay: <small className="currency-label">AED</small>{(order.totalprice - order.amountPaidFromWallet).toFixed(2)}</p>
+                                    <p className="remaining-payment">Remaining Amount to Pay: <small className="currency-label">AED</small>{(order.paymentDetails.remainingAmount).toFixed(2)}</p>
                                 )}
                                 {order.paymentMethod === "COD" && (
                                     <p>Payment Method: Cash on Delivery</p>

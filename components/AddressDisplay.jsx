@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
-import "../styles/components/AddressDisplay.scss"; 
+import "../styles/components/AddressDisplay.scss";
 import { useAddress } from "@/contexts/AddressContext";
 import sendPostRequestToBackend from "./Request/Post";
 import { useNavigate } from "react-router-dom";
 import { useOrderDetails } from "@/contexts/OrderDetailsContext";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
-const AddressDisplay = ({ addressList, toggleAddressForm }) => {
-    const [addressData, setAddressData] = useState(addressList);
+const AddressDisplay = ({ addressList = [], toggleAddressForm }) => {
+    const [addressData, setAddressData] = useState(addressList || []);
     const [selectedAddress, setSelectedAddress] = useState(null);
     const { selectedAddressPresence, setSelectedAddressPresence } = useAddress();
     const { cartItems, totalCostwithVAT } = useCart();
     const { user, token } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    console.log("Address", addressList);
 
     // Access Token
 
@@ -28,7 +32,7 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     };
 
     const setOrderDetailsDataToContext = () => {
-        if (token && selectedAddress) {
+        if (token && selectedAddress && cartItems.length > 0 && totalCostwithVAT > 0) {
             const shippingAddress = addressData.find(address => address._id === selectedAddress);
 
             if (shippingAddress) {
@@ -47,12 +51,15 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
 
 
     useEffect(() => {
-        const defaultaddress = addressData.find(address => address.defaultaddress === "true");
-        if (defaultaddress) {
-            setSelectedAddress(defaultaddress._id);
+        if (addressData.length > 0) {
+            const defaultAddress = addressData.find(address =>
+                address.defaultaddress === true || address.defaultaddress === "true"
+            );
+            if (defaultAddress) {
+                setSelectedAddress(defaultAddress._id);
+            }
         }
-        // If no addresses, do not reload. Show message instead in render.
-    }, [addressData])
+    }, [addressData]);
 
     useEffect(() => {
         if (selectedAddress) {
@@ -67,18 +74,33 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
     }, [addressList]);
 
     const removeAddress = async (addressid) => {
+        if (!addressid || !token) return;
+
+        setLoading(true);
+        setError(null);
+
         try {
-            const response = await sendPostRequestToBackend('checkout/address/remove', { addressid });
-            if (response.success) {
-                setAddressData(currentItems => currentItems.filter(item => item._id !== addressid));
-                // If removed address was selected, clear selection
+            const response = await sendPostRequestToBackend(
+                'checkout/address/remove',
+                { addressid },
+                token
+            );
+
+            if (response?.success) {
+                setAddressData(prev => prev.filter(item => item._id !== addressid));
                 if (selectedAddress === addressid) {
                     setSelectedAddress(null);
                     setSelectedAddressPresence(null);
                 }
+                showNotification('Address removed successfully', 'success');
+            } else {
+                throw new Error(response?.error || 'Failed to remove address');
             }
         } catch (error) {
-            console.error('Error removing address:', error);
+            console.error('Remove address error:', error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -104,7 +126,18 @@ const AddressDisplay = ({ addressList, toggleAddressForm }) => {
 
         return parts.join(', ');
     };
+    if (loading) {
+        return <div className="loading-message">Loading addresses...</div>;
+    }
 
+    if (error) {
+        return (
+            <div className="error-message">
+                {error}
+                <button onClick={() => setError(null)}>Dismiss</button>
+            </div>
+        );
+    }
     return (
         <div className="addressDisplay-page">
             <div className="addressDisplayPage-container">

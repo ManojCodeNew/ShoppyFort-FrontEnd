@@ -6,9 +6,11 @@ const AddressContext = createContext();
 // CartProvider component to provide context
 export const AddressProvider = ({ children }) => {
     const [selectedAddressPresence, setSelectedAddressPresence] = useState(null);
+    const clearSelectedAddress = () => setSelectedAddressPresence(null);
     const value = {
         selectedAddressPresence,
-        setSelectedAddressPresence
+        setSelectedAddressPresence,
+        clearSelectedAddress
     }
     return (
         <AddressContext.Provider value={value}>

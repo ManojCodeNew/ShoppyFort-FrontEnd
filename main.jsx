@@ -31,21 +31,21 @@ root.render(
               onScriptLoadError={() => console.error('Google OAuth script failed to load')}
               onScriptLoadSuccess={() => console.log('Google OAuth script loaded successfully')}
             >
-              <ProductProvider>
-                <CartProvider>
-                  <AddressProvider>
-                    <WishlistProvider>
-                      <OrderDetailsProvider>
+              <OrderDetailsProvider>
+                <ProductProvider>
+                  <CartProvider>
+                    <AddressProvider>
+                      <WishlistProvider>
                         <UserNotificationsProvider>
                           <OffersProvider>
                             <App />
                           </OffersProvider>
                         </UserNotificationsProvider>
-                      </OrderDetailsProvider>
-                    </WishlistProvider>
-                  </AddressProvider>
-                </CartProvider>
-              </ProductProvider>
+                      </WishlistProvider>
+                    </AddressProvider>
+                  </CartProvider>
+                </ProductProvider>
+              </OrderDetailsProvider>
             </GoogleOAuthProvider>
           </WalletProvider>
         </AuthProvider>

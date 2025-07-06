@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext.jsx';
 import sendPostRequestToBackend from '../Request/Post.jsx';
 import "@/styles/checkout/PaymentForm.scss";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const CARD_ELEMENT_OPTIONS = {
     style: {
@@ -91,7 +91,7 @@ const PaymentForm = () => {
                     // Payment successful! Now place the order
                     const orderData = {
                         ...orderDetails,
-                        paymentMethod: 'Online',
+                        paymentMethod: 'online',
                         isPaid: true,
                         paymentDetails: {
                             paymentIntentId: paymentIntent.id,
@@ -103,8 +103,10 @@ const PaymentForm = () => {
                         },
                         zipCode,
                     };
+                    console.log("Online Payment :", orderData);
 
                     const orderResponse = await sendPostRequestToBackend('order/addOrder', orderData, token);
+                    console.log("Online Payment Respone :", orderResponse);
 
                     if (orderResponse.success) {
                         clearCart();

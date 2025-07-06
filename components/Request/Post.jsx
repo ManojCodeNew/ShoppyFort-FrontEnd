@@ -1,6 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+console.log("Request Going:", API_BASE_URL);
 async function sendPostRequestToBackend(path, data, token) {
- 
+
     try {
         const headers = {
             'Content-Type': 'application/json',
@@ -13,7 +14,7 @@ async function sendPostRequestToBackend(path, data, token) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
         // Log the request details for debugging
-    
+
 
         const response = await fetch(`${API_BASE_URL}/${path}`, {
             method: 'POST',

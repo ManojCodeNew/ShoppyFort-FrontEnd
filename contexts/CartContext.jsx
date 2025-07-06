@@ -5,6 +5,7 @@ import { useProducts } from './ProductsContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
 import { useAuth } from './AuthContext.jsx';
+
 // Create CartContext
 const CartContext = createContext();
 const SHIPPING_PRICE = 10;
@@ -17,7 +18,13 @@ export const CartProvider = ({ children }) => {
     const { showNotification } = useNotification();
     const navigate = useNavigate();
     const { user, token } = useAuth();
-
+    const [calculatedTotal, setCalculatedTotal] = useState({
+        totalCostwithVAT: '0.00',
+        VAT_Price: '0.00',
+        totalCostwithoutVAT: '0.00',
+        added_Shipping_Price: 0,
+        totalItems: 0,
+    });
     // Fetch cart items from the server
     const fetchCartItems = useCallback(async () => {
         if (!token) return navigate('/login');
@@ -26,11 +33,11 @@ export const CartProvider = ({ children }) => {
 
             if (response.success) {
                 const cartedProducts = products.filter(product =>
-                    response.carts.some(cartItem => cartItem.productid === product._id)
+                    response.carts.some((cartItem) => cartItem.productid === product._id)
                 )
                     .map(product => {
                         // Find the matching cart item
-                        const cartItem = response.carts.find(cart => cart.productid === product._id);
+                        const cartItem = response.carts.find((cart) => cart.productid === product._id);
 
                         return {
                             ...product,
@@ -48,13 +55,54 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             showNotification(`Error fetching cart items : ${error}`, "error");
         }
-    }, [token, products]);
+    }, [token, products, navigate, showNotification]);
 
     useEffect(() => {
-        if (user && products.length > 0) {
+        if (user && Array.isArray(products) && products.length > 0) {
             fetchCartItems();
         }
-    }, [user, products.length]);
+    }, [user, products.length, fetchCartItems]);
+
+    const calculateTotalCost = useCallback(() => {
+        let totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+        if (totalItems === 0) {
+            setCalculatedTotal({
+                totalCostwithVAT: '0.00',
+                VAT_Price: '0.00',
+                totalCostwithoutVAT: '0.00',
+                added_Shipping_Price: 0,
+                totalItems: 0,
+            });
+            return;
+        }
+
+        const totalCostInPaise = cartItems.reduce((sum, item) => {
+            const priceInPaise = Math.round(item.price * 100);
+            return sum + (item.quantity || 1) * priceInPaise;
+        }, 0);
+
+        const VAT_Price_in_paise = Math.round(totalCostInPaise * 0.05);
+        let totalWithVATInPaise = totalCostInPaise + VAT_Price_in_paise;
+
+        let shippingFee = 0;
+        if (totalWithVATInPaise < SHIPPING_PRICE_LIMIT * 100) {
+            shippingFee = SHIPPING_PRICE * 100;
+            totalWithVATInPaise += shippingFee;
+        }
+
+        setCalculatedTotal({
+            totalCostwithVAT: (totalWithVATInPaise / 100).toFixed(2),
+            VAT_Price: (VAT_Price_in_paise / 100).toFixed(2),
+            totalCostwithoutVAT: (totalCostInPaise / 100).toFixed(2),
+            added_Shipping_Price: shippingFee > 0 ? SHIPPING_PRICE : 0,
+            totalItems: totalItems,
+        });
+    }, [cartItems]);
+
+    useEffect(() => {
+        calculateTotalCost();
+    }, [cartItems, calculateTotalCost]);
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {
@@ -107,7 +155,7 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             showNotification(`Error adding item to cart: ${error}`, "error");
         }
-    }, [user, token, navigate]);
+    }, [user, token, navigate, showNotification]);
 
     // Handle item removal from cart
     const handleRemove = useCallback(async (itemId) => {
@@ -123,7 +171,7 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             showNotification(`Error removing item: ${error}`, "error");
         }
-    }, [token]);
+    }, [token, showNotification]);
 
     // Handle item quantity update
     const handleQuantityChange = useCallback(async (itemId, newQuantity, selections) => {
@@ -171,8 +219,14 @@ export const CartProvider = ({ children }) => {
         try {
             const response = await sendGetRequestToBackend('cart/clear', token);
             if (response.success) {
-                // Implement a backend endpoint to clear cart if needed
                 setCartItems([]);
+                setCalculatedTotal({
+                    totalCostwithVAT: '0.00',
+                    VAT_Price: '0.00',
+                    totalCostwithoutVAT: '0.00',
+                    added_Shipping_Price: 0,
+                    totalItems: 0,
+                });
             }
 
         } catch (error) {
@@ -180,31 +234,17 @@ export const CartProvider = ({ children }) => {
         }
     }, [token]);
 
-    // Calculate total cost of items in the cart
-    const totalCost_of_products_in_paise = cartItems.reduce((sum, item) => {
-        const priceInPaise = Math.round(item.price * 100);
-        return sum + (item.quantity || 1) * priceInPaise;
-    }, 0);
 
-    const VAT_Price_in_paise = Math.round(totalCost_of_products_in_paise * 0.05);
-    let totalCost_in_paise = totalCost_of_products_in_paise + VAT_Price_in_paise;
-
-    // Shipping logic (applied in paise)
-    let shippingFeeInPaise = 0;
-    if (totalCost_in_paise < SHIPPING_PRICE_LIMIT * 100) {
-        shippingFeeInPaise = SHIPPING_PRICE * 100;
-        totalCost_in_paise += shippingFeeInPaise;
+    const value = {
+        cartItems,
+        addItem,
+        handleRemove,
+        handleQuantityChange,
+        clearCart,
+        fetchCartItems,
+        ...calculatedTotal,
+        calculateTotalCost
     }
-
-    const totalCostwithoutVAT = (totalCost_of_products_in_paise / 100).toFixed(2);
-    const VAT_Price = (VAT_Price_in_paise / 100).toFixed(2);
-    let totalCostwithVAT = (totalCost_in_paise / 100).toFixed(2);
-    const added_Shipping_Price = shippingFeeInPaise > 0 ? (shippingFeeInPaise / 100) : 0;
-
-
-    const totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
-
-    const value = { cartItems, addItem, handleRemove, handleQuantityChange, totalCostwithVAT, totalCostwithoutVAT, totalItems, clearCart, VAT_Price, fetchCartItems, added_Shipping_Price }
     return (
         <CartContext.Provider value={value}>
             {children}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 import Notification from "../Notify/Notification.jsx";
 
 const NotificationContext = createContext();
@@ -18,9 +18,12 @@ export const NotificationProvider = ({ children }) => {
     const closeNotification = () => {
         setNotification(null);
     };
+    const value = useMemo(() => ({
+        showNotification,
+    }), [showNotification]);
 
     return (
-        <NotificationContext.Provider value={{ showNotification }}>
+        <NotificationContext.Provider value={value}>
             {children}
             {notification && (
                 <Notification

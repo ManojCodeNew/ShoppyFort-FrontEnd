@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import '../styles/pages/Wallet.scss';
 import { useWallet } from '@/contexts/WalletContext.jsx';
 import walletIcon from '../assets/Images/wallet.png';
@@ -8,45 +8,90 @@ import { useProducts } from '@/contexts/ProductsContext';
 import { useOrderDetails } from '@/contexts/OrderDetailsContext';
 
 export default function Wallet() {
-    const { getWallet, wallet } = useWallet();
-    const [balance, setBalance] = useState(0);
-    const [transactions, setTransactions] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { getWallet, wallet, loading, initialized, refreshWallet } = useWallet();
+    const [localLoading, setLocalLoading] = useState(true);
     const { allOrder, fetchOrders } = useOrderDetails();
     const { products, fetchProducts } = useProducts();
 
+    console.log("Wallet component initialized with wallet:", wallet);
+
+    // Initialize data only once
     useEffect(() => {
-        const fetchData = async () => {
-            getWallet();
-            await fetchProducts();
-            await fetchOrders();
+        const initializeData = async () => {
+            try {
+                setLocalLoading(true);
+
+                // Fetch products and orders in parallel, but only if not already loaded
+                const promises = [];
+
+                if (!products || products.length === 0) {
+                    promises.push(fetchProducts());
+                }
+
+                if (!allOrder || allOrder.length === 0) {
+                    promises.push(fetchOrders());
+                }
+
+                // Always fetch wallet data when the wallet page is accessed
+                promises.push(getWallet());
+
+
+                await Promise.allSettled(promises);
+
+
+            } catch (error) {
+                console.error("Error initializing wallet data:", error);
+            } finally {
+                setLocalLoading(false);
+            }
         };
-        fetchData();
-    }, [getWallet, fetchProducts, fetchOrders]);
 
-    useEffect(() => {
-        if (wallet !== null) {
-            setBalance(wallet.balance);
-            setTransactions(wallet.transactions || []);
-        }
-        setLoading(false);
-    }, [wallet]);
+        initializeData();
+    }, []); // Empty dependency array - only run once on mount
 
-    const getOrderId = (orderid) => {
-        return allOrder.find(order => order.orderid === orderid);
-        
-    }
 
-    const getProductId = (productObj) => {
-        if (!productObj || !productObj._id) return 'N/A';
 
-        const matchedItem = products.find(item => item._id === productObj._id);
-        return matchedItem?.productid || 'N/A';
-    };
+    // Memoized helper functions to prevent unnecessary re-renders
+    const getOrderDetails = useMemo(() => {
+        return (orderid) => {
+            if (!allOrder || !orderid) return null;
+            const id = orderid?.toString?.() || orderid;
+            return allOrder.find(order => order.orderid === id);
+
+        };
+    }, [allOrder]);
+
+    const getProductDetails = useMemo(() => {
+        return (productObj) => {
+            if (!productObj || !productObj._id || !products) return 'N/A';
+            const matchedItem = products.find(item => item._id === productObj._id);
+            return matchedItem?.productid || 'N/A';
+        };
+    }, [products]);
 
     const formatDate = (dateString) => {
-        return format(new Date(dateString), 'MMM dd, yyyy • hh:mm a');
+        try {
+            return format(new Date(dateString), 'MMM dd, yyyy • hh:mm a');
+        } catch (error) {
+            console.error("Date formatting error:", error);
+            return 'Invalid date';
+        }
     };
+
+    // Memoized transactions to prevent unnecessary processing
+    const processedTransactions = useMemo(() => {
+        if (!wallet?.transactions) return [];
+
+        return wallet.transactions
+            .slice()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 10);
+    }, [wallet?.transactions]);
+    console.log("Processed Transactions:", processedTransactions);
+
+    const isLoading = loading || localLoading;
+    const balance = wallet?.balance || 0;
+    const transactionCount = wallet?.transactions?.length || 0;
     return (
         <>
             <div className="wallet-page">
@@ -60,7 +105,7 @@ export default function Wallet() {
                             <span className="label">Wallet Balance  </span>
                             <span className="balance">
                                 <span className='aed-text'>AED </span>
-                                {loading ? 'Loading...' : `${balance?.toFixed(2) || '0.00'}`}
+                                {isLoading ? 'Loading...' : balance?.toFixed(2)}
                             </span>
                         </div>
                     </div>
@@ -70,7 +115,7 @@ export default function Wallet() {
             <div className="transaction-section">
                 <div className="transaction-header">
                     <h2>Recent Transactions</h2>
-                    <span className="count">{transactions.length} total</span>
+                    <span className="count">{transactionCount} total</span>
                 </div>
 
                 {loading ? (
@@ -78,15 +123,15 @@ export default function Wallet() {
                         <FiClock />
                         <p>Loading transactions...</p>
                     </div>
-                ) : transactions.length === 0 ? (
+                ) : transactionCount === 0 ? (
                     <div className="empty-state">
                         <FiClock />
                         <p>No transactions yet</p>
                     </div>
                 ) : (
                     <div className="transactions-list">
-                        {transactions.slice(0, 10).map((txn, index) => (
-                            <div key={index} className={`transaction-item ${txn.type}`}>
+                        {processedTransactions.map((txn, index) => (
+                            <div key={txn._id || index} className={`transaction-item ${txn.type}`}>
                                 <div className="transaction-icon">
                                     {txn.type === 'credit' ? (
                                         <FiArrowDownLeft className="credit" />
@@ -97,19 +142,36 @@ export default function Wallet() {
                                 <div className="transaction-main">
                                     <div className="transaction-details">
                                         <div className="transaction-info">
-                                            <span className="description">{txn.note}</span>
+                                            <span className="description">
+                                                {txn.note || `${txn.type === 'credit' ? 'Credit' : 'Payment'} transaction`}
+                                            </span>
                                             <span className="date">{formatDate(txn.date)}</span>
-                                            {txn.orderid && <span className="order-id">Order: {getOrderId(txn.orderid)?.orderid || 'N/A'}</span>}
+                                            {txn.orderid && txn.type === "debit" && (
+                                                <span className="order-id">
+                                                    Order Id: {getOrderDetails(txn.orderid)?.orderid || 'N/A'}
+                                                </span>
+                                            )}
 
-                                            {txn.productid && <span className="order-id">Product Id: {getProductId(txn.productid)}</span>}
+                                            {/* {txn.orderid && txn.type === 'credit' && (
+                                                <span className="order-id">
+                                                    Order Id: {getOrderDetails(txn.orderid)?.orderid || txn.orderid}
+                                                </span>
+                                            )} */}
+                                            {txn.productid && (
+                                                <span className="order-id">
+                                                    Product Id: {getProductDetails(txn.productid)}
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="transaction-amount">
                                             <span className={`amount ${txn.type}`}>
-                                                {txn.type === 'credit' ? '+' : '-'} <span className='aed-text'>AED </span> {txn.amount.toFixed(2)}
+                                                {txn.type === 'credit' ? '+' : '-'}
+                                                <span className='aed-text'>AED </span>
+                                                {(txn.amount || 0).toFixed(2)}
                                             </span>
-                                            {txn.type === 'debit' && txn.remainingAmount && (
+                                            {txn.type === 'debit' && txn.remainingAmount && txn.remainingAmount > 0 && (
                                                 <span className="remaining-amount">
-                                                    (Remaining: ₹{txn.remainingAmount.toFixed(2)})
+                                                    (Remaining: AED {txn.remainingAmount.toFixed(2)})
                                                 </span>
                                             )}
                                         </div>

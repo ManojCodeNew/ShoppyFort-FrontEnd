@@ -108,7 +108,7 @@ const App = () => {
       </Route>
 
       {/* Optional: 404 fallback */}
-      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+      {/* <Route path="*" element={<h1>404 - Page Not Found</h1>} /> */}
     </Routes>
   );
 };

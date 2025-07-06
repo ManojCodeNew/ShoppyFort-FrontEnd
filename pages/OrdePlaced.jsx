@@ -1,8 +1,8 @@
 
 import React from 'react';
-import '../styles/pages/OrderPlaced.scss';
+import '@/styles/pages/OrderPlaced.scss';
 import { useNavigate } from 'react-router-dom';
-import { useOrderDetails } from '@/contexts/OrderDetailsContext';
+import { useOrderDetails } from '@/contexts/OrderDetailsContext.jsx';
 
 const OrderPlaced = () => {
 
@@ -10,19 +10,27 @@ const OrderPlaced = () => {
   const { orderDetails, setOrderDetails, fetchOrders } = useOrderDetails();
 
   const order = orderDetails;
-
+  console.log("Order Details:", orderDetails);
   return (
     <div className="order-success-container">
       <h1>Thank You for Your Order!</h1>
       <p className="success-message">Your order has been successfully placed.</p>
-      {order.totalprice != 0 && (
+      {order?.totalprice != 0 && (
         <div className="order-summary">
           <h2>Order Summary</h2>
           <p><strong>Order ID:</strong> {order.orderid}</p>
-          <p><strong>Customer Name:</strong> {order.shippingaddress.username}</p>
-          <p><strong>Shipping Address:</strong> {order.shippingaddress.deliveryaddress}</p>
+          <p><strong>Customer Name:</strong> {order.shippingaddress?.username || "User"}</p>
+          <p>
+            <strong>Shipping Address:</strong>{" "}
+            {order.shippingaddress.buildingNumber},
+            {order.shippingaddress.streetName},
+            {order.shippingaddress.area},
+            {order.shippingaddress.city},
+            {order.shippingaddress.emirate},
+            {order.shippingaddress.country}
+          </p>
 
-          <h3 className="total-amount">Total Amount: ${order.totalprice}</h3>
+          <h3 className="total-amount">Total Amount: AED {order.totalprice}</h3>
         </div>
       )}
       <div className="actions">

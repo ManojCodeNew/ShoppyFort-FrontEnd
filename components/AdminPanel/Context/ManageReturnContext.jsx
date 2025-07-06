@@ -158,8 +158,9 @@ export function ManageReturnProvider({ children }) {
     const creditMoneyToWallet = useCallback(async (returnid, amount) => {
 
         try {
+            console.log("Crediting wallet with returnid:", returnid, "and amount:", amount);
             const response = await sendPostRequestToBackend("admin/wallet/credit", { returnid, amount }, token);
-
+            console.log("Credit Wallet Response:", response);
             if (response?.success || response?.alreadyWalletCredited) {
                 showNotification("Wallet credited successfully" || response.error, "success");
                 return true;
