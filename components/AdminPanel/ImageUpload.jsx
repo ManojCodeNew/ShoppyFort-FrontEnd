@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useAdminProducts } from "./Context/AdminProductsContext.jsx";
 import { useNotification } from "../Notify/NotificationProvider.jsx";
 import Loader from "../Load/Loader.jsx";
@@ -19,28 +19,77 @@ function ImageUpload({ productName, colors }) {
     const [draggedOverItem, setDraggedOverItem] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
 
+    // Ref to track if we're in the middle of adding new images
+    const isAddingNewImages = useRef(false);
+    const previousColors = useRef([]);
+    const hasInitialized = useRef(false);
+
+    // Reset initialization state when product changes
+    useEffect(() => {
+        // Only reset when a new product is loaded (not on every color change)
+        hasInitialized.current = false;
+        previousColors.current = [];
+    }, [initialData?._id]);
+
     // Initialize images when colors or initialData changes
     useEffect(() => {
         if (!colors || colors.length === 0) {
             setSelectedImages({});
             setHasNewImages(false);
+            previousColors.current = [];
+            // Do NOT reset hasInitialized.current here
             return;
         }
 
-        const initialImagesState = colors.reduce((acc, color) => {
-            acc[color] = initialData?.colorImages?.[color]?.map((imageUrl, index) => ({
-                id: `${color}-${index}-${Date.now()}`, // Add unique ID for drag operations
-                name: imageUrl.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1] || imageUrl,
-                url: imageUrl,
-                file: null,
-                order: index
-            })) || [];
-            return acc;
-        }, {});
-
-        setSelectedImages(initialImagesState);
-        setHasNewImages(false);
+        // Only initialize ONCE per product (when initialData changes)
+        if (!hasInitialized.current && initialData) {
+            setSelectedImages(() => {
+                const initialImagesState = colors.reduce((acc, color) => {
+                    acc[color] = initialData?.colorImages?.[color]?.map((imageUrl, index) => ({
+                        id: `${color}-${index}-${Date.now()}`,
+                        name: imageUrl.split("https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/")[1] || imageUrl,
+                        url: imageUrl,
+                        file: null,
+                        order: index
+                    })) || [];
+                    return acc;
+                }, {});
+                return initialImagesState;
+            });
+            hasInitialized.current = true;
+        } else if (hasInitialized.current) {
+            // Only add/remove color keys, do NOT reset all images
+            setSelectedImages(prevImages => {
+                const updatedImages = { ...prevImages };
+                // Add new colors with empty arrays
+                colors.forEach(color => {
+                    if (!updatedImages[color]) {
+                        updatedImages[color] = [];
+                    }
+                });
+                // Remove colors that are no longer in the colors array
+                Object.keys(updatedImages).forEach(color => {
+                    if (!colors.includes(color)) {
+                        delete updatedImages[color];
+                    }
+                });
+                return updatedImages;
+            });
+        }
+        // Update previous colors for next comparison
+        previousColors.current = [...colors];
     }, [colors, initialData]);
+
+    // Separate useEffect to handle hasNewImages state
+    useEffect(() => {
+        const hasExistingNewImages = Object.values(selectedImages).some(colorImages =>
+            colorImages.some(img => img.file)
+        );
+
+        if (hasExistingNewImages !== hasNewImages) {
+            setHasNewImages(hasExistingNewImages);
+        }
+    }, [selectedImages, hasNewImages]);
 
     // Clean up object URLs on unmount
     useEffect(() => {
@@ -77,9 +126,25 @@ function ImageUpload({ productName, colors }) {
         });
 
         if (validFiles.length === 0) return;
-
+        console.log("I am in selectedImages", validFiles);
         setSelectedImages(prevImages => {
-            const existingCount = selectedImages[colorName]?.length || 0;
+            const existingCount = prevImages[colorName]?.length || 0;
+            const newFiles = validFiles.map((file, index) => ({
+                id: `${colorName}-new-${Date.now()}-${index}`,
+                name: file.name,
+                url: URL.createObjectURL(file),
+                file,
+                order: existingCount + index
+            }));
+            return {
+                ...prevImages,
+                [colorName]: [...(prevImages[colorName] || []), ...newFiles],
+            }
+        });
+
+        // Update context state for postProduct to access
+        setImages(prevImages => {
+            const existingCount = prevImages[colorName]?.length || 0;
             const newFiles = validFiles.map((file, index) => ({
                 id: `${colorName}-new-${Date.now()}-${index}`,
                 name: file.name,
@@ -98,7 +163,7 @@ function ImageUpload({ productName, colors }) {
 
         // Clear the input
         e.target.value = '';
-    }, [showNotification]);
+    }, [showNotification, setImages]);
 
     const removeImage = useCallback(async (colorName, imageId, e) => {
         e.preventDefault();
@@ -127,7 +192,7 @@ function ImageUpload({ productName, colors }) {
                 }
 
                 setIsLoading(true);
-
+                console.log("I am in removeImage", imagePath);
                 // Delete from S3
                 const s3Response = await fetch(`${API_BASE_URL}/delete-image`, {
                     method: "DELETE",
@@ -136,6 +201,7 @@ function ImageUpload({ productName, colors }) {
                 });
 
                 const s3Result = await s3Response.json();
+                console.log("I am in removeImage", s3Result);
 
                 if (!s3Result.success) {
                     throw new Error(s3Result.message || "Failed to delete from S3");
@@ -178,6 +244,10 @@ function ImageUpload({ productName, colors }) {
                     );
                     if (updatedState[colorName].length === 0) {
                         delete updatedState[colorName];
+                        // Show notification that color will be removed (only for existing colors)
+                        if (initialData?.colorImages?.[colorName]) {
+                            showNotification(`All images removed from "${colorName}". Color will be removed from product.`, "info");
+                        }
                     }
                 }
                 return updatedState;
@@ -256,11 +326,8 @@ function ImageUpload({ productName, colors }) {
             [sourceColorName]: reorderedImages
         }));
 
-        // Update context state as well
-        setImages(prevImages => ({
-            ...prevImages,
-            [sourceColorName]: reorderedImages
-        }));
+        // Don't call setImages here since reordering doesn't create new images
+        // The images state should only contain new images that haven't been uploaded yet
 
         setHasNewImages(true);
         showNotification("Images reordered successfully!", "success");
@@ -356,8 +423,12 @@ function ImageUpload({ productName, colors }) {
             const timeoutId = setTimeout(() => {
                 controller.abort();
                 showNotification("Upload timeout. Please try with smaller files.", "error");
-            }, 600000); // 10 minutes timeout
-
+            }, 600000); //
+            
+            console.log("I am in handleSubmit");
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
             const response = await fetch(`${API_BASE_URL}/upload-product-images`, {
                 method: 'POST',
                 headers: {
@@ -367,6 +438,8 @@ function ImageUpload({ productName, colors }) {
                 credentials: 'include',
                 signal: controller.signal
             });
+            // const data2 = await response.json();
+            // console.log("Response of upload-product-images", data2);
             clearTimeout(timeoutId);
 
             if (!response.ok) {
@@ -426,7 +499,7 @@ function ImageUpload({ productName, colors }) {
                         ...newImages,
                     ];
                 });
-
+                console.log("updatedImagesMap", updatedImagesMap);
                 // Clean up object URLs for uploaded files
                 Object.values(selectedImages).forEach(colorImages => {
                     colorImages.forEach(image => {
@@ -438,8 +511,10 @@ function ImageUpload({ productName, colors }) {
 
                 // Update states
                 setSelectedImages(updatedImagesMap);
-                setImages(updatedImagesMap);
+                setImages(updatedImagesMap); // <-- Ensure context is updated with S3 keys after upload
                 setHasNewImages(false);
+
+                // The initialImgData will be updated when the product is updated in the database
 
                 showNotification("Images uploaded successfully!", "success");
             } else {
@@ -447,7 +522,7 @@ function ImageUpload({ productName, colors }) {
             }
 
         } catch (error) {
-            console.error("Upload failed:", error);
+            // console.error("Upload failed:", error);
             if (error.name === 'AbortError') {
                 showNotification("Upload timeout. Please try with smaller files or fewer images.", "error");
             } else {

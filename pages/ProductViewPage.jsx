@@ -27,7 +27,8 @@ const ProductViewPage = () => {
   const zoomLensRef = useRef(null);
   const zoomResultRef = useRef(null);
   const productImageRef = useRef(null);
-  const fallbackImage = 'https://via.placeholder.com/500x500?text=Image+Not+Available';
+  const [imageErrors, setImageErrors] = useState({}); // Track errors for each image
+  const fallbackImage = 'https://images.unsplash.com/photo-1515886657613-9b08?auto=format&fit=crop&q=800';
 
   const stock_availability = () => {
     const current_product = products.find(p => p._id === id);
@@ -158,6 +159,19 @@ const ProductViewPage = () => {
   };
   // const fallbackImage = 'https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-6f08-51f7-b6ec-c58003fd17aa/raw?se=2025-03-30T15%3A23%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=944cb68e-fe60-5752-a04c-4ff2474237ed&skoid=fa7966e7-f8ea-483c-919a-13acfd61d696&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-03-30T13%3A34%3A20Z&ske=2025-03-31T13%3A34%3A20Z&sks=b&skv=2024-08-04&sig=5eof3pHpGOQfYNahuDmm0nPDVOqE2iXplkSjrOXwz0I%3D';
 
+  const handleImageError = (imageUrl) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [imageUrl]: true
+    }));
+  };
+
+  const getImageSrc = (imageUrl) => {
+    if (imageErrors[imageUrl]) {
+      return fallbackImage;
+    }
+    return imageUrl || fallbackImage;
+  };
 
 
   return (
@@ -168,10 +182,11 @@ const ProductViewPage = () => {
 
           <div className="product-view-page-image" ref={imageContainerRef}>
             <img
-              src={productImage || fallbackImage}
+              src={getImageSrc(productImage)}
               alt="Product"
               className="product-view-page-image-img"
               ref={productImageRef}
+              onError={() => handleImageError(productImage)}
             />
             <div className="zoom-lens" ref={zoomLensRef}></div>
             <div className="zoom-result" ref={zoomResultRef}></div>
@@ -180,10 +195,11 @@ const ProductViewPage = () => {
               {product.colorImages[selectedColor]?.map((image, index) => (
                 <img
                   key={index}
-                  src={image || fallbackImage}
+                  src={getImageSrc(image)}
                   alt={`View ${index + 1}`}
                   className={productImage === image ? 'active' : ''}
                   onClick={() => setProductImage(image)}
+                  onError={() => handleImageError(image)}
                 />
               ))}
             </div>

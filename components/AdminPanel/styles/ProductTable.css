@@ -7,6 +7,23 @@ body {
   box-sizing: border-box;
   color: #344767; /* A deep, elegant blue-gray for general text */
 }
+.search_container{
+  margin: 10px;
+}
+.search-wrapper {
+    background-color: #f0f0f0;
+    display: inline-block;
+    padding: 10px;
+    border-radius: 10px;
+    
+}
+
+.search-icon {
+    padding: 4px;
+}
+
+
+
 
 /* Main Table Container */
 .table-container {

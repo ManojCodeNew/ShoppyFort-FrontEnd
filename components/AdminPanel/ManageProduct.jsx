@@ -11,9 +11,25 @@ const ProductTable = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredProducts = searchQuery
+        ? products.filter(product =>
+            product.productid?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.price?.toString().includes(searchQuery) ||
+            product.gender?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.discount !== undefined && product.discount !== null && product.discount.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+            product.category?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : products;
+
+
+
     useEffect(() => {
         setIsLoading(!products || products.length === 0);
     }, [products]);
+
 
     const confirmDelete = (productId) => {
         const product = products.find(p => p._id === productId);
@@ -22,7 +38,7 @@ const ProductTable = () => {
 
     }
     const handleDeleteConfirm = (productId) => {
-        
+
         deleteProduct(productId);
         setShowDeleteModal(false);
         setSelectedProduct(null);
@@ -32,10 +48,29 @@ const ProductTable = () => {
         setShowDeleteModal(false);
         setSelectedProduct(null);
     };
+
+    // Add Product button handler
+    const handleAddProduct = () => {
+        setInitialData(null); // Always reset to add mode
+        navigate('/admin/products/add'); // Adjust route as needed 
+    };
+
     return (
         <>
             <div className="table-container">
                 <h1 className="manage-product-title">Manage Product</h1>
+                <div className="search_container">
+                    <div className="search-wrapper">
+                        <span className="search-icon">🔍</span>
+                        <input
+                            type="text"
+                            placeholder="Search by name, ID or category..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+                </div>
                 <table className="product-table">
                     <thead>
                         <tr>
@@ -55,8 +90,8 @@ const ProductTable = () => {
                                     <Loader />
                                 </td>
                             </tr>
-                        ) : products && products.length > 0 ? (
-                            products.map((product, index) => (
+                        ) : filteredProducts && filteredProducts.length > 0 ? (
+                            filteredProducts.map((product, index) => (
                                 <tr key={product._id}>
                                     <td>
                                         <b>{index + 1}</b>
@@ -106,6 +141,10 @@ const ProductTable = () => {
                     </tbody>
                 </table>
             </div >
+            {/* Add Product Button */}
+            <button className="btn-primary" onClick={handleAddProduct} style={{ marginBottom: '16px' }}>
+                Add Product
+            </button>
             {/* Delete Confirmation Modal */}
             <ConfirmationModal
                 isOpen={showDeleteModal}

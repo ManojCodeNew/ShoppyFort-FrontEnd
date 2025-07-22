@@ -53,7 +53,20 @@ const ProductCard = ({ product }) => {
     setImageError(true);
   };
 
-  const fallbackImage = 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800';
+  // Multiple fallback images in case one fails
+  const fallbackImages = [
+    'https://images.unsplash.com/photo-1515886657613-9b08?auto=format&fit=crop&q=80&w=80',
+    'https://images.unsplash.com/photo-144198630917-64674d600d8?auto=format&fit=crop&q=80&w=80',
+    'https://images.unsplash.com/photo-156472354-b33ff0c4443?auto=format&fit=crop&q=80&w=800'
+  ];
+
+  const getImageSrc = () => {
+    if (imageError) {
+      return fallbackImages[0]; // Use first fallback if main image failed
+    }
+    return defaultImg || fallbackImages[0];
+  };
+
   return (
     <div
       className="product-card"
@@ -63,7 +76,7 @@ const ProductCard = ({ product }) => {
     >
       <div className="product-image">
         <img
-          src={imageError ? fallbackImage : defaultImg}
+          src={getImageSrc()}
           alt={name}
           onError={handleImageError}
           className='img'

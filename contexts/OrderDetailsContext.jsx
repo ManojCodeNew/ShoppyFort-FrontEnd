@@ -39,7 +39,6 @@ export const OrderDetailsProvider = ({ children }) => {
             const response = await sendGetRequestToBackend("order", token);
             if (response.success) {
                 setAllOrder(response.orders);
-
             }
         } catch (error) {
             showNotification("Error fetching orders", "error");
