@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
 
@@ -26,17 +26,20 @@ const RegisterPage = () => {
 
 
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Don't redirect if user is on auth pages
+  const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
 
   // Redirect if already logged in AND user data is loaded
   useEffect(() => {
-    if (isAuthenticated && userDataLoaded && token) {
+    if (isAuthenticated && userDataLoaded && token && !isOnAuthPage) {
       navigate('/profile', { replace: true });
     }
-  }, [isAuthenticated, userDataLoaded, navigate, token]);
+  }, [isAuthenticated, userDataLoaded, navigate, token, isOnAuthPage]);
 
   // Early return if user is already authenticated to prevent rendering register form
-  if (isAuthenticated && userDataLoaded) {
+  if (isAuthenticated && userDataLoaded && !isOnAuthPage) {
     return (
       <div className="auth-page">
         <div className="auth-container">

@@ -17,15 +17,19 @@ const LoginPage = () => {
 
   // Get the page user was trying to access
   const from = location.state?.from?.pathname || '/profile';
+  
+  // Don't redirect if user is on auth pages (register, forgot-password)
+  const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
 
   useEffect(() => {
     console.log('LoginPage useEffect triggered:', {
       isAuthenticated,
       userDataLoaded,
       from,
-      location: location.pathname
+      location: location.pathname,
+      isOnAuthPage
     });
-    if (isAuthenticated && userDataLoaded) {
+    if (isAuthenticated && userDataLoaded && !isOnAuthPage) {
       console.log('Conditions met for redirect. Navigating to:', from);
 
       // Add a small delay to ensure state is fully updated
@@ -34,7 +38,7 @@ const LoginPage = () => {
         navigate(from, { replace: true });
       }, 100);
     }
-  }, [isAuthenticated, userDataLoaded, navigate, from, location.pathname]);
+  }, [isAuthenticated, userDataLoaded, navigate, from, location.pathname, isOnAuthPage]);
 
 
   // Redirect if already logged in
@@ -46,7 +50,7 @@ const LoginPage = () => {
   // }, [isAuthenticated, userDataLoaded, navigate, from]);
 
   // Early return if user is already authenticated to prevent rendering login form
-  if (isAuthenticated && userDataLoaded) {
+  if (isAuthenticated && userDataLoaded && !isOnAuthPage) {
     return (
       <div className="auth-page">
         <div className="auth-container">
@@ -208,6 +212,9 @@ const LoginPage = () => {
 
         <p className="auth-link">
           Don't have an account? <Link to="/register">Register</Link>
+        </p>
+        <p className="auth-link">
+          <Link to="/forgot-password">Forgot Password?</Link>
         </p>
       </div>
     </div>
