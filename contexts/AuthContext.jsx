@@ -210,7 +210,6 @@ export function AuthProvider({ children }) {
         setNetworkError(false);
         showNotification('Login successful! 🎉', 'success');
 
-        window.location.reload(); 
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -291,7 +290,6 @@ export function AuthProvider({ children }) {
         setUserDataLoaded(true);
         setNetworkError(false);
         showNotification("Registration successful! 🎉", "success");
-        window.location.reload();
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -327,7 +325,6 @@ export function AuthProvider({ children }) {
       clearAuthData();
       setNetworkError(false);
       showNotification('Logged out successfully!', 'success');
-      window.location.reload();
       navigate('/'); // Go to home instead of login
       setLoading(false);
     }, 800);
@@ -389,7 +386,6 @@ export function AuthProvider({ children }) {
         setNetworkError(false);
         showNotification('Google login successful! 🎉', 'success');
 
-        window.location.reload();
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
