@@ -44,7 +44,6 @@ async function sendPostRequestToBackend(path, data, token) {
                     localStorage.removeItem('adminAuth');
                     localStorage.removeItem('token');
                     window.alert('Session expired, please log in again.');
-                    window.location.href = '/login';
                     return null;
                 }
                 return {

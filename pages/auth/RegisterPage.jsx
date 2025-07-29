@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/pages/auth/auth.scss';
 
@@ -26,11 +26,12 @@ const RegisterPage = () => {
 
 
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   // Redirect if already logged in AND user data is loaded
   useEffect(() => {
-    if (isAuthenticated && userDataLoaded && token) {
+    if (isAuthenticated && userDataLoaded && token && location.pathname === '/register') {
       navigate('/profile', { replace: true });
     }
   }, [isAuthenticated, userDataLoaded, navigate, token]);

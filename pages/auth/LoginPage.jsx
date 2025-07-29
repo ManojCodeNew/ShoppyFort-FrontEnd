@@ -25,7 +25,8 @@ const LoginPage = () => {
       from,
       location: location.pathname
     });
-    if (isAuthenticated && userDataLoaded) {
+    // Only redirect if user is authenticated and we're on the login page
+    if (isAuthenticated && userDataLoaded && location.pathname === '/login') {
       console.log('Conditions met for redirect. Navigating to:', from);
 
       // Add a small delay to ensure state is fully updated
