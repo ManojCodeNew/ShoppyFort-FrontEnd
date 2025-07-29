@@ -10,22 +10,30 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, googleLogin, error, isLoading, isAuthenticated, userDataLoaded } = useAuth();
+  const { login, googleLogin, error, isLoading, isAuthenticated, userDataLoaded, token } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Get the page user was trying to access
   const from = location.state?.from?.pathname || '/profile';
+  
+  // Don't redirect if user is on auth pages (register, forgot-password)
+  const isOnAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
+  
+  // Only redirect if user is authenticated and not on auth pages
+  const shouldRedirect = isAuthenticated && userDataLoaded && token && !isOnAuthPage;
 
   useEffect(() => {
     console.log('LoginPage useEffect triggered:', {
       isAuthenticated,
       userDataLoaded,
       from,
-      location: location.pathname
+      location: location.pathname,
+      isOnAuthPage,
+      shouldRedirect
     });
-    if (isAuthenticated && userDataLoaded) {
+    if (shouldRedirect) {
       console.log('Conditions met for redirect. Navigating to:', from);
 
       // Add a small delay to ensure state is fully updated
@@ -34,7 +42,7 @@ const LoginPage = () => {
         navigate(from, { replace: true });
       }, 100);
     }
-  }, [isAuthenticated, userDataLoaded, navigate, from, location.pathname]);
+  }, [shouldRedirect, navigate, from]);
 
 
   // Redirect if already logged in
@@ -46,7 +54,7 @@ const LoginPage = () => {
   // }, [isAuthenticated, userDataLoaded, navigate, from]);
 
   // Early return if user is already authenticated to prevent rendering login form
-  if (isAuthenticated && userDataLoaded) {
+  if (shouldRedirect) {
     return (
       <div className="auth-page">
         <div className="auth-container">
@@ -208,6 +216,9 @@ const LoginPage = () => {
 
         <p className="auth-link">
           Don't have an account? <Link to="/register">Register</Link>
+        </p>
+        <p className="auth-link">
+          <Link to="/forgot-password">Forgot Password?</Link>
         </p>
       </div>
     </div>
