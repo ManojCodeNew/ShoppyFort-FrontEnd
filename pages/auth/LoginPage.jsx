@@ -47,13 +47,7 @@ const LoginPage = () => {
 
   // Early return if user is already authenticated to prevent rendering login form
   if (isAuthenticated && userDataLoaded) {
-    return (
-      <div className="auth-page">
-        <div className="auth-container">
-          <p>Redirecting...</p>
-        </div>
-      </div>
-    );
+    return null; // Return null instead of a component to avoid rendering issues
   }
 
   const handleSubmit = async (e) => {
