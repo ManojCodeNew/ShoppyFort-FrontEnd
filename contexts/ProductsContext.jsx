@@ -29,7 +29,7 @@ export default function ProductProvider({ children }) {
                     : {};
                 // Get the first color and its first image
                 const firstColor = Object.keys(modifiedColorImages)[0]; // First color key
-                const defaultImg = firstColor ? modifiedColorImages[firstColor][0] : null; // First image of the first color
+                const defaultImg = firstColor && modifiedColorImages[firstColor] && modifiedColorImages[firstColor][0] ? modifiedColorImages[firstColor][0] : null; // First image of the first color
 
 
                 return {

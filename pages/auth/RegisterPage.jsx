@@ -105,7 +105,7 @@ const RegisterPage = () => {
 
       if (result.success) {
         // Registration successful, redirect to profile or login page
-        navigate('/profile', { replace: true });
+        // navigate('/profile', { replace: true });
       } else {
         // Error handling is already done in the register function
         console.log('Registration failed:', result.error);

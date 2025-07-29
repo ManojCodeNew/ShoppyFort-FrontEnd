@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import "../styles/pages/CartPage.scss";
 import PriceDetails from '../components/PriceDetails.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '@/components/Notify/NotificationProvider';
 const CartPage = () => {
-    const { cartItems, handleRemove, handleQuantityChange, totalCostwithoutVAT,totalCostwithVAT } = useCart(); // Use the context values
+    const { cartItems, handleRemove, handleQuantityChange, totalCostwithoutVAT, totalCostwithVAT, fetchCartItems } = useCart(); // Use the context values
     const { showNotification } = useNotification();
     const navigate = useNavigate();
+
+    //Fetch cart items when the page loads
+    useEffect(() => {
+        fetchCartItems();
+    }, [])
 
     const totalMRP = cartItems.reduce((total, item) => total + item.originalPrice * item.quantity, 0);
     const discountMRP = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);

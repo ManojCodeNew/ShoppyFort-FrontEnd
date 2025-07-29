@@ -142,12 +142,12 @@ export default function WalletProvider({ children }) {
     }, [user?._id, token, showNotification, processingPayment, getWallet]);
 
     // Initialize wallet once when user and token are available
-    useEffect(() => {
-        if (user?._id && token && !initialized) {
-            console.log("Initializing wallet for user:", user._id);
-            getWallet();
-        }
-    }, [user?._id, token, initialized, getWallet]);
+    // useEffect(() => {
+    //     if (user?._id && token && !initialized) {
+    //         console.log("Initializing wallet for user:", user._id);
+    //         getWallet();
+    //     }
+    // }, [user?._id, token, initialized, getWallet]);
 
     // Provide a function to manually refresh wallet data
     const refreshWallet = useCallback(() => {

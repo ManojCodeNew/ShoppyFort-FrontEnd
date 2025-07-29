@@ -30,7 +30,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import Wallet from './pages/Wallet.jsx';
 import AddOffers from './components/AdminPanel/AddOffers.jsx';
 import AboutUs from './pages/AboutUs.jsx';
-
+import PasswordResetFlow from './pages/auth/PasswordResetFlow';
+import ProtectedRoute from './components/ProtectedRoute';
 import { AdminProductsProvider } from './components/AdminPanel/Context/AdminProductsContext.jsx';
 import AdminOffersProvider from './components/AdminPanel/Context/AdminOffersContext.jsx';
 import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext.jsx';
@@ -58,7 +59,18 @@ const App = () => {
         <Route path="about-us" element={<AboutUs />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
-        <Route path="profile" element={<ProfilePage />} />
+        {/* <Route path="profile" element={<ProfilePage />} /> */}
+        {/* Protected routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/forgot-password" element={<PasswordResetFlow />} />
+
         <Route path="orders" element={<OrderDetails />} />
         <Route path="wishlist" element={<WishlistPage />} />
         <Route path="cart" element={<CartPage />} />

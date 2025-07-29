@@ -15,6 +15,12 @@ export default function Wallet() {
 
     console.log("Wallet component initialized with wallet:", wallet);
 
+    //Fetch wallet data when the page loads
+    useEffect(() => {
+        getWallet();
+    }, [])
+
+
     // Initialize data only once
     useEffect(() => {
         const initializeData = async () => {

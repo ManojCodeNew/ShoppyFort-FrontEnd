@@ -32,6 +32,18 @@ export function AuthProvider({ children }) {
     }
   };
 
+
+
+
+  // Helper function to clear auth data
+  const clearAuthData = useCallback(() => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setUserDataLoaded(false);
+    localStorage.removeItem(TOKEN_TYPE);
+    setError(null);
+  }, []);
+
   // Add token refresh logic
   const refreshTokenIfNeeded = async () => {
     const token = localStorage.getItem(TOKEN_TYPE);
@@ -50,16 +62,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-
-
-  // Helper function to clear auth data
-  const clearAuthData = useCallback(() => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setUserDataLoaded(false);
-    localStorage.removeItem(TOKEN_TYPE);
-    setError(null);
-  }, []);
 
   // Helper function to handle auth errors - DON'T AUTO NAVIGATE
   const handleAuthError = useCallback((error, showToast = true) => {
@@ -90,10 +92,10 @@ export function AuthProvider({ children }) {
         const storedToken = localStorage.getItem(TOKEN_TYPE);
 
         // If no token, just finish loading - DON'T redirect
-        if (!storedToken) {
+        if (!storedToken ) {
+          // clearAuthData();
           setLoading(false);
           setUserDataLoaded(true);
-
           return;
         }
 
@@ -109,6 +111,7 @@ export function AuthProvider({ children }) {
         // Add retry logic for network issues
         let retryCount = 0;
         const maxRetries = 2;
+        let userFetched = false;
 
         while (retryCount < maxRetries) {
           try {
@@ -206,11 +209,11 @@ export function AuthProvider({ children }) {
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
         setIsAuthenticated(true);
-        setUserDataLoaded(true);
         setNetworkError(false);
+        setUserDataLoaded(true);
         showNotification('Login successful! 🎉', 'success');
+        navigate('/profile'); // Redirect to profile after reload
 
-        window.location.reload(); 
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -291,7 +294,7 @@ export function AuthProvider({ children }) {
         setUserDataLoaded(true);
         setNetworkError(false);
         showNotification("Registration successful! 🎉", "success");
-        window.location.reload();
+        navigate('/profile'); // Redirect to profile after reload
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -327,7 +330,6 @@ export function AuthProvider({ children }) {
       clearAuthData();
       setNetworkError(false);
       showNotification('Logged out successfully!', 'success');
-      window.location.reload();
       navigate('/'); // Go to home instead of login
       setLoading(false);
     }, 800);
@@ -385,11 +387,10 @@ export function AuthProvider({ children }) {
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
         setIsAuthenticated(true);
-        setUserDataLoaded(true);
         setNetworkError(false);
         showNotification('Google login successful! 🎉', 'success');
+        navigate('/profile'); // Redirect to profile after reload
 
-        window.location.reload();
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -434,7 +435,7 @@ export function AuthProvider({ children }) {
     logout,
     googleLogin,
     requireAuth, // Add this for protected actions
-    isLoading: loading,
+    // isLoading: loading,
     isAuthenticated,
     userDataLoaded,
     networkError, // Add this to show network status

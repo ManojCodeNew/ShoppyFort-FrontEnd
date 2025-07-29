@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, ListGroup, Badge } from 'react-bootstrap';
 import notification from '../assets/Images/notification.png';
 import { useUserNotifications } from '@/contexts/UserNotificationContext';
 
 const UserNotifications = () => {
-    const { notifications, markAsRead } = useUserNotifications();
+    const { notifications, markAsRead, getNotifications } = useUserNotifications();
+
+    useEffect(() => {
+        getNotifications();
+    }, [getNotifications]);
 
     return (
         <Container className="mt-4" style={{ backgroundColor: '#F5F7FA', padding: '20px', borderRadius: '8px' }}>
@@ -18,6 +22,7 @@ const UserNotifications = () => {
                         {notifications.length > 0 ? (
                             notifications.map((notification) => {
                                 const isOrder = !!notification.orderid;
+                                console.log("notification", notification);
                                 const entityId = isOrder ? notification.orderid : notification.returnid;
                                 const entityType = isOrder ? "Order" : "Return";
                                 const message = isOrder

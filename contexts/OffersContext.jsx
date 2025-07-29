@@ -32,12 +32,8 @@ export function OffersProvider({ children }) {
     }
   };
 
-  useEffect(() => {
-    fetchOffersForUser();
-  }, []);
-
   return (
-    <OffersContext.Provider value={{ offers, loadingOffers, errorOffers }}>
+    <OffersContext.Provider value={{ offers, loadingOffers, errorOffers, fetchOffersForUser }}>
       {children}
     </OffersContext.Provider>
   );

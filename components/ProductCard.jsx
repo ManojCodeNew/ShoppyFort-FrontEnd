@@ -5,6 +5,7 @@ import { useWishlist } from '../contexts/WishlistContext';
 import '../styles/components/product-card.scss';
 import heart from "../assets/Images/heart.png";
 import activeHeart from "../assets/Images/active.png";
+import NoImage from "../assets/Images/NoImage.png";
 
 const ProductCard = ({ product }) => {
   const [showAddToBag, setShowAddToBag] = useState(false);
@@ -53,18 +54,11 @@ const ProductCard = ({ product }) => {
     setImageError(true);
   };
 
-  // Multiple fallback images in case one fails
-  const fallbackImages = [
-    'https://images.unsplash.com/photo-1515886657613-9b08?auto=format&fit=crop&q=80&w=80',
-    'https://images.unsplash.com/photo-144198630917-64674d600d8?auto=format&fit=crop&q=80&w=80',
-    'https://images.unsplash.com/photo-156472354-b33ff0c4443?auto=format&fit=crop&q=80&w=800'
-  ];
-
   const getImageSrc = () => {
     if (imageError) {
-      return fallbackImages[0]; // Use first fallback if main image failed
+      return NoImage; // Use your local default image if main image failed
     }
-    return defaultImg || fallbackImages[0];
+    return defaultImg || NoImage;
   };
 
   return (

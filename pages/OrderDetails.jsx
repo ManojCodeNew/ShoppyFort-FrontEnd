@@ -21,8 +21,9 @@ function OrderDetails() {
     ];
 
     const [returnData, setReturnData] = useState({
-        orderId: null,
-        productId: null,
+        // orderid is the _id of the order
+        orderid: null,
+        productid: null,
         reason: '',
         otherReason: '',
         returnType: '',
@@ -32,16 +33,22 @@ function OrderDetails() {
     useEffect(() => {
         fetchOrders();
         fetchReturns();
+        // Polling for live updates every 10 seconds
+        const interval = setInterval(() => {
+            fetchOrders();
+            fetchReturns();
+        }, 10000);
+        return () => clearInterval(interval);
     }, []);
     useEffect(() => {
         // Update return status if needed based on allReturns
-        if (allReturns && returnData.productId && returnData.orderId) {
-            const activeReturn = allReturns.find(r => r.productid === returnData.productId && r.orderid === returnData.orderId);
+        if (allReturns && returnData.productid && returnData.orderid) {
+            const activeReturn = allReturns.find(r => r.productid === returnData.productid && r.orderid === returnData.orderid);
             if (activeReturn) {
                 setReturnStatus(activeReturn.status);
             }
         }
-    }, [allReturns, returnData.productId, returnData.orderId])
+        }, [allReturns, returnData.productid, returnData.orderid])
 
     const toggleReturnDropdown = (productId, orderId) => {
         const order = allOrder.find(o => o._id === orderId);
@@ -55,8 +62,8 @@ function OrderDetails() {
         setActiveReturnReasons(activeReturnReasons === key ? null : key);
         setReturnData({
             ...returnData,
-            orderId,
-            productId,
+            orderid: orderId,
+            productid: productId,
             reason: '',
             otherReason: '',
             returnType: '',
@@ -68,7 +75,7 @@ function OrderDetails() {
     const handleReasonSelect = (reason, productId) => {
         setReturnData(prev => ({
             ...prev,
-            productId,
+            productid: productId,
             reason,
             otherReason: '',
             returnType: ''
@@ -102,8 +109,8 @@ function OrderDetails() {
             setReturnData(prev => ({ ...prev, isSubmitting: true }));
             // Prepare data for backend
             const returnRequest = {
-                orderId: returnData.orderId,
-                productId: returnData.productId,
+                orderid: returnData.orderid,
+                productid: returnData.productid,
                 reason: returnData.reason === "Other reason"
                     ? returnData.otherReason
                     : returnData.reason,
@@ -115,12 +122,12 @@ function OrderDetails() {
             if (success) {
                 // Reset after submission
                 setReturnData({
-                    orderId: null,
-                    productId: null,
+                    orderid: null,
+                    productid: null,
                     reason: '',
                     otherReason: '',
                     returnType: '',
-                    quantity: '',
+                    quantity: 1,
                     isSubmitting: false
                 });
                 setActiveReturnReasons(null);
@@ -189,7 +196,7 @@ console.log("All order :",allOrder);
                                                         const resolvedReturnStatus = getReturnStatus(product._id, order._id);
                                                         if (resolvedReturnStatus) {
                                                             return resolvedReturnStatus;
-                                                        } else if (returnData.isSubmitting && returnData.productId === product._id) {
+                                                        } else if (returnData.isSubmitting && returnData.productid === product._id) {
                                                             return "Submitting...";
                                                         } else {
                                                             return "Return";
@@ -208,7 +215,7 @@ console.log("All order :",allOrder);
                                                     </div>
                                                 )}
 
-                                                {returnData.orderId === order._id && returnData.productId === product._id && returnData.reason && (
+                                                {returnData.orderid === order._id && returnData.productid === product._id && returnData.reason && (
                                                     <div className="order-other-reason-container">
                                                         {returnData.reason === "Other reason" && (
                                                             <input
@@ -238,7 +245,7 @@ console.log("All order :",allOrder);
                                                 )}
                                             </div>
                                         )}
-                                        {(returnData.orderId === order._id && returnData.productId === product._id && returnData.reason) && (
+                                            {(returnData.orderid === order._id && returnData.productid === product._id && returnData.reason) && (
                                             <div className="order-selected-reason">
                                                 <p>Selected: {returnData.reason === "Other reason" ? returnData.otherReason : returnData.reason}</p>
                                                 <button

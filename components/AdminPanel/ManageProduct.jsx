@@ -25,9 +25,9 @@ const ProductTable = () => {
         : products;
 
 
-
     useEffect(() => {
         setIsLoading(!products || products.length === 0);
+
     }, [products]);
 
 

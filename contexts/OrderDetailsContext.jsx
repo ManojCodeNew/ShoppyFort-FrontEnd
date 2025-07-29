@@ -66,8 +66,9 @@ export const OrderDetailsProvider = ({ children }) => {
         try {
             const body = {
                 userid: user._id,
-                orderid: returnData.orderId,
-                productid: returnData.productId,
+                // orderid is the _id of the order
+                orderid: returnData.orderid,
+                productid: returnData.productid,
                 reason: returnData.reason,
                 returntype: returnData.returnType,
                 quantity: returnData.quantity,

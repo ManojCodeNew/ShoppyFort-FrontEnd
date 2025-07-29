@@ -7,13 +7,19 @@ import { Loader } from 'lucide-react';
 import '../styles/components/Offers.scss';
 import { useParams } from 'react-router-dom';
 function Offers() {
-    const { offers, loadingOffers, errorOffers } = useOffers();
+    const { offers, loadingOffers, errorOffers, fetchOffersForUser } = useOffers();
     const { products } = useProducts();
     const { offerId } = useParams();
 
     const [productsToShow, setProductsToShow] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    //Fetch offers when the page loads
+    useEffect(() => {
+        fetchOffersForUser();
+    }, [])
+
     useEffect(() => {
         const fetchRelevantProducts = async () => {
             setLoading(true);
@@ -21,39 +27,51 @@ function Offers() {
 
             if (offerId && offers && offers.length > 0 && products && products.length > 0) {
                 const currentOffer = offers.find(offer => offer._id === offerId);
+                console.log("current offers :", currentOffer);
 
                 if (currentOffer) {
-                    if (currentOffer.productIds && currentOffer.productIds.length > 0) {
+                    const { productIds = [], discountText } = currentOffer;
+                    let filteredProducts = [];
+                    let productIdProducts = [];
+                    let discountProducts = [];
 
-                        // Filter products based on productIds from the offer
-                        const filteredByProductId = products.filter(product =>
-                            currentOffer.productIds.includes(product.productid)
+                    // 1. If productIds are present, get those products first
+                    if (productIds && productIds.length > 0) {
+                        productIdProducts = products.filter(product =>
+                            productIds.includes(product.productid)
                         );
-
-                        setProductsToShow(filteredByProductId);
-                    } else if (currentOffer.productIds && currentOffer.discount > 0) {
-
-                        const filteredByDiscountAndProductId = products.filter(product =>
-                            currentOffer.productIds.includes(product.productid) && product.discount >= currentOffer.discount
-                        )
-                        setProductsToShow(filteredByDiscountAndProductId);
                     }
-                    else if (currentOffer.discountText) {
 
-                        // Filter products based on discountText from the offer
-                        const discountValue = parseInt(currentOffer.discountText);
+                    // 2. If discountText is present, get those products
+                    if (discountText) {
+                        const discountValue = parseInt(discountText);
                         if (!isNaN(discountValue)) {
-                            const filteredByDiscount = products.filter(product =>
-                                product.discount <= discountValue
+                            discountProducts = products.filter(product =>
+                                product.discount >= discountValue
                             );
-                            setProductsToShow(filteredByDiscount);
                         } else {
                             setError("Invalid discount text in offer.");
                         }
-                    } else {
-                        // If no productIds or discountText, show all products or a default message
-                        setProductsToShow(products); // Or set a message like "No specific criteria found."
                     }
+
+                    // 3. Combine results (union, no duplicates, productIds products first)
+                    if (productIdProducts.length > 0 && discountProducts.length > 0) {
+                        // Add productIdProducts first, then add discountProducts not already included
+                        const productIdSet = new Set(productIdProducts.map(p => p._id));
+                        filteredProducts = [
+                            ...productIdProducts,
+                            ...discountProducts.filter(p => !productIdSet.has(p._id))
+                        ];
+                    } else if (productIdProducts.length > 0) {
+                        filteredProducts = productIdProducts;
+                    } else if (discountProducts.length > 0) {
+                        filteredProducts = discountProducts;
+                    } else {
+                        // If no criteria matched, show all products or a default message
+                        filteredProducts = [];
+                    }
+
+                    setProductsToShow(filteredProducts);
                 } else {
                     setError("Offer not found.");
                 }
@@ -77,17 +95,37 @@ function Offers() {
         return <div className="offers-error">Error: {error || errorOffers}</div>;
     }
 
+
     return (
         <div className='offers-container'>
-            <h2 className="offers-title">{offerId ? 'Products Related to Offer' : 'All Offers'}</h2>
-            <div className="offerProduct-container">
-                {productsToShow.length > 0 ? (
-                    productsToShow.map((product) => (
-                        <ProductCard key={product._id} product={product} />
-                    ))
-                ) : (
-                    <p>{offerId ? 'No products found for this offer.' : 'No offers available.'}</p>
-                )}
+            {/* Offer Banner Section */}
+            {offerId && offers && offers.length > 0 && (
+                (() => {
+                    const currentOffer = offers.find(offer => offer._id === offerId);
+                    if (!currentOffer) return null;
+                    return (
+                        <div className="offer-hero-banner">
+                            <img className="offer-hero-image" src={currentOffer.imageUrl} alt={currentOffer.title} />
+                            <div className="offer-hero-content">
+                                <h1 className="offer-hero-title">{currentOffer.title}</h1>
+                                {currentOffer.description && <p className="offer-hero-desc">{currentOffer.description}</p>}
+                                {currentOffer.discountText && <span className="offer-hero-discount">Up to {currentOffer.discountText}% OFF</span>}
+                            </div>
+                        </div>
+                    );
+                })()
+            )}
+            <div className="offers-card">
+                <h2 className="offers-title">{offerId ? 'Products Related to Offer' : 'All Offers'}</h2>
+                <div className="offerProduct-container">
+                    {productsToShow.length > 0 ? (
+                        productsToShow.map((product) => (
+                            <ProductCard key={product._id} product={product} />
+                        ))
+                    ) : (
+                        <p className="offers-empty">{offerId ? 'No products found for this offer.' : 'No offers available.'}</p>
+                    )}
+                </div>
             </div>
         </div>
     );

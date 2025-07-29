@@ -10,43 +10,49 @@
 }
 
 .order-title {
-  font-size: 1.5em;
+  font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
   text-align: center;
+  color: $primary-color;
 }
 
 .order-container {
   width: 100%;
-  max-width: 600px; /* More narrow for better focus */
+  max-width: 700px;
   margin: 0 auto;
 }
 
 /* Order Card - More compact with better spacing */
 .order-card {
-  background: linear-gradient(145deg, #f8fffa, #c3c3c3c2); /* Subtle gradient */
-  padding: 15px 15px 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(145deg, #f8fffa, #e0f7fa);
+  padding: 18px 18px 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px 0 rgba(40,167,69,0.08);
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 22px;
   position: relative;
+  transition: box-shadow 0.2s;
+  &:hover {
+    box-shadow: 0 8px 32px 0 rgba(40,167,69,0.13);
+  }
 }
 
 /* Product Details - More compact row */
 .order-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 15px;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
 .order-product-img-container {
-  width: 80px;
-  height: 80px;
-  min-width: 80px;
+  width: 90px;
+  height: 90px;
+  min-width: 90px;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: 8px;
+  background: #f4f4f4;
 }
 
 .order-product-img {
@@ -62,38 +68,40 @@
 
 .order-product-name {
   font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: $secondary-color;
 }
 
 .order-product-meta {
-  font-size: 0.85em;
+  font-size: 0.95em;
   color: #555;
   margin-bottom: 4px;
 }
 
 .order-product-price {
-  color: #28a745;
-  font-size: 1em;
+  color: $primary-color;
+  font-size: 1.1em;
   font-weight: bold;
 }
 
 /* Order Tracker - More compact with better alignment */
 .order-tracker {
-  padding: 12px 10px;
+  padding: 16px 10px 10px 10px;
   background: #f8f8f8;
-  border-radius: 8px;
-  margin-top: 10px;
+  border-radius: 12px;
+  margin-top: 14px;
+  box-shadow: 0 1px 6px 0 rgba(40,167,69,0.04);
 }
 
 .order-tracker-steps {
   display: flex;
   justify-content: space-between;
   position: relative;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .order-step {
@@ -103,36 +111,54 @@
   flex: 1;
   position: relative;
   z-index: 1;
+  transition: color 0.2s;
 }
 
 .order-step .order-circle {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   background: #e0e0e0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: bold;
+  margin-bottom: 2px;
+  transition: background 0.2s, color 0.2s;
 }
 
 .order-step.active .order-circle {
-  background: #007bff;
-  color: white;
+  background: $primary-color;
+  color: $white;
+  box-shadow: 0 2px 8px 0 rgba(40,167,69,0.10);
+  animation: popIn 0.5s;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.7); opacity: 0.5; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .order-step-label {
-  font-size: 0.8em;
-  font-weight: 500;
+  font-size: 1em;
+  font-weight: 600;
   margin-top: 6px;
   white-space: nowrap;
+  color: $secondary-color;
 }
 
 .order-step-action {
-  font-size: 0.75em;
+  font-size: 0.85em;
   color: #666;
   margin-top: 2px;
+}
+
+.order-status-icon {
+  font-size: 1.3em;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 /* Progress Bar */
@@ -140,29 +166,30 @@
   width: 100%;
   background: #e0e0e0;
   border-radius: 5px;
+  height: 10px;
+  margin-top: 2px;
 }
 
 .order-progress {
   transition: width 0.5s ease-in-out;
+  height: 10px;
+  border-radius: 5px;
 }
 
 /* Progress width based on status */
 .order-progress.placed {
-  height: 8px;
   width: 33%;
-  background: linear-gradient(90deg, #008eae, #00bfff);
+  background: linear-gradient(90deg, $primary-color 0%, #007bff 100%);
 }
 
 .order-progress.shipped {
-  height: 8px;
   width: 66%;
-  background: linear-gradient(90deg, #008eae, #00bfff);
+  background: linear-gradient(90deg, #007bff 0%, $primary-color 100%);
 }
 
 .order-progress.delivered {
-  height: 8px;
   width: 100%;
-  background: linear-gradient(90deg, #008eae, #00bfff);
+  background: linear-gradient(90deg, $primary-color 0%, #28a745 100%);
 }
 
 .order-return-section {
@@ -439,38 +466,39 @@
   margin-top: 1rem;
   padding: 1rem;
   border: 1px solid #eee;
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: #f9f9f9;
+  box-shadow: 0 1px 6px 0 rgba(40,167,69,0.04);
 
   p {
     margin-bottom: 0.5rem;
   }
 
   .wallet-payment {
-    color: green;
+    color: $primary-color;
     font-weight: bold;
   }
 
   .remaining-payment {
-    color: orange;
+    color: #ff9800;
     font-weight: bold;
   }
 }
 
 /* Cancel Button Styles */
 .cancel-section {
-  margin: 15px 10px 10px; 
+  margin: 18px 10px 10px;
   width: 100%;
 }
 
 .cancel-btn {
   display: inline-block;
   background: linear-gradient(135deg, #ff416c, #ff4b2b);
-  color: white;
+  color: $white;
   border: none;
-  padding: 8px 24px;
+  padding: 10px 28px;
   border-radius: 25px;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -508,28 +536,71 @@
   }
 }
 
-/* Responsive Adjustments */
-@media screen and (max-width: 768px) {
-  .order-section {
-    padding: 12px;
-  }
+.cancelled-label {
+  color: #ff416c;
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 8px 18px;
+  border-radius: 18px;
+  background: #fff0f3;
+  border: 1px solid #ff416c;
+}
 
+.no-orders {
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+  margin: 32px 0 24px 0;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 900px) {
+  .order-container {
+    max-width: 100%;
+    padding: 0 2vw;
+  }
   .order-card {
     padding: 12px;
   }
-
   .order-product-img-container {
     width: 70px;
     height: 70px;
     min-width: 70px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .order-section {
+    padding: 8px;
+  }
+  .order-card {
+    padding: 8px;
+    border-radius: 10px;
+  }
+  .order-product-img-container {
+    width: 100%;
+    height: 120px;
+    min-width: 100%;
+    margin-bottom: 8px;
   }
   
   .order-product-img {
     object-fit: contain;
   }
 
+  .order-step {
+    flex: none;
+    width: 30%;
+  }
+
+  .order-step-label,
+  .order-step-action {
+    font-size: 0.8em;
+  }
+
   .order-return-dropdown {
-    width: 200px;
+    width: 180px;
+    left: -20px;
   }
 }
 

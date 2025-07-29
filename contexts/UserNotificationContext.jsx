@@ -4,6 +4,7 @@ import { useNotification } from "@/components/Notify/NotificationProvider";
 import { useAuth } from "./AuthContext.jsx";
 import moment from "moment";
 import sendPostRequestToBackend from "@/components/Request/Post.jsx";
+import { useLocation } from "react-router-dom";
 // create a context
 const UserNotificationsContext = createContext();
 
@@ -15,6 +16,7 @@ export default function UserNotificationsProvider({ children }) {
     const [lastOtpId, setLastOtpId] = useState(null);
     const [pollingInterval, setPollingInterval] = useState(null);
     const [initialLoadDone, setInitialLoadDone] = useState(false);
+    const location = useLocation();
     const getNotifications = useCallback(async (isInitial = false) => {
         try {
             if (isInitial) setLoading(true);
@@ -66,23 +68,24 @@ export default function UserNotificationsProvider({ children }) {
 
     // Polling to fetch notifications every 30 seconds
     useEffect(() => {
-        getNotifications(true);
-
-        // Set up interval for polling (every 30 seconds)
-        const interval = setInterval(() => {
-            getNotifications(false);
-        }, 30000); // 30 seconds
-
-        // Store interval ID for cleanup
-        setPollingInterval(interval);
-
-        // Clean up interval on unmount
-        return () => {
+        // Only poll if NOT on the notifications page
+        if (location.pathname !== "/notifications") {
+            getNotifications(true);
+            const interval = setInterval(() => {
+                getNotifications(false);
+            }, 30000); // 30 seconds
+            setPollingInterval(interval);
+            return () => {
+                clearInterval(interval);
+            };
+        } else {
+            // If on notifications page, clear any existing interval
             if (pollingInterval) {
                 clearInterval(pollingInterval);
             }
-        };
-    }, [getNotifications]);
+        }
+        // eslint-disable-next-line
+    }, [getNotifications, location.pathname]);
 
     const markAsRead = useCallback(async (id) => {
         const response = await sendPostRequestToBackend('auth/notifications/mark_as_read', { id }, token);

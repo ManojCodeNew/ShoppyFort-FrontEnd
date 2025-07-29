@@ -147,10 +147,6 @@ const ProductAddForm = () => {
 
 
     const handleAddColor = () => {
-        // if (initialData) {
-        //     showNotification("You cannot add colors while editing a product.", "error");
-        //     return;
-        // }
         if (color && color.trim() && !productData.colors.includes(color.trim())) {
             setProductData({ ...productData, colors: [...productData.colors, color.trim()] });
             setColor('');

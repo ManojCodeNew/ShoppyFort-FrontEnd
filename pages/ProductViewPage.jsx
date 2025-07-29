@@ -9,6 +9,7 @@ import ActiveHeartBtn from '../assets/Images/active.png';
 import ShoppingBag from '../assets/Images/bagwhite.png';
 import { useProducts } from '@/contexts/ProductsContext.jsx';
 import { useNotification } from '@/components/Notify/NotificationProvider.jsx';
+import NoImage from '../assets/Images/noimage.png';
 const ProductViewPage = () => {
   const { id } = useParams();
   const { products } = useProducts();
@@ -168,11 +169,17 @@ const ProductViewPage = () => {
 
   const getImageSrc = (imageUrl) => {
     if (imageErrors[imageUrl]) {
-      return fallbackImage;
+      return NoImage;
     }
-    return imageUrl || fallbackImage;
+    return imageUrl || NoImage;
   };
 
+  // const getImageSrc = () => {
+  //   if (imageError) {
+  //     return NoImage; // Use your local default image if main image failed
+  //   }
+  //   return defaultImg || NoImage;
+  // };
 
   return (
     <div className="product-view-page">

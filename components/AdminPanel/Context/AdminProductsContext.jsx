@@ -59,7 +59,6 @@ export function AdminProductsProvider({ children }) {
         if (!token) return;
         try {
             const response = await sendGetRequestToBackend("admin/products", token);
-            console.log("Response of getProducts", response);
             if (response.success) {
                 const S3_BASE = "https://shoppyfort-bucket.s3.ap-south-1.amazonaws.com/";
                 const modifiedProducts = response.products.map(product => {
@@ -87,6 +86,8 @@ export function AdminProductsProvider({ children }) {
                         defaultImg
                     };
                 });
+                console.log("Products", products);
+
                 setProducts(modifiedProducts);
             } else {
                 showNotification("Failed to fetch products", "error");
@@ -98,36 +99,31 @@ export function AdminProductsProvider({ children }) {
     }, [token, showNotification]);
 
     const postProduct = useCallback(async (productData) => {
-            console.log("Post Product",productData);
 
-            try {
-                // Validate images
-                console.log("Images state in postProduct:", images);
-                if (!images || Object.keys(images).length === 0 || Object.values(images).every(arr => arr.length === 0)) {
-                    showNotification("Please upload at least one image before posting the product.", "error");
-                    return;
-                }
-                console.log("I am in postProduct inside try block",images);
-                const finalDataToSend = {
-                    ...productData,
-                    colorImages: images
-                };
-                console.log("Before Posting Adding PRD", finalDataToSend);
-                const response = await sendPostRequestToBackend("admin/products/addProduct", finalDataToSend, token);
-                console.log("Backed Response Posting data PRD", response);
-                if (response.success) {
-                    showNotification(response.success, "success");
-                    await getProducts();
-                    setImages({});
-                } else {
-                    // Show backend error message if available
-                    showNotification(response.error || response.msg || "Failed to post product", "error");
-                }
-            } catch (error) {
-                console.error("postProduct error:", error);
-                showNotification("Something went wrong while posting the product.", "error");
+        try {
+            // Validate images
+            if (!images || Object.keys(images).length === 0 || Object.values(images).every(arr => arr.length === 0)) {
+                showNotification("Please upload at least one image before posting the product.", "error");
+                return;
             }
-        },
+            const finalDataToSend = {
+                ...productData,
+                colorImages: images
+            };
+            const response = await sendPostRequestToBackend("admin/products/addProduct", finalDataToSend, token);
+            if (response.success) {
+                showNotification(response.success, "success");
+                await getProducts();
+                setImages({});
+            } else {
+                // Show backend error message if available
+                showNotification(response.error || response.msg || "Failed to post product", "error");
+            }
+        } catch (error) {
+            console.error("postProduct error:", error);
+            showNotification("Something went wrong while posting the product.", "error");
+        }
+    },
         [images, token, showNotification, getProducts]
     );
 

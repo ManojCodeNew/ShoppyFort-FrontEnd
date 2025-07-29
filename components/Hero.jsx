@@ -7,13 +7,17 @@ import { useOffers } from '@/contexts/OffersContext';
 const Hero = () => {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const { offers, loadingOffers, errorOffers } = useOffers();
+  const { offers, loadingOffers, errorOffers, fetchOffersForUser } = useOffers();
   const [filteredOffersForBanner, setFilteredOffersForBanner] = useState([]);
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleShopNowClick = (banner) => {
     navigate(`/offers/${banner._id}`);
   };
+
+  useEffect(() => {
+    fetchOffersForUser()
+  }, [])
 
   useEffect(() => {
     if (offers && offers.length > 0) {

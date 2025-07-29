@@ -3,11 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading,userDataLoaded} = useAuth();
     const location = useLocation();
 
     // Show loading while checking authentication
-    if (isLoading) {
+    if (isLoading || !userDataLoaded) {
         return (
             <div className="loading-container" style={{
                 display: 'flex',

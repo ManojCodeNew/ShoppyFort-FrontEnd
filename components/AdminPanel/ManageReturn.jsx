@@ -87,6 +87,7 @@ const ManageReturn = () => {
 
     const VAT_PERCENTAGE = 0.05;
 
+    //
     function truncateToTwoDecimals(value) {
         return Math.floor(value * 100) / 100;
     }
@@ -251,6 +252,7 @@ const ManageReturn = () => {
                         <tr>
                             <th>#</th>
                             <th>Order ID</th>
+                            <th>Return ID</th>
                             <th>Customer</th>
                             <th>Reason</th>
                             <th>Return Type</th>
@@ -267,6 +269,7 @@ const ManageReturn = () => {
                                     <tr>
                                         <td>{index + 1}</td>
                                         <td>{item.orderDetails?.orderid}</td>
+                                        <td>{item.returnid}</td>
                                         <td>{item.userDetails?.fullname || "Unknown"}</td>
                                         <td>{item.reason}</td>
                                         <td>{item.returntype}</td>
@@ -309,21 +312,27 @@ const ManageReturn = () => {
 
                                     {isExpanded && (
                                         <tr className="product-details-row">
-                                            <td colSpan="8">
-                                                <div className="product-details-section">
-                                                    <div className="product-details-content">
-                                                        <img
-                                                            src={item.productDetails?.defaultImg || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800"}
-                                                            alt={item.productDetails?.name || "Product"}
-                                                            className="product-image"
-                                                        />
-                                                        <div className="product-details-meta">
-                                                            <span><strong>Product:</strong> {item.productDetails?.name || "Unknown"}</span>
-                                                            <span><strong>Qty:</strong> {item.productDetails?.quantity || "N/A"}</span>
-                                                            <span><strong>Price:</strong> ₹{item.productDetails?.price || "N/A"}</span>
-                                                            <span><strong>Color:</strong> {item.productDetails?.selections?.color || "N/A"}</span>
-                                                            <span><strong>Size:</strong> {item.productDetails?.selections?.size || "N/A"}</span>
-                                                        </div>
+                                            <td colSpan="9">
+                                                <div className="product-details-section" style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', padding: '1rem 0' }}>
+                                                    <img
+                                                        src={item.productDetails?.defaultImg || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800"}
+                                                        alt={item.productDetails?.name || "Product"}
+                                                        className="product-image"
+                                                        style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee' }}
+                                                    />
+                                                    <div className="product-details-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+                                                        <div><strong>Return ID:</strong> {item.returnid}</div>
+                                                        <div><strong>Order ID:</strong> {item.orderDetails?.orderid}</div>
+                                                        <div><strong>Product:</strong> {item.productDetails?.name || "Unknown"}</div>
+                                                        <div><strong>Quantity:</strong> {item.productDetails?.quantity || "N/A"}</div>
+                                                        <div><strong>Price:</strong> ₹{item.productDetails?.price || "N/A"}</div>
+                                                        <div><strong>Color:</strong> {item.productDetails?.selections?.color || "N/A"}</div>
+                                                        <div><strong>Size:</strong> {item.productDetails?.selections?.size || "N/A"}</div>
+                                                        <div><strong>Customer:</strong> {item.userDetails?.fullname || "Unknown"}</div>
+                                                        <div><strong>Return Reason:</strong> {item.reason}</div>
+                                                        <div><strong>Return Type:</strong> {item.returntype}</div>
+                                                        <div><strong>Status:</strong> {item.status}</div>
+                                                        <div><strong>Return Date:</strong> {new Date(item.createdAt).toLocaleString()}</div>
                                                     </div>
                                                 </div>
                                             </td>

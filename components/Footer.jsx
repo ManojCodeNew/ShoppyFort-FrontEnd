@@ -89,18 +89,18 @@ const Footer = () => {
 
           {/* Social Links */}
           <div className="social-links">
-            <a href="#" aria-label="Facebook">
+            {/* <a href="#" aria-label="Facebook">
               <Facebook />
-            </a>
-            <a href="#" aria-label="Twitter">
+            </a> */}
+            {/* <a href="#" aria-label="Twitter">
               <Twitter />
-            </a>
-            <a href="#" aria-label="Instagram">
+            </a> */}
+            <a href="https://www.instagram.com/shoppyfort_2025?igsh=Y24zeWc3YmF6dTdy&utm_source=qr" aria-label="Instagram">
               <Instagram />
             </a>
-            <a href="#" aria-label="YouTube">
+            {/* <a href="#" aria-label="YouTube">
               <Youtube />
-            </a>
+            </a> */}
           </div>
         </div>
 

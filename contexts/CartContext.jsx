@@ -57,11 +57,11 @@ export const CartProvider = ({ children }) => {
         }
     }, [token, products, navigate, showNotification]);
 
-    useEffect(() => {
-        if (user && Array.isArray(products) && products.length > 0) {
-            fetchCartItems();
-        }
-    }, [user, products.length, fetchCartItems]);
+    // useEffect(() => {
+    //     if (user && Array.isArray(products) && products.length > 0) {
+    //         fetchCartItems();
+    //     }
+    // }, [user, products.length, fetchCartItems]);
 
     const calculateTotalCost = useCallback(() => {
         let totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -233,7 +233,10 @@ export const CartProvider = ({ children }) => {
             showNotification(`Error clearing cart: ${error}`, "error");
         }
     }, [token]);
-
+    //Fetch cart items when the page loads
+    useEffect(() => {
+        fetchCartItems();
+    }, [fetchCartItems]);
 
     const value = {
         cartItems,
@@ -243,7 +246,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         fetchCartItems,
         ...calculatedTotal,
-        calculateTotalCost
+        calculateTotalCost,
     }
     return (
         <CartContext.Provider value={value}>
