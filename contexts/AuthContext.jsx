@@ -7,7 +7,6 @@ import sendGetRequestToBackend from '@/components/Request/Get';
 const AuthContext = createContext();
 const TOKEN_TYPE = "token";
 
-const token = localStorage.getItem(TOKEN_TYPE);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,6 +14,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userDataLoaded, setUserDataLoaded] = useState(false);
   const [networkError, setNetworkError] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem(TOKEN_TYPE));
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -39,7 +39,8 @@ export function AuthProvider({ children }) {
   const clearAuthData = useCallback(() => {
     setUser(null);
     setIsAuthenticated(false);
-    setUserDataLoaded(false);
+    setUserDataLoaded(true);  // Set to true to indicate auth check is complete
+    setToken(null);
     localStorage.removeItem(TOKEN_TYPE);
     setError(null);
   }, []);
@@ -87,13 +88,14 @@ export function AuthProvider({ children }) {
   // Initialize authentication state - FIXED
   useEffect(() => {
     const initializeAuth = async () => {
+      console.log("AuthContext: useeffect");
+
       try {
         setNetworkError(false);
         const storedToken = localStorage.getItem(TOKEN_TYPE);
 
         // If no token, just finish loading - DON'T redirect
-        if (!storedToken ) {
-          // clearAuthData();
+        if (!storedToken) {
           setLoading(false);
           setUserDataLoaded(true);
           return;
@@ -101,9 +103,11 @@ export function AuthProvider({ children }) {
 
         // Check if token is expired before making request
         if (isTokenExpired(storedToken)) {
+          console.log("AuthContext: isTokenExpired");
+
           clearAuthData();
           setLoading(false);
-          setUserDataLoaded(true);
+          // userDataLoaded is already set to true in clearAuthData
 
           return;
         }
@@ -140,9 +144,15 @@ export function AuthProvider({ children }) {
               handleAuthError('TokenExpired', false);
               break;
             } else if (accessUserData.success && accessUserData.user) {
+              console.log("AuthContext: accessUserData.success && accessUserData.user");
+
               setUser(accessUserData.user);
               setIsAuthenticated(true);
               setNetworkError(false);
+              break;
+            } else {
+              console.log("Unexpected response format:", accessUserData);
+              // Don't clear auth data for unexpected responses
               break;
             }
           } catch (err) {
@@ -212,7 +222,7 @@ export function AuthProvider({ children }) {
         setNetworkError(false);
         setUserDataLoaded(true);
         showNotification('Login successful! 🎉', 'success');
-        navigate('/profile'); // Redirect to profile after reload
+        // navigate('/profile'); // Redirect to profile after reload
 
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
@@ -294,7 +304,7 @@ export function AuthProvider({ children }) {
         setUserDataLoaded(true);
         setNetworkError(false);
         showNotification("Registration successful! 🎉", "success");
-        navigate('/profile'); // Redirect to profile after reload
+        // navigate('/profile'); // Redirect to profile after reload
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -389,7 +399,7 @@ export function AuthProvider({ children }) {
         setIsAuthenticated(true);
         setNetworkError(false);
         showNotification('Google login successful! 🎉', 'success');
-        navigate('/profile'); // Redirect to profile after reload
+        // navigate('/profile'); // Redirect to profile after reload
 
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
@@ -435,7 +445,7 @@ export function AuthProvider({ children }) {
     logout,
     googleLogin,
     requireAuth, // Add this for protected actions
-    // isLoading: loading,
+    isLoading: loading,
     isAuthenticated,
     userDataLoaded,
     networkError, // Add this to show network status

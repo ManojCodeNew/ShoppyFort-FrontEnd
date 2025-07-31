@@ -63,7 +63,7 @@ const Navbar = () => {
       <Link to='/login' className='user-order-link'>
         <p className='user-order'>Orders</p>
       </Link>
-      <Link to='/notifications' className='user-notification-link'>
+      <Link to='/login' className='user-notification-link'>
         <p className='user-notification'>Notification</p>
       </Link>
     </>
@@ -113,7 +113,7 @@ const Navbar = () => {
 
             </div>
 
-            <Link to="/wishlist" className="nav-action">
+            <Link to={user ? "/wishlist" : "/login"} className="nav-action">
               <img src={heart} alt="" className='heart-icon' />
               <span>Wishlist</span>
               {wishlistItems > 0 && (
@@ -122,7 +122,7 @@ const Navbar = () => {
             </Link>
 
           
-              <Link to="/cart" className="nav-action">
+              <Link to={user ? "/cart" : "/login"} className="nav-action">
                 <img src={ShoppingBag} alt="ShoppingBag" className='ShoppingBag-icon' />
                 <span>Cart</span>
                 {cartItems > 0 && (

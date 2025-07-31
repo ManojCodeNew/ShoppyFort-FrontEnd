@@ -23,16 +23,13 @@ const LoginPage = () => {
       isAuthenticated,
       userDataLoaded,
       from,
-      location: location.pathname
+      location: location.pathname,
+      token: localStorage.getItem('token')
     });
-    if (isAuthenticated && userDataLoaded) {
+    // Only redirect if we're actually on the login page and user is authenticated
+    if (isAuthenticated && userDataLoaded && location.pathname === '/login') {
       console.log('Conditions met for redirect. Navigating to:', from);
-
-      // Add a small delay to ensure state is fully updated
-      setTimeout(() => {
-        console.log('Executing navigation to:', from);
-        navigate(from, { replace: true });
-      }, 100);
+      navigate(from, { replace: true });
     }
   }, [isAuthenticated, userDataLoaded, navigate, from, location.pathname]);
 
@@ -182,6 +179,8 @@ const LoginPage = () => {
               placeholder="Enter your password"
               minLength="6"
             />
+            <Link to="/forgot-password">Forgot Password?</Link>
+            
           </div>
 
           <button
@@ -207,7 +206,10 @@ const LoginPage = () => {
         </div>
 
         <p className="auth-link">
-          Don't have an account? <Link to="/register">Register</Link>
+          Don't have an account? <Link to="/register" onClick={() => {
+            console.log('Register link clicked, navigating to /register');
+            console.log('Current auth state:', { isAuthenticated, userDataLoaded, token: localStorage.getItem('token') });
+          }}>Register</Link>
         </p>
       </div>
     </div>

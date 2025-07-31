@@ -24,19 +24,23 @@ const RegisterPage = () => {
     token
   } = useAuth();
 
+  console.log('RegisterPage rendering with auth state:', { isAuthenticated, userDataLoaded, token ,isLoading});
+
 
   const navigate = useNavigate();
 
 
   // Redirect if already logged in AND user data is loaded
   useEffect(() => {
-    if (isAuthenticated && userDataLoaded && token) {
+    console.log("RegisterPage useEffect triggered:", { isAuthenticated, userDataLoaded, isLoading, location: window.location.pathname });
+    if (isAuthenticated && userDataLoaded && !isLoading) {
+      console.log("Registeration Page : navigate to /profile");
       navigate('/profile', { replace: true });
     }
-  }, [isAuthenticated, userDataLoaded, navigate, token]);
+  }, [isAuthenticated, userDataLoaded, isLoading, navigate]);
 
   // Early return if user is already authenticated to prevent rendering register form
-  if (isAuthenticated && userDataLoaded) {
+  if (isAuthenticated && userDataLoaded && !isLoading) {
     return (
       <div className="auth-page">
         <div className="auth-container">
