@@ -15,43 +15,42 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    console.log("📄 Page Loaded:", window.location.pathname);
+    console.log("Auth state =>", {
+      isAuthenticated,
+      userDataLoaded,
+      isLoading
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && userDataLoaded) {
+      navigate('/profile', { replace: true });
+    }
+  }, [isAuthenticated, userDataLoaded, navigate]);
+
+  console.log("🔍 Page Loaded:", window.location.pathname);
+  console.log("Auth state => isAuthenticated:", isAuthenticated, "userDataLoaded:", userDataLoaded, "isLoading:", isLoading);
+
+  // Early return after all hooks have been called
+  if (!userDataLoaded) {
+    return <div className="auth-page"><div className="auth-container">Loading...</div></div>;
+  }
+
+
   // Get the page user was trying to access
   const from = location.state?.from?.pathname || '/profile';
 
-  useEffect(() => {
-    console.log('LoginPage useEffect triggered:', {
-      isAuthenticated,
-      userDataLoaded,
-      from,
-      location: location.pathname,
-      token: localStorage.getItem('token')
-    });
-    // Only redirect if we're actually on the login page and user is authenticated
-    if (isAuthenticated && userDataLoaded && location.pathname === '/login') {
-      console.log('Conditions met for redirect. Navigating to:', from);
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, userDataLoaded, navigate, from, location.pathname]);
-
-
   // Redirect if already logged in
   // useEffect(() => {
-  //   if (isAuthenticated && userDataLoaded) {
-  //     console.log('User is already authenticated, redirecting to:', from);
+  //   // Only redirect if user is authenticated, data is loaded, AND we're not in a loading state
+  //   if (isAuthenticated && userDataLoaded && !isLoading) {
+  //     // console.log("Login Page : navigate to  profile");
   //     navigate(from, { replace: true });
   //   }
-  // }, [isAuthenticated, userDataLoaded, navigate, from]);
+  // }, [isAuthenticated, userDataLoaded, isLoading, navigate, from]);
 
-  // Early return if user is already authenticated to prevent rendering login form
-  if (isAuthenticated && userDataLoaded) {
-    return (
-      <div className="auth-page">
-        <div className="auth-container">
-          <p>Redirecting...</p>
-        </div>
-      </div>
-    );
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,16 +68,12 @@ const LoginPage = () => {
       const result = await login(email.trim(), password);
 
       if (result.success) {
-        console.log('Login successful', result);
-        setTimeout(() => {
-          console.log('Executing delayed navigation to:', from);
-          navigate(from, { replace: true });
-        }, 500);
+        console.log('Login successful, navigation will be handled by useEffect');
+        // navigate(from, { replace: true });
 
       } else {
         console.log('Login failed:', result.error);
       }
-
     } catch (err) {
       console.error('Login submission error:', err);
       showNotification('An unexpected error occurred', 'error');
@@ -86,9 +81,19 @@ const LoginPage = () => {
       setIsSubmitting(false);
     }
   };
-
+  // useEffect(() => {
+  //   console.log('=== DEBUG INFO ===');
+  //   console.log('Current origin:', window.location.origin);
+  //   console.log('Current href:', window.location.href);
+  //   console.log('Google Client ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
+  //   console.log('API URL:', import.meta.env.VITE_API_URL);
+  // }, []);
 
   const handleGoogleLogin = async (credentialResponse) => {
+    // console.log('Google login initiated on domain:', window.location.origin);
+
+
+
     if (!credentialResponse.credential) {
       showNotification('Google login failed - no credential received', 'error');
       return;
@@ -118,11 +123,7 @@ const LoginPage = () => {
         }
       }
       if (result && result.success) {
-        setTimeout(() => {
-          console.log('Executing delayed Google login navigation to:', from);
-          navigate(from, { replace: true });
-        }, 500);
-        console.log('Google login successful', result);
+        console.log('Google login successful');
       } else {
         console.log('Google login failed:', result.error);
         showNotification(result?.error || 'Google login failed', 'error');
@@ -139,8 +140,27 @@ const LoginPage = () => {
   const handleGoogleLoginError = () => {
     showNotification('Google login failed!', 'error');
   };
-
+  // console.log('Current origin:', window.location.origin);
+  // console.log('Current pathname:', window.location.pathname);
   const isFormDisabled = isLoading || isSubmitting;
+
+  // Show loading while checking authentication
+  // if (isLoading && !userDataLoaded) {
+  //   return (
+  //     <div className="auth-page">
+  //       <div className="auth-container">
+  //         <div className="loading-container" style={{
+  //           display: 'flex',
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           height: '200px'
+  //         }}>
+  //           <p>Checking authentication...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="auth-page">
@@ -180,7 +200,6 @@ const LoginPage = () => {
               minLength="6"
             />
             <Link to="/forgot-password">Forgot Password?</Link>
-            
           </div>
 
           <button
@@ -206,10 +225,7 @@ const LoginPage = () => {
         </div>
 
         <p className="auth-link">
-          Don't have an account? <Link to="/register" onClick={() => {
-            console.log('Register link clicked, navigating to /register');
-            console.log('Current auth state:', { isAuthenticated, userDataLoaded, token: localStorage.getItem('token') });
-          }}>Register</Link>
+          Don't have an account? <Link to="/register">Register</Link>
         </p>
       </div>
     </div>

@@ -11,6 +11,7 @@ const ProfilePage = () => {
     phoneno: '',
     address: ''
   });
+      console.log("Profile Page : navigate to  profile");
 
   useEffect(() => {
 

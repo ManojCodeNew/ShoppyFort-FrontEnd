@@ -26,7 +26,7 @@ async function sendPostRequestToBackend(path, data, token) {
 
         });
         clearTimeout(timeoutId);
-
+        console.log("Response:", response);
         if (!response.ok) {
             let errorData;
             try {

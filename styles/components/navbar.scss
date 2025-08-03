@@ -305,7 +305,7 @@
   // Popup Profile Styles
   .popup-profile {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + .5px);
     left: 50%;
     transform: translateX(-50%);
     background-color: white;

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 import '../../styles/pages/auth/auth.scss';
 
 const RegisterPage = () => {
+
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -20,38 +21,55 @@ const RegisterPage = () => {
     error,
     isLoading,
     isAuthenticated,
-    userDataLoaded,
-    token
+    userDataLoaded
   } = useAuth();
-
-  console.log('RegisterPage rendering with auth state:', { isAuthenticated, userDataLoaded, token ,isLoading});
-
-
   const navigate = useNavigate();
 
-
-  // Redirect if already logged in AND user data is loaded
   useEffect(() => {
-    console.log("RegisterPage useEffect triggered:", { isAuthenticated, userDataLoaded, isLoading, location: window.location.pathname });
-    if (isAuthenticated && userDataLoaded && !isLoading) {
-      console.log("Registeration Page : navigate to /profile");
+    console.log("📄 [RegisterPage] Page Loaded:", window.location.pathname);
+    console.log("📄 [RegisterPage] Auth state =>", {
+      isAuthenticated,
+      userDataLoaded,
+      isLoading
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && userDataLoaded) {
       navigate('/profile', { replace: true });
+    }
+  }, [isAuthenticated, userDataLoaded, navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated && userDataLoaded && !isLoading) {
+      navigate('/profile');
     }
   }, [isAuthenticated, userDataLoaded, isLoading, navigate]);
 
-  // Early return if user is already authenticated to prevent rendering register form
-  if (isAuthenticated && userDataLoaded && !isLoading) {
-    return (
-      <div className="auth-page">
-        <div className="auth-container">
-          <p>Redirecting...</p>
-        </div>
-      </div>
-    );
+  console.log("🔍 Page Loaded:", window.location.pathname);
+  console.log("Auth state => isAuthenticated:", isAuthenticated, "userDataLoaded:", userDataLoaded, "isLoading:", isLoading);
+
+  // Early return after all hooks have been called
+  if (!userDataLoaded) {
+    return <div className="auth-page"><div className="auth-container">Loading...</div></div>;
   }
+
+  console.log("Validate");
+
+
+  // Redirect if already logged in AND user data is loaded
+  // useEffect(() => {
+  //   // Only redirect if user is authenticated, data is loaded, AND we're not in a loading state
+  //   if (isAuthenticated && userDataLoaded && !isLoading) {
+  //     console.log('User is authenticated and data is loaded, redirecting to profile');
+  //     navigate('/profile');
+  //   }
+  // }, [isAuthenticated, userDataLoaded, isLoading, navigate]);
+
 
   const validateForm = () => {
     const newErrors = {};
+    console.log("Validate");
 
     // Required field validation
     if (!formData.fullname.trim()) {
@@ -95,6 +113,8 @@ const RegisterPage = () => {
 
     if (isSubmitting || isLoading) return;
 
+    console.log("RegisterPage data", formData);
+
     if (!validateForm()) {
       return;
     }
@@ -108,8 +128,8 @@ const RegisterPage = () => {
       const result = await register(registrationData);
 
       if (result.success) {
-        // Registration successful, redirect to profile or login page
-        // navigate('/profile', { replace: true });
+        // Navigation will be handled by useEffect when user state updates
+        console.log('Registration successful, user will be redirected');
       } else {
         // Error handling is already done in the register function
         console.log('Registration failed:', result.error);
@@ -139,6 +159,24 @@ const RegisterPage = () => {
   };
 
   const isFormDisabled = isLoading || isSubmitting;
+
+  // Show loading while checking authentication
+  // if (isLoading && !userDataLoaded) {
+  //   return (
+  //     <div className="auth-page">
+  //       <div className="auth-container">
+  //         <div className="loading-container" style={{
+  //           display: 'flex',
+  //           justifyContent: 'center',
+  //           alignItems: 'center',
+  //           height: '200px'
+  //         }}>
+  //           <p>Checking authentication...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="auth-page">

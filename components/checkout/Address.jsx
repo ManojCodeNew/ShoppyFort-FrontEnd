@@ -543,6 +543,7 @@ export default function Address() {
                   <input
                     type="tel"
                     name="mobileno"
+                    pattern="^(\+971|971|0)?(50|51|52|54|55|56|58)[0-9]{7}$"
                     value={address.mobileno}
                     className='form-input mobile-number'
                     placeholder='Mobile Number* (+971 50 123 4567)'

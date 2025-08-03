@@ -7,6 +7,7 @@ import sendGetRequestToBackend from '@/components/Request/Get';
 const AuthContext = createContext();
 const TOKEN_TYPE = "token";
 
+const token = localStorage.getItem(TOKEN_TYPE);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,6 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userDataLoaded, setUserDataLoaded] = useState(false);
   const [networkError, setNetworkError] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem(TOKEN_TYPE));
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -32,37 +32,14 @@ export function AuthProvider({ children }) {
     }
   };
 
-
-
-
   // Helper function to clear auth data
   const clearAuthData = useCallback(() => {
     setUser(null);
     setIsAuthenticated(false);
-    setUserDataLoaded(true);  // Set to true to indicate auth check is complete
-    setToken(null);
+    setUserDataLoaded(true); // Set to true so public routes work immediately
     localStorage.removeItem(TOKEN_TYPE);
     setError(null);
   }, []);
-
-  // Add token refresh logic
-  const refreshTokenIfNeeded = async () => {
-    const token = localStorage.getItem(TOKEN_TYPE);
-    if (!token || !isTokenExpired(token)) return token;
-
-    try {
-      const response = await sendPostRequestToBackend('auth/refresh-token', { token });
-      if (response.success && response.token) {
-        localStorage.setItem(TOKEN_TYPE, response.token);
-        return response.token;
-      }
-      throw new Error('Token refresh failed');
-    } catch (error) {
-      clearAuthData();
-      return null;
-    }
-  };
-
 
   // Helper function to handle auth errors - DON'T AUTO NAVIGATE
   const handleAuthError = useCallback((error, showToast = true) => {
@@ -87,38 +64,46 @@ export function AuthProvider({ children }) {
 
   // Initialize authentication state - FIXED
   useEffect(() => {
-    const initializeAuth = async () => {
-      console.log("AuthContext: useeffect");
+    console.log("🔄 [Auth] useEffect triggered...");
+    console.log("Token from localStorage:", localStorage.getItem("token"));
 
+    const initializeAuth = async () => {
+      console.log("🔄 Initializing Auth...");
       try {
         setNetworkError(false);
+        setLoading(true); // Ensure loading is true during initialization
         const storedToken = localStorage.getItem(TOKEN_TYPE);
+
+        console.log("✔ Stored token:", storedToken);
 
         // If no token, just finish loading - DON'T redirect
         if (!storedToken) {
+          console.log("❌ No token found. Marking auth as loaded for public routes.");
+
           setLoading(false);
           setUserDataLoaded(true);
+          setIsAuthenticated(false); // Explicitly set to false
           return;
         }
 
         // Check if token is expired before making request
         if (isTokenExpired(storedToken)) {
-          console.log("AuthContext: isTokenExpired");
+          console.log("❌ Token is expired");
 
+          console.log("Token expired, clearing auth data");
           clearAuthData();
           setLoading(false);
-          // userDataLoaded is already set to true in clearAuthData
-
-          return;
+          return; // clearAuthData already sets userDataLoaded = true
         }
+        console.log("✅ Valid token found. Attempting to fetch user data...");
 
         // Add retry logic for network issues
         let retryCount = 0;
         const maxRetries = 2;
-        let userFetched = false;
 
         while (retryCount < maxRetries) {
           try {
+            console.log("Fetching user data with token:", storedToken);
             // Fetch user data with the stored token
             const accessUserData = await sendGetRequestToBackend('auth/getUser', storedToken);
 
@@ -130,6 +115,7 @@ export function AuthProvider({ children }) {
               if (errorMsg.includes('Network') || errorMsg.includes('fetch')) {
                 retryCount++;
                 if (retryCount < maxRetries) {
+                  console.log(`Network error, retrying... (${retryCount}/${maxRetries})`);
                   await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                   continue;
                 }
@@ -138,21 +124,15 @@ export function AuthProvider({ children }) {
                 break;
               }
 
-              handleAuthError(errorMsg, false);
+              handleAuthError(errorMsg, false); // Don't show toast on initial load
               break;
             } else if (accessUserData.tokenExpired) {
               handleAuthError('TokenExpired', false);
               break;
             } else if (accessUserData.success && accessUserData.user) {
-              console.log("AuthContext: accessUserData.success && accessUserData.user");
-
               setUser(accessUserData.user);
               setIsAuthenticated(true);
               setNetworkError(false);
-              break;
-            } else {
-              console.log("Unexpected response format:", accessUserData);
-              // Don't clear auth data for unexpected responses
               break;
             }
           } catch (err) {
@@ -178,7 +158,7 @@ export function AuthProvider({ children }) {
     };
 
     initializeAuth();
-  }, [clearAuthData, handleAuthError]);
+  }, []);
 
   // Login function - IMPROVED
   const login = useCallback(async (email, password) => {
@@ -189,15 +169,17 @@ export function AuthProvider({ children }) {
 
       const response = await sendPostRequestToBackend('auth/login', { email, password });
 
-      // Standardize error handling
+      // Handle error responses
       if (!response.success) {
-        const errorMsg = response.message || response.msg || response.error || 'Login failed';
+        const errorMsg = response.msg || response.er || response.error;
         setError(errorMsg);
         showNotification(errorMsg, "error");
         return { success: false, error: errorMsg };
       }
+
+      // Check if we got a valid response
       if (!response.token) {
-        const errorMsg = 'No authentication token received';
+        const errorMsg = response.message || 'Invalid login response - no token received';
         setError(errorMsg);
         showNotification(errorMsg, 'error');
         return { success: false, error: errorMsg };
@@ -206,7 +188,7 @@ export function AuthProvider({ children }) {
       // Store token first
       localStorage.setItem(TOKEN_TYPE, response.token);
 
-      // // Then fetch user data
+      // Then fetch user data
       const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
 
       if (accessUserData.error || accessUserData.er) {
@@ -218,12 +200,12 @@ export function AuthProvider({ children }) {
 
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
+
         setIsAuthenticated(true);
         setNetworkError(false);
         setUserDataLoaded(true);
         showNotification('Login successful! 🎉', 'success');
-        // navigate('/profile'); // Redirect to profile after reload
-
+        navigate('/profile'); // Redirect to profile after reload
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -260,10 +242,10 @@ export function AuthProvider({ children }) {
       const response = await sendPostRequestToBackend("auth/register", userData);
 
       // Handle error responses
-      if (response.msg) {
-        setError(response.msg);
-        showNotification(response.msg, "error");
-        return { success: false, error: response.msg };
+      if (response.msg || response.message) {
+        setError(response.msg || response.message);
+        showNotification(response.msg || response.message, "error");
+        return { success: false, error: response.msg || response.message };
       }
 
       if (response.er) {
@@ -301,10 +283,10 @@ export function AuthProvider({ children }) {
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
         setIsAuthenticated(true);
-        setUserDataLoaded(true);
         setNetworkError(false);
+        setUserDataLoaded(true);
         showNotification("Registration successful! 🎉", "success");
-        // navigate('/profile'); // Redirect to profile after reload
+        navigate('/profile'); // ✅ Let React Router handle navigation
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
         const errorMsg = 'Invalid user data response';
@@ -333,17 +315,9 @@ export function AuthProvider({ children }) {
 
   // Logout function - IMPROVED
   const logout = useCallback(() => {
-    setLoading(true);
-    showNotification('Logging out...', 'info');
-
-    setTimeout(() => {
-      clearAuthData();
-      setNetworkError(false);
-      showNotification('Logged out successfully!', 'success');
-      navigate('/'); // Go to home instead of login
-      setLoading(false);
-    }, 800);
-  }, [navigate, showNotification, clearAuthData]);
+    clearAuthData(); // This now sets userDataLoaded = true
+    navigate('/');
+  }, []);
 
   // Google login function - IMPROVED
   const googleLogin = useCallback(async (credential) => {
@@ -396,10 +370,12 @@ export function AuthProvider({ children }) {
 
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
+        console.log("After Login data", user, " userDataLoaded : ", userDataLoaded, " isAuthenticate : ", isAuthenticated, " isloading", loading);
+
         setIsAuthenticated(true);
         setNetworkError(false);
         showNotification('Google login successful! 🎉', 'success');
-        // navigate('/profile'); // Redirect to profile after reload
+        navigate('/profile'); // Redirect to profile after reload
 
         return { success: true, user: accessUserData.user, token: response.token };
       } else {
@@ -437,6 +413,11 @@ export function AuthProvider({ children }) {
     return true;
   }, [isAuthenticated, showNotification, navigate]);
 
+  // useEffect(() => {
+  //   if (token && isAuthenticated) {
+  //     window.location.reload();
+  //   }
+  // }, [setIsAuthenticated, token]);
 
   const value = {
     user,
@@ -447,13 +428,12 @@ export function AuthProvider({ children }) {
     requireAuth, // Add this for protected actions
     isLoading: loading,
     isAuthenticated,
-    userDataLoaded,
     networkError, // Add this to show network status
     error,
     token,
     setUser,
     clearAuthData,
-    refreshTokenIfNeeded
+    userDataLoaded
   };
 
   return (

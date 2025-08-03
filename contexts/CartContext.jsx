@@ -27,7 +27,7 @@ export const CartProvider = ({ children }) => {
     });
     // Fetch cart items from the server
     const fetchCartItems = useCallback(async () => {
-        if (!token) return navigate('/login');
+        if (!token) return; // Don't redirect, just return
         try {
             const response = await sendGetRequestToBackend(`cart/`, token);
 
@@ -106,9 +106,13 @@ export const CartProvider = ({ children }) => {
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {
+console.log("add cart item token",token);
 
         try {
-            if (!user) return navigate('/login');
+            if (!user) {
+                showNotification('Please login to add items to cart', 'info');
+                return;
+            }
             // Use product.quantity or default to 1
             const itemQuantity = product.quantity || 1;
 

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useOrderDetails } from "@/contexts/OrderDetailsContext";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotification } from "@/components/Notify/NotificationProvider";
 const AddressDisplay = ({ addressList = [], toggleAddressForm }) => {
     const [addressData, setAddressData] = useState(addressList || []);
     const [selectedAddress, setSelectedAddress] = useState(null);
@@ -14,7 +15,7 @@ const AddressDisplay = ({ addressList = [], toggleAddressForm }) => {
     const { user, token } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    const { showNotification } = useNotification();
     console.log("Address", addressList);
 
     // Access Token

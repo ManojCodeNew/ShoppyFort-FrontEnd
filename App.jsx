@@ -31,25 +31,25 @@ import Wallet from './pages/Wallet.jsx';
 import AddOffers from './components/AdminPanel/AddOffers.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import PasswordResetFlow from './pages/auth/PasswordResetFlow';
-import ProtectedRoute from './components/ProtectedRoute';
 import { AdminProductsProvider } from './components/AdminPanel/Context/AdminProductsContext.jsx';
 import AdminOffersProvider from './components/AdminPanel/Context/AdminOffersContext.jsx';
 import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext.jsx';
 import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext.jsx';
 import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturnContext.jsx';
-import AppBackButton from './AppBackButton';
-const stripePromise = loadStripe('pk_test_51RIf4KJHqmIFNNwkbUYJvZA9dTAi3HW6bDIEYYnDOqG6JTw68x8JjiuSluNPb5iemtpiLdOcxqp1irCCddXp6p3U001PeLWXNf'); // Replace with your actual publishable key
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const PublicLayout = () => (
   <>
     <Navbar />
-    <main >
-      <AppBackButton />
+    <main>
       <Outlet />
     </main>
     <Footer />
   </>
 );
 const App = () => {
+  console.log("🔍 [App] Current pathname:", window.location.pathname);
 
   return (
     <Routes>
@@ -57,98 +57,42 @@ const App = () => {
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path="about-us" element={<AboutUs />} />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<PasswordResetFlow />} />
+        {/* <Route path="/login" element={<LoginPage />} /> */}
+        {/* <Route path="/register" element={<RegisterPage />} /> */}
 
-        {/* <Route path="profile" element={<ProfilePage />} /> */}
-        {/* Protected routes */}
-               <Route
-          path="profile"
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<PasswordResetFlow />} />
+        <Route
+          path="/profile"
           element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
           }
         />
-        <Route 
-          path="orders" 
-          element={
-            <ProtectedRoute>
-              <OrderDetails />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="wishlist" 
-          element={
-            <ProtectedRoute>
-              <WishlistPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="cart" 
-          element={
-            <ProtectedRoute>
-              <CartPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="wallet" 
-          element={
-            <ProtectedRoute>
-              <Wallet />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="checkout/address" 
-          element={
-            <ProtectedRoute>
-              <Elements stripe={stripePromise}>
-                <Address />
-              </Elements>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="successToOrder" 
-          element={
-            <ProtectedRoute>
-              <OrderPlaced />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="notifications" 
-          element={
-            <ProtectedRoute>
-              <UserNotification />
-            </ProtectedRoute>
-          } 
-        />
 
-
-
-        {/* <Route path="orders" element={<OrderDetails />} />
+        {/* <Route path="/forgot-password" element={<PasswordResetFlow />} /> */}
+        {/* <Route path="profile" element={<ProfilePage />} /> */}
+        <Route path="orders" element={<OrderDetails />} />
         <Route path="wishlist" element={<WishlistPage />} />
         <Route path="cart" element={<CartPage />} />
-        <Route path="wallet" element={<Wallet />} /> */}
+        <Route path="wallet" element={<Wallet />} />
         <Route path="category/:gender" element={<CategoryPage />} />
         <Route path="category/:gender/:category" element={<CategoryPage />} />
         <Route path="category/:gender/:category/:subcategory" element={<CategoryPage />} />
         <Route path="product/view/:id" element={<ProductViewPage />} />
         <Route path="product/search/:id" element={<ProductViewPage />} />
         <Route path="offers/:offerId" element={<Offers />} />
-        {/* <Route path="checkout/address" element={
+        <Route path="checkout/address" element={
+
           <Elements stripe={stripePromise}>
             <Address />
           </Elements>
-        } /> */}
-        {/* <Route path="successToOrder" element={<OrderPlaced />} />
-        <Route path="notifications" element={<UserNotification />} /> */}
+
+        } />
+        <Route path="successToOrder" element={<OrderPlaced />} />
+        <Route path="notifications" element={<UserNotification />} />
       </Route>
 
       {/* Admin Routes */}
@@ -181,7 +125,7 @@ const App = () => {
       </Route>
 
       {/* Optional: 404 fallback */}
-      <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+      <Route path="*" element={<PublicLayout />} />
     </Routes>
   );
 };

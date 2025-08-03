@@ -14,8 +14,7 @@ function WishlistProvider({ children }) {
   const { token } = useAuth();
   const fetchUserWishlist = useCallback(async () => {
     if (!token) {
-      navigate("/login");
-      return;
+      return; // Don't redirect, just return
     }
     const response = await sendGetRequestToBackend('wishlist', token);
     if (response?.wishlist) {
@@ -35,7 +34,7 @@ function WishlistProvider({ children }) {
 
   const addItem = useCallback(async (item) => {
     if (!token) {
-      navigate("/login");
+      // Don't redirect, just show notification or handle gracefully
       return;
     }
     await sendPostRequestToBackend('wishlist/addWishlist', { productid: item._id }, token);
@@ -49,7 +48,7 @@ function WishlistProvider({ children }) {
 
   const removeItem = useCallback(async (id) => {
     if (!token) {
-      navigate("/login");
+      // Don't redirect, just show notification or handle gracefully
       return;
     }
 
