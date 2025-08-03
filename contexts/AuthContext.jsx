@@ -239,27 +239,28 @@ export function AuthProvider({ children }) {
       setLoading(true);
       setNetworkError(false);
 
+      console.log('Registration data being sent:', userData);
+
       const response = await sendPostRequestToBackend("auth/register", userData);
 
-      // Handle error responses
-      if (response.msg || response.message) {
-        setError(response.msg || response.message);
-        showNotification(response.msg || response.message, "error");
-        return { success: false, error: response.msg || response.message };
+      console.log('Registration response:', response);
+
+      // Check if registration failed
+      if (!response.success) {
+        const errorMsg = response.msg || response.message || response.error || 'Registration failed';
+        setError(errorMsg);
+        showNotification(errorMsg, "error");
+        return { success: false, error: errorMsg };
       }
 
-      if (response.er) {
-        setError(response.er);
-        showNotification(response.er, "error");
-        return { success: false, error: response.er };
-      }
-
+      // Check if response has error property (from Post.jsx)
       if (response.error) {
         setError(response.error);
         showNotification(response.error, "error");
         return { success: false, error: response.error };
       }
 
+      // Check if we have a token
       if (!response.token) {
         const errorMsg = 'Invalid registration response - no token received';
         setError(errorMsg);
@@ -270,29 +271,45 @@ export function AuthProvider({ children }) {
       // Store token first
       localStorage.setItem(TOKEN_TYPE, response.token);
 
-      // Then fetch user data
-      const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
-
-      if (accessUserData.error || accessUserData.er) {
-        const errorMsg = accessUserData.error || accessUserData.er;
-        showNotification(`Failed to get user data: ${errorMsg}`, "error");
-        clearAuthData();
-        return { success: false, error: errorMsg };
-      }
-
-      if (accessUserData.success && accessUserData.user) {
-        setUser(accessUserData.user);
+      // Use the user data from the registration response directly
+      if (response.user) {
+        console.log('Setting user data:', response.user);
+        setUser(response.user);
         setIsAuthenticated(true);
         setNetworkError(false);
         setUserDataLoaded(true);
         showNotification("Registration successful! 🎉", "success");
-        navigate('/profile'); // ✅ Let React Router handle navigation
-        return { success: true, user: accessUserData.user, token: response.token };
+        
+        // Navigate to home page instead of profile
+        console.log('Navigating to home page...');
+        navigate('/');
+        
+        return { success: true, user: response.user, token: response.token };
       } else {
-        const errorMsg = 'Invalid user data response';
-        showNotification(errorMsg, 'error');
-        clearAuthData();
-        return { success: false, error: errorMsg };
+        // Fallback: fetch user data if not provided in response
+        const accessUserData = await sendGetRequestToBackend('auth/getUser', response.token);
+
+        if (accessUserData.error || accessUserData.er) {
+          const errorMsg = accessUserData.error || accessUserData.er;
+          showNotification(`Failed to get user data: ${errorMsg}`, "error");
+          clearAuthData();
+          return { success: false, error: errorMsg };
+        }
+
+        if (accessUserData.success && accessUserData.user) {
+          setUser(accessUserData.user);
+          setIsAuthenticated(true);
+          setNetworkError(false);
+          setUserDataLoaded(true);
+          showNotification("Registration successful! 🎉", "success");
+          navigate('/profile');
+          return { success: true, user: accessUserData.user, token: response.token };
+        } else {
+          const errorMsg = 'Invalid user data response';
+          showNotification(errorMsg, 'error');
+          clearAuthData();
+          return { success: false, error: errorMsg };
+        }
       }
 
     } catch (err) {
@@ -311,7 +328,7 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [showNotification, clearAuthData]);
+  }, [showNotification, clearAuthData, navigate]);
 
   // Logout function - IMPROVED
   const logout = useCallback(() => {

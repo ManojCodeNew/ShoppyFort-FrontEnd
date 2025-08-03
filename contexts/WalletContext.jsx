@@ -13,7 +13,7 @@ const initialWalletState = {
     lastUpdated: null
 };
 export default function WalletProvider({ children }) {
-    const { token, user } = useAuth();
+    const { token, user, isAuthenticated, userDataLoaded } = useAuth();
     const { showNotification } = useNotification();
 
     const [wallet, setWallet] = useState(initialWalletState);
@@ -23,8 +23,8 @@ export default function WalletProvider({ children }) {
 
     // Fetch wallet details
     const getWallet = useCallback(async (forceFetch = false) => {
-        if (!token || !user?._id) {
-            console.log('Skipping wallet fetch - missing token or user');
+        if (!token || !user?._id || !isAuthenticated) {
+            console.log('Skipping wallet fetch - missing token, user, or not authenticated');
             setWallet(initialWalletState);
             setInitialized(true);
             setLoading(false);
@@ -61,7 +61,7 @@ export default function WalletProvider({ children }) {
             setLoading(false);
             setInitialized(true);
         }
-    }, [token, user?._id, showNotification]);
+    }, [token, user?._id, isAuthenticated, showNotification]);
 
     const processWalletPayment = useCallback(async (orderTotalAmt, orderId, paymentMethod) => {
 
@@ -142,12 +142,15 @@ export default function WalletProvider({ children }) {
     }, [user?._id, token, showNotification, processingPayment, getWallet]);
 
     // Initialize wallet once when user and token are available
-    // useEffect(() => {
-    //     if (user?._id && token && !initialized) {
-    //         console.log("Initializing wallet for user:", user._id);
-    //         getWallet();
-    //     }
-    // }, [user?._id, token, initialized, getWallet]);
+    useEffect(() => {
+        if (user?._id && token && isAuthenticated && userDataLoaded && !initialized) {
+            console.log("Initializing wallet for user:", user._id);
+            getWallet();
+        } else if (!isAuthenticated) {
+            setWallet(initialWalletState);
+            setInitialized(true);
+        }
+    }, [user?._id, token, isAuthenticated, userDataLoaded, initialized, getWallet]);
 
     // Provide a function to manually refresh wallet data
     const refreshWallet = useCallback(() => {

@@ -21,10 +21,20 @@ export default function ForgotPassword({ onOtpSent }) {
     };
 
     return (
-        <form onSubmit={handleSendOtp}>
-            <h2>Forgot Password</h2>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="Email" />
-            <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send OTP'}</button>
-        </form>
+        <div className="reset-step">
+            <form onSubmit={handleSendOtp}>
+                <h2>Forgot Password</h2>
+                <input 
+                    type="email" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    required 
+                    placeholder="Enter your email address" 
+                />
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Sending...' : 'Send OTP'}
+                </button>
+            </form>
+        </div>
     );
 }

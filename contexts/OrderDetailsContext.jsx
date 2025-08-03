@@ -23,7 +23,7 @@ export const OrderDetailsProvider = ({ children }) => {
     const [allOrder, setAllOrder] = useState([]);
     const { showNotification } = useNotification();
     const [allReturns, setAllReturns] = useState(null);
-    const { token, user } = useAuth();
+    const { token, user, isAuthenticated, userDataLoaded } = useAuth();
 
     const setOrderDetails = (details) => {
         setOrderDetailsState(details);
@@ -35,25 +35,41 @@ export const OrderDetailsProvider = ({ children }) => {
     };
 
     const fetchOrders = async () => {
+        if (!token || !isAuthenticated) {
+            setAllOrder([]);
+            return;
+        }
+        
         try {
             const response = await sendGetRequestToBackend("order", token);
             if (response.success) {
                 setAllOrder(response.orders);
+            } else {
+                setAllOrder([]);
             }
         } catch (error) {
             showNotification("Error fetching orders", "error");
+            setAllOrder([]);
         }
     };
 
     const fetchReturns = async () => {
+        if (!token || !isAuthenticated) {
+            setAllReturns([]);
+            return;
+        }
+        
         try {
             const response = await sendGetRequestToBackend("order/returns", token);
             if (response.success) {
                 setAllReturns(response.data);
+            } else {
+                setAllReturns([]);
             }
         } catch (error) {
             console.error("Error fetching returns:", error);
             showNotification("Error fetching return requests", "error");
+            setAllReturns([]);
         }
     };
 

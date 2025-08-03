@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const { showNotification } = useNotification();
     const navigate = useNavigate();
-    const { user, token } = useAuth();
+    const { user, token, isAuthenticated, userDataLoaded } = useAuth();
     const [calculatedTotal, setCalculatedTotal] = useState({
         totalCostwithVAT: '0.00',
         VAT_Price: '0.00',
@@ -27,7 +27,11 @@ export const CartProvider = ({ children }) => {
     });
     // Fetch cart items from the server
     const fetchCartItems = useCallback(async () => {
-        if (!token) return; // Don't redirect, just return
+        if (!token || !isAuthenticated) {
+            setCartItems([]); // Clear cart when not authenticated
+            return;
+        }
+        
         try {
             const response = await sendGetRequestToBackend(`cart/`, token);
 
@@ -50,12 +54,14 @@ export const CartProvider = ({ children }) => {
 
             } else {
                 showNotification("Error fetching cart items", "error");
+                setCartItems([]);
             }
 
         } catch (error) {
             showNotification(`Error fetching cart items : ${error}`, "error");
+            setCartItems([]);
         }
-    }, [token, products, navigate, showNotification]);
+    }, [token, isAuthenticated, products, navigate, showNotification]);
 
     // useEffect(() => {
     //     if (user && Array.isArray(products) && products.length > 0) {
@@ -106,7 +112,7 @@ export const CartProvider = ({ children }) => {
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {
-console.log("add cart item token",token);
+        console.log("add cart item token", token);
 
         try {
             if (!user) {
@@ -239,8 +245,12 @@ console.log("add cart item token",token);
     }, [token]);
     //Fetch cart items when the page loads
     useEffect(() => {
-        fetchCartItems();
-    }, [fetchCartItems]);
+        if (token && isAuthenticated && userDataLoaded) {
+            fetchCartItems();
+        } else if (!isAuthenticated) {
+            setCartItems([]); // Clear cart when not authenticated
+        }
+    }, [token, isAuthenticated, userDataLoaded, fetchCartItems]);
 
     const value = {
         cartItems,

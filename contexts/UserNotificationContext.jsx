@@ -12,13 +12,19 @@ export default function UserNotificationsProvider({ children }) {
     const [notifications, setNotifications] = useState([]);
     const { showNotification } = useNotification();
     const [loading, setLoading] = useState(true);
-    const { token, user } = useAuth(); // Get user and token from AuthContext
+    const { token, user, isAuthenticated, userDataLoaded } = useAuth(); // Get user and token from AuthContext
     const [lastOtpId, setLastOtpId] = useState(null);
     const [pollingInterval, setPollingInterval] = useState(null);
     const [initialLoadDone, setInitialLoadDone] = useState(false);
     const location = useLocation();
     const getNotifications = useCallback(async (isInitial = false) => {
         try {
+            if (!token || !isAuthenticated) {
+                setNotifications([]);
+                setLoading(false);
+                return;
+            }
+            
             if (isInitial) setLoading(true);
             const notificationResponse = await sendGetRequestToBackend('auth/notifications', token);
             if (notificationResponse.success) {
@@ -64,12 +70,12 @@ export default function UserNotificationsProvider({ children }) {
             }
         }
 
-    }, [token, lastOtpId, showNotification]);
+    }, [token, isAuthenticated, lastOtpId, showNotification]);
 
     // Polling to fetch notifications every 30 seconds
     useEffect(() => {
-        // Only poll if NOT on the notifications page
-        if (location.pathname !== "/notifications") {
+        // Only poll if authenticated and NOT on the notifications page
+        if (token && isAuthenticated && userDataLoaded && location.pathname !== "/notifications") {
             getNotifications(true);
             const interval = setInterval(() => {
                 getNotifications(false);
@@ -79,13 +85,16 @@ export default function UserNotificationsProvider({ children }) {
                 clearInterval(interval);
             };
         } else {
-            // If on notifications page, clear any existing interval
+            // If not authenticated or on notifications page, clear any existing interval
             if (pollingInterval) {
                 clearInterval(pollingInterval);
             }
+            if (!isAuthenticated) {
+                setNotifications([]);
+            }
         }
         // eslint-disable-next-line
-    }, [getNotifications, location.pathname]);
+    }, [getNotifications, location.pathname, token, isAuthenticated, userDataLoaded]);
 
     const markAsRead = useCallback(async (id) => {
         const response = await sendPostRequestToBackend('auth/notifications/mark_as_read', { id }, token);

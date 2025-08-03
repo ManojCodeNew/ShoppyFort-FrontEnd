@@ -22,10 +22,22 @@ export default function OtpVerification({ email, onVerified, setOtpCode }) {
     };
 
     return (
-        <form onSubmit={handleVerify}>
-            <h2>Enter OTP</h2>
-            <input type="text" value={code} onChange={e => setCode(e.target.value)} required placeholder="6-digit OTP" maxLength={6} />
-            <button type="submit" disabled={loading}>{loading ? 'Verifying...' : 'Verify OTP'}</button>
-        </form>
+        <div className="reset-step">
+            <form onSubmit={handleVerify}>
+                <h2>Enter OTP</h2>
+                <input 
+                    type="text" 
+                    value={code} 
+                    onChange={e => setCode(e.target.value)} 
+                    required 
+                    placeholder="Enter 6-digit OTP" 
+                    maxLength={6}
+                    className="otp-input"
+                />
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify OTP'}
+                </button>
+            </form>
+        </div>
     );
 }

@@ -28,7 +28,14 @@ export default function PasswordResetFlow() {
     }
 
     return (
-        <div>
+        <div className="password-reset-flow">
+            {/* Progress Indicator */}
+            <div className="reset-progress">
+                <div className={`progress-step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}></div>
+                <div className={`progress-step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}></div>
+                <div className={`progress-step ${step >= 3 ? 'active' : ''}`}></div>
+            </div>
+            
             {step === 1 && <ForgotPassword onOtpSent={e => { setEmail(e); setStep(2); }} />}
             {step === 2 && <OtpVerification email={email} setOtpCode={setCode} onVerified={() => setStep(3)} />}
             {step === 3 && <ResetPassword email={email} code={code} onReset={() => navigate('/login')} />}

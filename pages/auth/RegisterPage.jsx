@@ -82,14 +82,14 @@ const RegisterPage = () => {
       newErrors.email = 'Email format is invalid';
     }
 
-    if (!formData.phoneno.trim()) {
-      newErrors.phoneno = 'Phone number is required';
-    } else if (formData.phoneno.replace(/\D/g, '').length !== 10) {
+    // Optional phone number validation (only if provided)
+    if (formData.phoneno.trim() && formData.phoneno.replace(/\D/g, '').length !== 10) {
       newErrors.phoneno = 'Phone number must be exactly 10 digits';
     }
 
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
+    // Optional address validation (only if provided)
+    if (formData.address.trim() && formData.address.trim().length < 5) {
+      newErrors.address = 'Address must be at least 5 characters long';
     }
 
     if (!formData.password) {
@@ -220,31 +220,29 @@ const RegisterPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Phone Number</label>
+            <label>Phone Number (Optional)</label>
             <input
               type="tel"
               name="phoneno"
               value={formData.phoneno}
               onChange={handleChange}
               disabled={isFormDisabled}
-              required
               maxLength="10"
-              placeholder="Enter 10-digit phone number"
+              placeholder="Enter 10-digit phone number (optional)"
               pattern="[0-9]{10}"
             />
             {errors.phoneno && <span className="error">{errors.phoneno}</span>}
           </div>
 
           <div className="form-group">
-            <label>Address</label>
+            <label>Address (Optional)</label>
             <textarea
               name="address"
               value={formData.address}
               onChange={handleChange}
               disabled={isFormDisabled}
-              required
               rows="3"
-              placeholder="Enter your address"
+              placeholder="Enter your address (optional)"
             />
             {errors.address && <span className="error">{errors.address}</span>}
           </div>

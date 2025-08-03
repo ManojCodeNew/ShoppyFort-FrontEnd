@@ -11,29 +11,40 @@ function WishlistProvider({ children }) {
   const { products } = useProducts();
   const [items, setItems] = useState([]);
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, isAuthenticated, userDataLoaded } = useAuth();
+  
   const fetchUserWishlist = useCallback(async () => {
-    if (!token) {
-      return; // Don't redirect, just return
+    if (!token || !isAuthenticated) {
+      setItems([]); // Clear items when not authenticated
+      return;
     }
-    const response = await sendGetRequestToBackend('wishlist', token);
-    if (response?.wishlist) {
-      const userWishlistedProducts = products.filter(product =>
-        response.wishlist.some(wishlistItem => wishlistItem.productid === product._id)
-      );
-      setItems(userWishlistedProducts);
+    
+    try {
+      const response = await sendGetRequestToBackend('wishlist', token);
+      if (response?.wishlist) {
+        const userWishlistedProducts = products.filter(product =>
+          response.wishlist.some(wishlistItem => wishlistItem.productid === product._id)
+        );
+        setItems(userWishlistedProducts);
+      } else {
+        setItems([]);
+      }
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      setItems([]);
     }
-
-  }, [token, products, navigate]);
+  }, [token, isAuthenticated, products, navigate]);
 
   useEffect(() => {
-    if (token) {
+    if (token && isAuthenticated && userDataLoaded) {
       fetchUserWishlist();
+    } else if (!isAuthenticated) {
+      setItems([]); // Clear wishlist when not authenticated
     }
-  }, [token, fetchUserWishlist])
+  }, [token, isAuthenticated, userDataLoaded, fetchUserWishlist])
 
   const addItem = useCallback(async (item) => {
-    if (!token) {
+    if (!token || !isAuthenticated) {
       // Don't redirect, just show notification or handle gracefully
       return;
     }
@@ -44,17 +55,17 @@ function WishlistProvider({ children }) {
       return [...currentItems, item];
     });
 
-  }, [token, navigate]);
+  }, [token, isAuthenticated, navigate]);
 
   const removeItem = useCallback(async (id) => {
-    if (!token) {
+    if (!token || !isAuthenticated) {
       // Don't redirect, just show notification or handle gracefully
       return;
     }
 
     await sendPostRequestToBackend('wishlist/removeWishlist', { productid: id }, token);
     setItems(currentItems => currentItems.filter(item => item._id !== id));
-  }, [token, navigate]);
+  }, [token, isAuthenticated, navigate]);
 
   const isInWishlist = useCallback((id) => {
     return items.some(item => item._id === id);

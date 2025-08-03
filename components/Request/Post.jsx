@@ -48,23 +48,27 @@ async function sendPostRequestToBackend(path, data, token) {
                     return null;
                 }
                 return {
+                    success: false,
                     error: errorData.error || errorData.msg || 'Unauthorized',
                     status: 401,
                     tokenExpired: errorData.error === 'TokenExpired'
                 };
             } else if (response.status === 404) {
                 return {
+                    success: false,
                     error: errorData.error || errorData.msg || 'Endpoint not found',
                     status: 404
                 };
             } else if (response.status >= 500) {
                 return {
+                    success: false,
                     error: errorData.error || errorData.msg || 'Server error. Please try again later.',
                     status: response.status
                 };
             }
             // For other error statuses
             return {
+                success: false,
                 error: errorData.error || errorData.msg || 'Request failed',
                 status: response.status,
                 details: errorData
@@ -78,14 +82,14 @@ async function sendPostRequestToBackend(path, data, token) {
         console.error('POST request error:', error);
 
         if (error.name === 'AbortError') {
-            return { error: 'Request timeout. Please try again.' };
+            return { success: false, error: 'Request timeout. Please try again.' };
         }
 
         if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            return { error: 'Network error. Please check your connection and server status.' };
+            return { success: false, error: 'Network error. Please check your connection and server status.' };
         }
 
-        return { error: error.message || 'Request failed' };
+        return { success: false, error: error.message || 'Request failed' };
     }
 }
 export default sendPostRequestToBackend;

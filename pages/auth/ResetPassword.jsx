@@ -22,10 +22,20 @@ export default function ResetPassword({ email, code, onReset }) {
     };
 
     return (
-        <form onSubmit={handleReset}>
-            <h2>Set New Password</h2>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="New password" />
-            <button type="submit" disabled={loading}>{loading ? 'Resetting...' : 'Reset Password'}</button>
-        </form>
+        <div className="reset-step">
+            <form onSubmit={handleReset}>
+                <h2>Set New Password</h2>
+                <input 
+                    type="password" 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    required 
+                    placeholder="Enter new password" 
+                />
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Resetting...' : 'Reset Password'}
+                </button>
+            </form>
+        </div>
     );
 }
