@@ -27,7 +27,7 @@ function Offers() {
 
             if (offerId && offers && offers.length > 0 && products && products.length > 0) {
                 const currentOffer = offers.find(offer => offer._id === offerId);
-                console.log("current offers :", currentOffer);
+                // console.log("current offers :", currentOffer);
 
                 if (currentOffer) {
                     const { productIds = [], discountText } = currentOffer;
@@ -42,32 +42,32 @@ function Offers() {
                         );
                     }
 
-                    // 2. If discountText is present, get those products
+                    // 2. If discountText is present, get products with discount <= discountValue
                     if (discountText) {
-                        const discountValue = parseInt(discountText);
-                        if (!isNaN(discountValue)) {
+                        // Extract numeric value from discount text (e.g., "30% OFF" -> 30)
+                        const discountMatch = discountText.match(/\d+/);
+                        if (discountMatch) {
+                            const discountValue = parseInt(discountMatch[0]);
                             discountProducts = products.filter(product =>
-                                product.discount >= discountValue
+                                product.discount && product.discount <= discountValue && product.discount > 0
                             );
-                        } else {
-                            setError("Invalid discount text in offer.");
                         }
                     }
 
-                    // 3. Combine results (union, no duplicates, productIds products first)
-                    if (productIdProducts.length > 0 && discountProducts.length > 0) {
-                        // Add productIdProducts first, then add discountProducts not already included
+                    // 3. Combine results (productIds first, then discount products, no duplicates)
+                    if (productIdProducts.length > 0 || discountProducts.length > 0) {
                         const productIdSet = new Set(productIdProducts.map(p => p._id));
-                        filteredProducts = [
-                            ...productIdProducts,
-                            ...discountProducts.filter(p => !productIdSet.has(p._id))
-                        ];
-                    } else if (productIdProducts.length > 0) {
-                        filteredProducts = productIdProducts;
-                    } else if (discountProducts.length > 0) {
-                        filteredProducts = discountProducts;
+                        
+                        // Start with productId products
+                        filteredProducts = [...productIdProducts];
+                        
+                        // Add discount products that aren't already included
+                        const additionalDiscountProducts = discountProducts.filter(p => !productIdSet.has(p._id));
+                        filteredProducts = [...filteredProducts, ...additionalDiscountProducts];
+                        
+                        // Sort by discount descending (highest discount first)
+                        filteredProducts.sort((a, b) => (b.discount || 0) - (a.discount || 0));
                     } else {
-                        // If no criteria matched, show all products or a default message
                         filteredProducts = [];
                     }
 
@@ -109,14 +109,25 @@ function Offers() {
                             <div className="offer-hero-content">
                                 <h1 className="offer-hero-title">{currentOffer.title}</h1>
                                 {currentOffer.description && <p className="offer-hero-desc">{currentOffer.description}</p>}
-                                {currentOffer.discountText && <span className="offer-hero-discount">Up to {currentOffer.discountText}% OFF</span>}
+                                {currentOffer.discountText && <span className="offer-hero-discount">{currentOffer.discountText}</span>}
                             </div>
                         </div>
                     );
                 })()
             )}
             <div className="offers-card">
-                <h2 className="offers-title">{offerId ? 'Products Related to Offer' : 'All Offers'}</h2>
+                <h2 className="offers-title">
+                    {offerId ? (
+                        (() => {
+                            const currentOffer = offers.find(offer => offer._id === offerId);
+                            const discountMatch = currentOffer?.discountText?.match(/\d+/);
+                            const discountValue = discountMatch ? discountMatch[0] : null;
+                            return discountValue ? 
+                                `Products with up to ${discountValue}% discount` : 
+                                'Products Related to Offer';
+                        })()
+                    ) : 'All Offers'}
+                </h2>
                 <div className="offerProduct-container">
                     {productsToShow.length > 0 ? (
                         productsToShow.map((product) => (

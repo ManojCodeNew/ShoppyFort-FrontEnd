@@ -161,7 +161,7 @@ function OrderDetails() {
         const diffDays = diffTime / (1000 * 60 * 60 * 24); // convert milliseconds to minutes
         return diffDays <= 3;
     };
-console.log("All order :",allOrder);
+// console.log("All order :",allOrder);
 
     return (
         <section className="order-section">

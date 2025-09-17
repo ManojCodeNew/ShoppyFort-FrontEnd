@@ -25,14 +25,14 @@ const RegisterPage = () => {
   } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("📄 [RegisterPage] Page Loaded:", window.location.pathname);
-    console.log("📄 [RegisterPage] Auth state =>", {
-      isAuthenticated,
-      userDataLoaded,
-      isLoading
-    });
-  }, []);
+  // useEffect(() => {
+  //   console.log("📄 [RegisterPage] Page Loaded:", window.location.pathname);
+  //   console.log("📄 [RegisterPage] Auth state =>", {
+  //     isAuthenticated,
+  //     userDataLoaded,
+  //     isLoading
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (isAuthenticated && userDataLoaded) {
@@ -46,15 +46,15 @@ const RegisterPage = () => {
     }
   }, [isAuthenticated, userDataLoaded, isLoading, navigate]);
 
-  console.log("🔍 Page Loaded:", window.location.pathname);
-  console.log("Auth state => isAuthenticated:", isAuthenticated, "userDataLoaded:", userDataLoaded, "isLoading:", isLoading);
+  // console.log("🔍 Page Loaded:", window.location.pathname);
+  // console.log("Auth state => isAuthenticated:", isAuthenticated, "userDataLoaded:", userDataLoaded, "isLoading:", isLoading);
 
   // Early return after all hooks have been called
   if (!userDataLoaded) {
     return <div className="auth-page"><div className="auth-container">Loading...</div></div>;
   }
 
-  console.log("Validate");
+  // console.log("Validate");
 
 
   // Redirect if already logged in AND user data is loaded
@@ -69,7 +69,7 @@ const RegisterPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    console.log("Validate");
+    // console.log("Validate");
 
     // Required field validation
     if (!formData.fullname.trim()) {
@@ -113,7 +113,7 @@ const RegisterPage = () => {
 
     if (isSubmitting || isLoading) return;
 
-    console.log("RegisterPage data", formData);
+    // console.log("RegisterPage data", formData);
 
     if (!validateForm()) {
       return;

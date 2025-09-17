@@ -37,7 +37,7 @@ import { UserProvider } from './components/AdminPanel/Context/ManageUsersContext
 import { OrderProvider } from './components/AdminPanel/Context/ManageOrderContext.jsx';
 import { ManageReturnProvider } from './components/AdminPanel/Context/ManageReturnContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
-import PublicRoute from './components/PublicRoute';
+// import PublicRoute from './components/PublicRoute';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const PublicLayout = () => (
   <>
@@ -49,7 +49,7 @@ const PublicLayout = () => (
   </>
 );
 const App = () => {
-  console.log("🔍 [App] Current pathname:", window.location.pathname);
+  // console.log("🔍 [App] Current pathname:", window.location.pathname);
 
   return (
     <Routes>

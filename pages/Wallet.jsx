@@ -13,7 +13,7 @@ export default function Wallet() {
     const { allOrder, fetchOrders } = useOrderDetails();
     const { products, fetchProducts } = useProducts();
 
-    console.log("Wallet component initialized with wallet:", wallet);
+    // console.log("Wallet component initialized with wallet:", wallet);
 
     //Fetch wallet data when the page loads
     useEffect(() => {
@@ -93,7 +93,7 @@ export default function Wallet() {
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 10);
     }, [wallet?.transactions]);
-    console.log("Processed Transactions:", processedTransactions);
+    // console.log("Processed Transactions:", processedTransactions);
 
     const isLoading = loading || localLoading;
     const balance = wallet?.balance || 0;

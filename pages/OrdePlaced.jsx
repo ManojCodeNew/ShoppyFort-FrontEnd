@@ -10,10 +10,10 @@ const OrderPlaced = () => {
   const { orderDetails, setOrderDetails, fetchOrders } = useOrderDetails();
 
   const order = orderDetails;
-  console.log("Order Details:", orderDetails);
+  // console.log("Order Details:", orderDetails);
   return (
     <div className="order-success-bg">
-      <div className="order-success-container order-success-card">
+      <div className="order-success-card order-success-container">
         <div className="success-animation">
           <div className="checkmark-circle">
             <div className="checkmark"></div>

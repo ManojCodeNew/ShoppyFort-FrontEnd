@@ -64,21 +64,21 @@ export function AuthProvider({ children }) {
 
   // Initialize authentication state - FIXED
   useEffect(() => {
-    console.log("🔄 [Auth] useEffect triggered...");
-    console.log("Token from localStorage:", localStorage.getItem("token"));
+    // console.log("🔄 [Auth] useEffect triggered...");
+    // console.log("Token from localStorage:", localStorage.getItem("token"));
 
     const initializeAuth = async () => {
-      console.log("🔄 Initializing Auth...");
+      // console.log("🔄 Initializing Auth...");
       try {
         setNetworkError(false);
         setLoading(true); // Ensure loading is true during initialization
         const storedToken = localStorage.getItem(TOKEN_TYPE);
 
-        console.log("✔ Stored token:", storedToken);
+        // console.log("✔ Stored token:", storedToken);
 
         // If no token, just finish loading - DON'T redirect
         if (!storedToken) {
-          console.log("❌ No token found. Marking auth as loaded for public routes.");
+          // console.log("❌ No token found. Marking auth as loaded for public routes.");
 
           setLoading(false);
           setUserDataLoaded(true);
@@ -88,14 +88,14 @@ export function AuthProvider({ children }) {
 
         // Check if token is expired before making request
         if (isTokenExpired(storedToken)) {
-          console.log("❌ Token is expired");
+          // console.log("❌ Token is expired");
 
-          console.log("Token expired, clearing auth data");
+          // console.log("Token expired, clearing auth data");
           clearAuthData();
           setLoading(false);
           return; // clearAuthData already sets userDataLoaded = true
         }
-        console.log("✅ Valid token found. Attempting to fetch user data...");
+        // console.log("✅ Valid token found. Attempting to fetch user data...");
 
         // Add retry logic for network issues
         let retryCount = 0;
@@ -239,11 +239,11 @@ export function AuthProvider({ children }) {
       setLoading(true);
       setNetworkError(false);
 
-      console.log('Registration data being sent:', userData);
+      // console.log('Registration data being sent:', userData);
 
       const response = await sendPostRequestToBackend("auth/register", userData);
 
-      console.log('Registration response:', response);
+      // console.log('Registration response:', response);
 
       // Check if registration failed
       if (!response.success) {
@@ -273,7 +273,7 @@ export function AuthProvider({ children }) {
 
       // Use the user data from the registration response directly
       if (response.user) {
-        console.log('Setting user data:', response.user);
+        // console.log('Setting user data:', response.user);
         setUser(response.user);
         setIsAuthenticated(true);
         setNetworkError(false);
@@ -281,7 +281,6 @@ export function AuthProvider({ children }) {
         showNotification("Registration successful! 🎉", "success");
         
         // Navigate to home page instead of profile
-        console.log('Navigating to home page...');
         navigate('/');
         
         return { success: true, user: response.user, token: response.token };
@@ -387,7 +386,7 @@ export function AuthProvider({ children }) {
 
       if (accessUserData.success && accessUserData.user) {
         setUser(accessUserData.user);
-        console.log("After Login data", user, " userDataLoaded : ", userDataLoaded, " isAuthenticate : ", isAuthenticated, " isloading", loading);
+        // console.log("After Login data", user, " userDataLoaded : ", userDataLoaded, " isAuthenticate : ", isAuthenticated, " isloading", loading);
 
         setIsAuthenticated(true);
         setNetworkError(false);

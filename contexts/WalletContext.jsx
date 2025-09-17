@@ -144,7 +144,7 @@ export default function WalletProvider({ children }) {
     // Initialize wallet once when user and token are available
     useEffect(() => {
         if (user?._id && token && isAuthenticated && userDataLoaded && !initialized) {
-            console.log("Initializing wallet for user:", user._id);
+            // console.log("Initializing wallet for user:", user._id);
             getWallet();
         } else if (!isAuthenticated) {
             setWallet(initialWalletState);

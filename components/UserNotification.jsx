@@ -22,7 +22,7 @@ const UserNotifications = () => {
                         {notifications.length > 0 ? (
                             notifications.map((notification) => {
                                 const isOrder = !!notification.orderid;
-                                console.log("notification", notification);
+                                // console.log("notification", notification);
                                 const entityId = isOrder ? notification.orderid : notification.returnid;
                                 const entityType = isOrder ? "Order" : "Return";
                                 const message = isOrder

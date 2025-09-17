@@ -15,14 +15,14 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    console.log("📄 Page Loaded:", window.location.pathname);
-    console.log("Auth state =>", {
-      isAuthenticated,
-      userDataLoaded,
-      isLoading
-    });
-  }, []);
+  // useEffect(() => {
+  //   console.log("📄 Page Loaded:", window.location.pathname);
+  //   console.log("Auth state =>", {
+  //     isAuthenticated,
+  //     userDataLoaded,
+  //     isLoading
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (isAuthenticated && userDataLoaded) {
@@ -30,8 +30,8 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, userDataLoaded, navigate]);
 
-  console.log("🔍 Page Loaded:", window.location.pathname);
-  console.log("Auth state => isAuthenticated:", isAuthenticated, "userDataLoaded:", userDataLoaded, "isLoading:", isLoading);
+  // console.log("🔍 Page Loaded:", window.location.pathname);
+  // console.log("Auth state => isAuthenticated:", isAuthenticated, "userDataLoaded:", userDataLoaded, "isLoading:", isLoading);
 
   // Early return after all hooks have been called
   if (!userDataLoaded) {

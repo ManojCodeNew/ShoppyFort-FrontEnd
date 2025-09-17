@@ -6,11 +6,11 @@ const ProtectedRoute = ({ children }) => {
     const { isAuthenticated, isLoading, userDataLoaded } = useAuth();
     const location = useLocation();
 
-    console.log("🔒 [ProtectedRoute] Auth:", {
-        isAuthenticated,
-        userDataLoaded
-    });
-    console.log("[ProtectedRoute] Location.pathname =>", window.location.pathname);
+    // console.log("🔒 [ProtectedRoute] Auth:", {
+    //     isAuthenticated,
+    //     userDataLoaded
+    // });
+    // console.log("[ProtectedRoute] Location.pathname =>", window.location.pathname);
 
     // Show loading while checking authentication
     if (!userDataLoaded) {

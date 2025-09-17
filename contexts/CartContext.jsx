@@ -112,7 +112,7 @@ export const CartProvider = ({ children }) => {
 
     // Add item to cart
     const addItem = useCallback(async (product, selections = {}) => {
-        console.log("add cart item token", token);
+        // console.log("add cart item token", token);
 
         try {
             if (!user) {

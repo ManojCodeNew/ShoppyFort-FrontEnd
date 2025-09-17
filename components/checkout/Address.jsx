@@ -187,7 +187,7 @@ export default function Address() {
 
     try {
       const response = await sendGetRequestToBackend('checkout/Address', token);
-      console.log('Address API Response:', response); // Debug log
+      // console.log('Address API Response:', response); // Debug log
 
       if (response?.success) {
         // Handle both response.address and response.addresses for API consistency
@@ -316,14 +316,14 @@ export default function Address() {
 
     setIsSubmitting(true);
     setLoading(true);
-    console.log("Address Data:", addressData);
+    // console.log("Address Data:", addressData);
     try {
       const response = await sendPostRequestToBackend(
         'checkout/addAddress',
         addressData,
         token
       );
-      console.log("Address Response:", response, token);
+      // console.log("Address Response:", response, token);
       if (response?.success) {
         showNotification('Address added successfully', 'success');
         await fetchAddress(); // Refresh the address list
@@ -437,9 +437,9 @@ export default function Address() {
         },
         isPaid: false
       };
-      console.log("Order Data:", orderData);
+      // console.log("Order Data:", orderData);
       const response = await sendPostRequestToBackend('order/addOrder', orderData, token);
-      console.log("Order Response:", response);
+      // console.log("Order Response:", response);
       if (!response.success) {
         throw new Error(response.error || "Failed to place order");
       }

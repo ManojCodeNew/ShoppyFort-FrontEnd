@@ -19,8 +19,8 @@ export default function PasswordResetFlow() {
         }
     }, [isAuthenticated, userDataLoaded, navigate]);
 
-    console.log("🔍 [PasswordResetFlow] Page Loaded:", window.location.pathname);
-    console.log("🔍 [PasswordResetFlow] Auth state =>", { isAuthenticated, userDataLoaded, isLoading });
+    // console.log("🔍 [PasswordResetFlow] Page Loaded:", window.location.pathname);
+    // console.log("🔍 [PasswordResetFlow] Auth state =>", { isAuthenticated, userDataLoaded, isLoading });
 
     // Early return after all hooks have been called
     if (!userDataLoaded) {

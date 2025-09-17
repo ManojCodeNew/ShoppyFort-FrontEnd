@@ -46,10 +46,43 @@ function AdminOffersProvider({ children }) {
         getOffers();
     }, [getOffers]);
 
+    const updateOffer = useCallback(async (offerId, offerData) => {
+        try {
+            console.log("Updated offers :",offerData);
+            
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/offers/update-offer`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ offerId, ...offerData }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                showNotification(data.success, "success");
+                setOffers(prevOffers => 
+                    prevOffers.map(offer => 
+                        offer._id === offerId ? data.offer : offer
+                    )
+                );
+                return { success: true };
+            } else {
+                showNotification(data.error, "error");
+                return { success: false };
+            }
+        } catch (error) {
+            console.error("Error updating offer:", error);
+            showNotification("Failed to update offer.", "error");
+            return { success: false };
+        }
+    }, [token]);
+
     const value = {
         offers,
         getOffers,
         deleteOffer,
+        updateOffer,
     };
 
     return (

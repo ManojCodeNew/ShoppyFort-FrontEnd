@@ -16,7 +16,7 @@ const AddressDisplay = ({ addressList = [], toggleAddressForm }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { showNotification } = useNotification();
-    console.log("Address", addressList);
+    // console.log("Address", addressList);
 
     // Access Token
 

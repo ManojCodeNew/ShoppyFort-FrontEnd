@@ -103,10 +103,10 @@ const PaymentForm = () => {
                         },
                         zipCode,
                     };
-                    console.log("Online Payment :", orderData);
+                    // console.log("Online Payment :", orderData);
 
                     const orderResponse = await sendPostRequestToBackend('order/addOrder', orderData, token);
-                    console.log("Online Payment Respone :", orderResponse);
+                    // console.log("Online Payment Respone :", orderResponse);
 
                     if (orderResponse.success) {
                         clearCart();

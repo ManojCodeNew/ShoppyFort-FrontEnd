@@ -1,7 +1,6 @@
 import React from 'react';
 import '../styles/pages/home.scss';
 import Hero from '../components/Hero';
-import Add from '@/components/Add';
 // import { useAuth } from '@/contexts/AuthContext';
 import AllProductShow from '@/components/AllProductShow';
 import SearchBarMobile from '@/components/SearchBarMobile';
